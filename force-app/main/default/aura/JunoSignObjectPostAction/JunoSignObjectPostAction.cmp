@@ -1,0 +1,123 @@
+<aura:component controller="JunoSignObjectPostActionsController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="ObjectAPIName" type="string" />
+    <aura:attribute name="fieldOptions" type="List" />
+    <aura:attribute name="selectedField" type="String" />
+    <aura:attribute name="showPostActions" type="boolean" default="false" />
+    <aura:attribute name="iscurrency" type="boolean" default="false" /> 
+    <aura:attribute name="isdate" type="boolean" default="false" /> 
+    <aura:attribute name="isPicklist" type="boolean" default="false" />
+    <aura:attribute name="isboolean" type="boolean" default="false" />
+    <aura:attribute name="isReference" type="boolean" default="false" />
+    <aura:attribute name="index" type="string"  />
+    <aura:attribute name="rows" type="List" default="[]" />
+    <aura:attribute name="selectedLookUpRecord" type="sObject" default="{}"/>
+    <aura:registerEvent name="rowsUpdated" type="c:RowsUpdated" />
+    <aura:registerEvent name="passInsertedIds" type="c:passInsertedIdsEvt" />
+    <aura:method name="childMethod" action="{!c.sendDataToParent}">
+    </aura:method> 
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:if isTrue="{!v.showPostActions}">
+        <!-- <div class="slds-text-align_center slds-m-top_medium">
+            <lightning:button label="Add Row" onclick="{!c.addRow}" />
+        </div>-->
+        <lightning:layout verticalAlign="center" class="x-large">
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                
+                <!--<div class="slds-box slds-m-around_medium">-->
+                <div class="slds-card__header slds-grid" >
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                        <div class="slds-media__body" >
+                            <h2 class="slds-card__header-title" >
+                                <span class="slds-text-heading_small slds-truncate" >
+                                    JunoSign Object Post Actions
+                                </span>
+                            </h2>
+                        </div>
+                        
+                    </header>
+                </div>
+                <div class="slds-text-align_right slds-m-top_medium">
+                    <lightning:button label="Add Row" onclick="{!c.addRow}" />
+                </div>
+                <br></br>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Field Name*</th>
+                            <th>Value*</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.rows}" var="row" indexVar="index">
+                            <tr>
+                                <td>{!index + 1}</td>
+                                <td>
+                                    
+                                    
+                                    <lightning:combobox name="fieldSelect" onchange="{!c.handlePostField}" title="{!index}" value="{!row.fieldName}"
+                                                        options="{!v.fieldOptions}"
+                                                        placeholder="Select a field" style ="margin-bottom: 1rem;" />
+                                    
+                                </td>
+                                <td>
+                                    <aura:if isTrue="{!row.isReference}">
+                                        <c:customLookup objectAPIName="{!row.objectName}" IconName="standard:account" selectedRecord="{!row.fieldValue}"/>
+                                        <aura:set attribute="else">
+                                            <aura:if isTrue="{!row.isPicklist}">
+                                                <aura:if isTrue="{!row.fieldType == 'picklist'}">
+                                                    <lightning:combobox options="{!row.picklistvalues}" placeholder="Select a pickList Values" onchange="{!c.handlePicklistValues}" value="{!row.fieldValue}"  title="{!index}" style ="margin-bottom: 1rem;"/>
+                                                </aura:if>  
+                                                <aura:set attribute="else">
+                                                    <aura:if isTrue="{!row.iscurrency}">
+                                                        <lightning:input aura:id="fieldValue" type="number"  value="{!row.fieldValue}" style ="margin-bottom: 1rem;"/>
+                                                        <aura:set attribute="else">
+                                                            <aura:if isTrue="{!row.isboolean}">
+                                                                <lightning:combobox options="{!row.booleanvalues}" value="{!row.fieldValue}" placeholder="Select a pickList Values" onchange="{!c.handlebooleanValues}" style ="margin-bottom: 1rem;" title="{!index}"  />
+                                                                <aura:set attribute="else">
+                                                                    <aura:if isTrue="{!row.isstring}">
+                                                                        <lightning:input aura:id="fieldValue" type="Text"  value="{!row.fieldValue}" style ="margin-bottom: 1rem;"/>
+                                                                        <aura:set attribute="else">
+                                                                            <aura:if isTrue="{!row.isdate}">
+                                                                                <aura:if isTrue="{!OR(row.fieldValue == 'today', row.fieldValue == 'yesterday')}">
+                                                                                    <lightning:input aura:id="fieldValue" type="text" value="{!row.fieldValue}" style ="margin-bottom: 1rem;"/>
+                                                                                    <aura:set attribute="else">
+                                                                                        <p style="font-size: 12px ;margin-bottom: -1rem;">  <span style="color: red; font-weight: bold">Note:</span><span style="font-weight: bold">Date Format Should be in YYYY-MM-DD</span></p>
+                                                                                        <lightning:input aura:id="fieldValue" type="text"  value="{!row.fieldValue}" style ="margin-bottom: 1rem;"/>
+                                                                                    </aura:set>
+                                                                                </aura:if>
+                                                                                
+                                                                                <aura:set attribute="else">
+                                                                                    <lightning:input aura:id="fieldValue" type="{!row.fieldType}" value="{!row.fieldValue}" style ="margin-bottom: 1rem;"/>
+                                                                                </aura:set>
+                                                                            </aura:if> 
+                                                                        </aura:set> 
+                                                                    </aura:if> 
+                                                                </aura:set> 
+                                                            </aura:if> 
+                                                        </aura:set>
+                                                    </aura:if>   
+                                                </aura:set>    
+                                            </aura:if>
+                                        </aura:set>
+                                    </aura:if>
+                                </td>
+                                <td>
+                                    <lightning:buttonIcon iconName="utility:delete" alternativeText="Delete" name="{!index}" onclick="{!c.deleteRow}" />
+                                    <!-- <lightning:buttonIcon iconName="utility:delete" alternativeText="Delete" onclick="{!c.deleteRow}" />-->
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+                
+            </lightning:layoutItem>
+        </lightning:layout>
+        <!-- <lightning:button label="Console" onclick="{!c.sendDataToParent}" /> -->
+        
+    </aura:if>  
+</aura:component>

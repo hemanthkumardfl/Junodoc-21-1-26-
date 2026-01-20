@@ -1,0 +1,6 @@
+@media (min-width: 58em) {
+  .THIS .slds_modal__container {
+    max-width : 55rem;
+    width : 100%;
+  }
+}

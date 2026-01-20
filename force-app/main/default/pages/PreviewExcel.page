@@ -1,0 +1,42 @@
+<apex:page contentType="application/vnd.ms-excel#ContactSheet.xls" action="{!methodthree}" Controller="PreviewTemplatePDF_AC" applyBodyTag="false" showHeader="false" sidebar="false" applyHtmlTag="false" readOnly="true">
+    <!-- contentType="application/vnd.ms-excel#ContactSheet.xls"-->
+  	<html>
+		<head> 
+        	<style>
+            	td{
+                    word-wrap: break-word !important;
+                    white-space: normal !important;
+                	height:max-content !important;
+                }
+                div{
+                    word-wrap: break-word !important;
+                    white-space: normal !important;
+                	height:max-content !important;
+                }
+                
+                		
+            </style>
+            <script>
+            		 function loadwordScrip1t(){
+                        var html = document.getElementById('htmlContentToWord').innerHTML;  
+                         alert(JSON.stringify(html))
+                        var excelData = "data:application/vnd.ms-excel," + encodeURIComponent(html);
+                        // Download the xlsx file.
+                        let a = document.createElement("A");
+                        a.setAttribute("href", excelData);
+                        a.setAttribute("download", "filename.xls");
+                        document.body.appendChild(a);
+                        a.click();
+                         
+                     }
+            </script>
+        </head>
+     	<body>   
+          <!-- 	<div id="htmlContentToWord">  style="visibility:hidden;" -->
+             	<apex:outputtext value="{!output}" escape="false" />     
+          <!--  </div>
+            <apex:outputtext value="{!loadstring}" escape="false" /> -->
+     		
+      	</body>
+	</html>   
+</apex:page>

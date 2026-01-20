@@ -1,0 +1,21 @@
+<apex:page Controller="PreviewPDF_Controller">
+      <html>
+          <head>
+             
+          </head>
+          
+     <body> 
+        <div class="header">
+              <apex:dynamicComponent componentValue="{!headerLists}" />
+           </div>
+         <div class="footer">
+                <apex:dynamicComponent componentValue="{!FooterLists}" />
+             	
+               
+          </div>
+        <div class="content" >
+            <apex:dynamicComponent componentValue="{!ClassroomRelatedLists}" />      
+         </div>
+      </body>
+    </html>   
+</apex:page>

@@ -1,0 +1,1426 @@
+<apex:page controller="JunoUsersignContrl" action="{!updateStatus}" applyBodyTag="false" sidebar="false" showHeader="false" title="Object Selector"  >
+    <apex:slds />
+    <html>
+        <head>
+            
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <apex:stylesheet value="{!$Resource.main_preparesend}" />
+            <apex:stylesheet value="{!$Resource.pixie_preparesend}" />
+            <apex:stylesheet value="{!$Resource.main_usersend}" />
+            <apex:stylesheet value="{!$Resource.JunoSignResponsiveCss}" />
+            <apex:stylesheet value="{!$Resource.Juno_ScrollTopIcon_CSS}" />
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
+            <link href="//mozilla.github.io/pdf.js/web/viewer.css" rel="stylesheet" type="text/css" />
+            <style>
+                @font-face {
+                font-family: 'Raleway';
+                src: url('../fonts/raleway_thin-webfont.eot');
+                src: url('../fonts/raleway_thin-webfont.eot?#iefix') format('embedded-opentype'), 
+                url('../fonts/raleway_thin-webfont.woff') format('woff'), 
+                url('../fonts/raleway_thin-webfont.ttf') format('truetype'), 
+                url('../fonts/raleway_thin-webfont.svg#webfontnF3kUzPR') format('svg');
+                font-style: normal;
+                }
+                #signModalPopup{
+                display:none;
+                }
+                
+                .editable:empty::before {
+                color: black;
+                font-weight: 600;
+                }                 
+                .editable:empty:before {
+                content: attr(data-placeholder);
+                }
+                
+                .custom-loading-text {
+                transform: rotate(-90deg);
+                position: absolute;
+                top: -0.5rem;
+                left: 1rem;
+                white-space: nowrap;
+                font-size: 20px;
+                }
+                
+                .RejectButton {
+                	display: {!IF( Enablesignaturerejection, 'block', 'none')}; 
+                }
+                
+            </style>
+            
+            <script>
+            /*window.onscroll = function(ev) {
+                if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+                    document.getElementById('gotoTopEle').classList.add('zoom-in-zoom-out');
+                }else if(document.getElementById('gotoTopEle').classList.contains('zoom-in-zoom-out')){
+                     document.getElementById('gotoTopEle').classList.remove('zoom-in-zoom-out');
+                   
+                }
+            };*/
+            window.addEventListener('load', (event) => {
+                debugger;
+                if('{!isInPerson}' == 'true'){
+                var url = location.href;
+                var splittedUrl = url.split('&')
+                var domainName = '';
+                if('{!domainName}'){
+                window.open('https://'+'{!domainName}'+'.lightning.force.com/'+'{!conid}','_top');
+            }
+                window.open(window.location.href.replace('isInPerson=true','isInPerson=false'), '_blank');
+            }
+            });
+                
+                
+                <apex:includeScript value="{!$Resource.SigJuerymin_js}" />
+                <apex:includeScript value="{!$Resource.SigJueryuimin_js}" />   
+                <apex:includeScript value="{!$Resource.prepareandsend_bootstrapminJs}" />
+                <apex:includeScript value="{!$Resource.prepareandsend_bootstrapModal}" />
+                <apex:includeScript value="{!$Resource.prepareandsend_jQuery12}" />   
+                <apex:includeScript value="{!$Resource.prepareandsend_jQueryUI13}" />
+                
+                <apex:includeScript value="{!$Resource.JunoDomToImage}" />
+                <apex:includeScript value="{!$Resource.prepareandsend_PdfJs}" />
+                <apex:includeScript value="{!$Resource.Juno_ScrollTopIcon_JS}" />
+                // <apex:includeScript value="{!$Resource.JunoUserJsPdf}" /> 
+                function addScript(url) {
+                var script = document.createElement('script');
+                script.type = 'application/javascript';
+                script.src = url;
+                document.head.appendChild(script);
+            }
+                                    addScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.0/html2canvas.min.js');
+            addScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js');
+            addScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+            
+            
+            /*function downloadPDF(docUrls){
+                if(docUrls){
+                    for(i=0;i<JSON.parse(docUrls).length;i++){
+                        window.open(JSON.parse(docUrls)[i]);
+                    }
+                }else{
+                	alert("No Attachments to download")
+                }*/
+            
+            
+            //alert('url----------->'+url);
+            /*var baseURL = url.substring(0, url.indexOf('/', 14));
+                var dataurl=baseURL+'/sfc/servlet.shepherd/version/download/'+documentid+'?asPdf=false&operationContext=CHATTER';
+                window.open(dataurl);*/
+            //alert('*************'+dataurl);
+            //}
+            </script>
+            
+        </head>
+        <apex:form id="FormId">
+            
+            
+            
+            <apex:actionFunction name="createDocumentRecords" action="{!createDocs}" oncomplete="onInsertHandler()" reRender="FormId" status="status">
+                <apex:param name="docList" assignTo="{!docList}" value=""/>
+                <apex:param name="textContentList" assignTo="{!textContentList}" value=""/>
+                <apex:param name="initialList" assignTo="{!initialList}" value=""/>
+                <apex:param name="dateContentList" assignTo="{!dateContentList}" value=""/>
+                <apex:param name="attachmentListTableHtml" assignTo="{!attachmentListTableHtml}" value=""/>
+                <apex:param name="attachmentInitialStr" assignTo="{!attachmentInitialStr}" value=""/>
+                
+            </apex:actionFunction> 
+            
+            <apex:actionFunction name="getPdfBolbDate" action="{!getPdfBlob}" oncomplete="onresponseBlobHandler()" reRender="FormId" status="status">
+                
+            </apex:actionFunction> 
+            
+            <apex:actionFunction name="rejectStatus" action="{!rejectStatus}"  oncomplete="rejectCompleted()" reRender="FormId" status="status">
+                
+            </apex:actionFunction> 
+            
+            <apex:actionFunction name="SavePDF" action="{!Reference}" oncomplete="onCompleteHandler()" reRender="FormId" status="status">
+                <apex:param name="signNotCompletedIds" assignTo="{!signNotCompletedIds}" value=""/> 
+            </apex:actionFunction>  
+            
+            <apex:actionFunction name="deleteDocTemplateRecord" action="{!deleteDocTemplate}" oncomplete="ondeleteDocs()" >
+                
+            </apex:actionFunction> 
+            <apex:actionFunction name="deleteDocRecords" action="{!deleteDocument}" oncomplete="onCompleteDeleteHandler()">
+                
+            </apex:actionFunction>  
+            
+            <apex:pageMessages id="showmsg"></apex:pageMessages>
+            <body>
+                
+                <div id="appln"  class="slds-scope" style="" ><!-- overflow-y:scroll;height:90%; -->
+                    <!-- <div style="color:red;">
+{!errorMessage}
+</div> -->
+                    <div class="headerDiv" style="z-index:1;background:#6564db;align-items: center;  justify-content: space-between;padding: 0.5rem;display:flex;position:relative;right:0.7rem;">
+                        <div style="color:#ffff;" class="imgDiv">
+                            <img src="{!$Resource.JunoSign}" style="width:25%;"/>
+                            <!-- <span>JunoSign</span> -->
+                        </div>
+                        <div style="display:flex;" class="headerBtns">
+                            <button id="goToPad" class="btn" style="background:#ffc820;margin-right: 0.5rem;"> <!-- margin-left: auto;margin-right: 0;-->
+                                Go To Sign
+                            </button>
+                            <button id="compleSign" class="btn" style="background:#ffc820;margin-right: 0.5rem;"  onclick="generatePDF()" disabled="true"> <!-- ()) margin-left: auto;margin-right: 0;-->
+                                Complete Signature
+                            </button>
+                            <!--<button id="downloadsign" class="btn" style="background:#ffc820;margin-right: 0.5rem;"  onclick="downloadPDF('{!downloadURLs}')" > 
+Download Additional Attachments
+</button>-->
+                             <button class="RejectButton" id="rejectBtn" style="background:#ffc820;"  onclick="rejectPDF()"  > 
+                                 Reject
+                            </button> 
+                        </div>
+                        
+                    </div>
+                    <div class="row slds-scope" id="templateContainer" > <!--style="margin-top: 2rem;"-->
+                        <apex:actionStatus id="status">
+                            <apex:facet name="start"> 
+                                <div class="demo-only demo-only" style="height:100%;background-color:#d0d0d0;width:100%;opacity: 1.7;"><!-- position:fixed;-->
+                                    <div class="slds-spinner_container ">
+                                        <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_inverse" style="text-align:center;margin-top:10px">
+                                            <img src="/img/loading.gif" style=" margin: 8px;" />  
+                                            <span style="display: inline-block; padding: 10px 0px;" class="custom-loading-text">Please Wait...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:facet>
+                        </apex:actionStatus> 
+                        <div style="" class="dataContentcls">
+                            <div class="content-area p-2" style="width:fit-content;">
+                                <!-- div class="slds-icon_container slds-icon-utility-arrowup nextIcon" style="background:#222222;padding:0.5rem;height:1.1rem;z-index: 1111;position: absolute;left: -0.7rem;border: 1px solid;background: black;cursor: pointer;padding: 0.2rem 0.2rem;height: 2rem;transform: rotate(180deg);" onclick="nextItemScroll()">
+                                    <svg aria-hidden="true" class="slds-icon slds-icon-text-default" style="height:1.5rem;width:1.5rem;fill:white;"><use xlink:href="/apexpages/slds/latest/assets/icons/utility-sprite/svg/symbols.svg#chevronup" xmlns:xlink=" http://www.w3.org/1999/xlink">
+                                        </use></svg>
+                                </div -->
+                                <div class="dropclass" id="drop" >
+                                    <div id="pdfViewer" style="text-align: center;" droppable="true">
+                                        
+                                    </div>
+                                    <!-- attachment List -->
+                                    <div id="attachmentListTable" style="background: white;
+                                                                            padding: 1rem;
+                                                                         	position: relative;
+                                                                            overflow-y: scroll;
+                                                                            height: 50rem;
+                                                                            border: 1px solid black;
+                                                                            display:none;">
+                                        
+                                        
+                                      <div class="bottom-page-number" style="font-size: 1px; top: 20px;"></div>
+
+                                        
+                                        <table class="order-list table-drag table-element item_element ui-draggable ui-draggable-handle element_item" data-title="Table Element" style="height: auto; width: 590px; font-family: sans-serif;  cursor: grab; overflow: hidden; box-sizing: border-box; border-spacing: 0px; text-align: left; font-size: 12px; border-collapse: collapse; position: relative; inset: 10px auto auto 10px; background: white; min-height: auto; break-after: page; break-inside: auto;" id="11">
+                                            <tbody style="box-sizing: border-box;">
+                                                <tr class="hover-row" style="background-color:#ffffff;box-sizing: border-box;">
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; border: 1px solid rgb(187, 187, 187); height: auto;  font-weight: 400; box-sizing: border-box; padding: 3px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;">S.No</div>
+                                                    </td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; border: 1px solid rgb(187, 187, 187); height: auto; font-weight: 400; box-sizing: border-box; padding: 3px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;">Attachment Name</div>
+                                                    </td>
+                                                </tr>
+                                                <apex:variable var="count" value="{!1}"   /> 
+                                                <apex:repeat value="{!attachedContentDocumentList}" var="attach">
+                                                    <tr class="hover-row" style="background-color:#ffffff;box-sizing: border-box;">
+                                                        <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; border: 1px solid rgb(187, 187, 187); height: auto; font-weight: 400; box-sizing: border-box; padding: 3px;">
+                                                            <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;">
+                                                                {!count}
+                                                            </div>
+                                                            <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div>
+                                                            <div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div>
+                                                        </td>
+                                                        <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; border: 1px solid rgb(187, 187, 187); height: auto; font-weight: 400; box-sizing: border-box; padding: 3px;">
+                                                            <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;">
+                                                                {!attach.Title}
+                                                            </div>
+                                                            <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div>
+                                                            <div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div>
+                                                        </td>
+                                                    </tr>
+                                                     <apex:variable value="{!count+1}" var="count"/>
+                                                </apex:repeat>
+                                                
+                                               
+                                            </tbody>
+                                        </table>
+                                        
+                                        <table class="order-list table-drag table-element item_element ui-draggable ui-draggable-handle element_item" data-title="Table Element" style="height: auto; width: 600px; font-family: sans-serif; cursor: grab; overflow: hidden; box-sizing: border-box; border-spacing: 0px; text-align: left; font-size: 12px; border-collapse: collapse; position: relative; inset: 60px auto auto 10.8333px; background-color: rgb(255, 255, 255); min-height: auto; break-after: page; break-inside: auto;" id="8">
+                                            
+                                            <tbody style="box-sizing: border-box;">
+                                                <tr class="hover-row" style="background-color:#ffffff;box-sizing: border-box;">
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 101px; font-weight: bold; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;">Customer Initial</div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label"  id="attachmentInitial" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 41px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 110px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                </tr>
+                                                <tr class="hover-row" style="background-color:#ffffff;box-sizing: border-box;">
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto; width: 101px; font-weight: bold; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;">Signature</div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto;  font-weight: 400; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" id="attachmentSignature" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                     <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 41px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 110px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                </tr>
+                                                
+                                                <tr class="hover-row" style="background-color:#ffffff;box-sizing: border-box;">
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto; width: 101px; font-weight: bold; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto;  font-weight: 400; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                     <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 41px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 110px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                </tr>
+                                                <tr class="hover-row" style="background-color:#ffffff;box-sizing: border-box;">
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto; width: 101px; font-weight: bold; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto;  font-weight: 400; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                     <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 41px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 110px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                </tr>
+                                                <tr class="hover-row" style="background-color:#ffffff;box-sizing: border-box;">
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto; width: 101px; font-weight: bold; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: auto;  font-weight: 400; box-sizing: border-box; padding: 12px; ">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                     <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 41px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                    <td class="item-label ui-resizable" data-title="Td Element" style="overflow-wrap: break-word; border-collapse: collapse; height: 38px; width: 110px; font-weight: 400; box-sizing: border-box; padding: 12px;">
+                                                        <div class="td-label" style="display: inline-block;box-sizing: border-box;width: inherit;"></div>
+                                                        <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    
+                                </div>
+                                <!-- sign modal popup -->
+                                <div id="divEditProperties" class="edit-box" style="display: none">
+                                    <ul role="presentation" class="signature-tab-menu-list list-no-style context-menu-list" id="signature-tab-menu-list-932520ef-570b-4332-b355-3358d2a377d8">
+                                        <li role="presentation">
+                                            <button role="menuitem" type="button" class="changeDateFormat edit-date-prop"  tabindex="0">Change Date Format</button>
+                                        </li>
+                                        <li role="presentation">
+                                            <button role="menuitem" type="button" class="editDate edit-date-propEdit"  style="color:#d13239">Edit</button>
+                                        </li>
+                                    </ul>
+                                    <!-- MM/DD/YY-->
+                                    <div class="edit-date-box floating-menu datePropDropDown" style="display: none;">
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="MM/DD/YY">MM/DD/YY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="DD/MM/YY">DD/MM/YY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="MM/DD/YYYY">MM/DD/YYYY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="DD/MM/YYYY">DD/MM/YYYY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="YYYY/MM/DD">YYYY/MM/DD</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="DD-MM-YY">DD-MM-YY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="MM-DD-YY">MM-DD-YY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="DD-MMM-YYYY">DD-MMM-YYYY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="DD MMMM YYYY">DD MMMM YYYY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="dddd, DD MMM YYYY">dddd, DD MMM YYYY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="DD.MM.YY">DD.MM.YY</a>
+                                        <a href="javascript:void(0);" style="display: block" class="date-prop" data-format="DD.MM.YYYY">DD.MM.YYYY</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal -->
+                        <div id="signModalPopup">
+                            
+                            <div role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open slds-modal--medium">
+                                <div class="modal-container slds-modal__container">
+                                    <!-- Modal Header -->
+                                    <div class="slds-modal__header">
+                                        <button class="slds-button slds-modal__close slds-button--icon-inverse" title="Close" onclick="hideModal()">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <h2 id="header43" class="slds-text-heading--medium">Your Signature</h2>
+                                    </div>
+                                    <!-- / Modal Header -->
+                                    <!-- Modal Content -->
+                                    <div class="slds-modal__content slds-p-around--medium">
+                                        <ul class="nav nav-tabs">
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="javascript:void(0);">Text</a> <!-- active -->
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="javascript:void(0);">Draw</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div id="custom_text" class="tab-pane ">
+                                                
+                                                <div class="row txt-row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            
+                                                            <!-- <input type="text" class="form-control sign-text"> -->
+                                                            <label><strong>Font-Family:</strong></label>
+                                                            <select class="form-select fontstyleDropdown">
+                                                                <option value="Apple Chancery, cursive"
+                                                                        style="font-family: Apple Chancery, cursive;">Apple Chancery,
+                                                                    cursive
+                                                                </option>
+                                                                <option value="Brush Script MT, Brush Script Std, cursive"
+                                                                        style="font-family:Brush Script MT, Brush Script Std, cursive;">
+                                                                    Brush
+                                                                    Script
+                                                                    MT, Brush Script Std, cursive</option>
+                                                                <option value="URW Chancery L, cursive"
+                                                                        style="font-family:URW Chancery L, cursive;">URW Chancery L, cursive
+                                                                </option>
+                                                                <option value="Axure Handwriting"
+                                                                        style="font-family: Axure Handwriting;">
+                                                                    Axure
+                                                                    Handwriting
+                                                                </option>
+                                                                <option value="Book Antiqua" style="font-family: Book Antiqua;">Book
+                                                                    Antiqua
+                                                                </option>
+                                                                <option value="Blackadder ITC" style="font-family: Blackadder ITC;">
+                                                                    Blackadder
+                                                                    ITC</option>
+                                                                <option value="Brush Script MT" style="font-family: Brush Script MT;">
+                                                                    Brush
+                                                                    Script MT
+                                                                </option>
+                                                                <option value="Chiller" style="font-family: Chiller;">Chiller</option>
+                                                                <option value="Edwardian Script ITC"
+                                                                        style="font-family: Edwardian Script ITC;">
+                                                                    Edwardian
+                                                                    Script ITC</option>
+                                                                <option value="Freestyle Script" style="font-family: Freestyle Script;">
+                                                                    Freestyle Script
+                                                                </option>
+                                                                <option value="French Script MT" style="font-family: French Script MT;">
+                                                                    French
+                                                                    Script MT
+                                                                </option>
+                                                                <option value="Mistral" style="font-family: Mistral;">Mistral</option>
+                                                                
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label><strong>Font Size:</strong></label>
+                                                            <select class="form-select fontsizeDropdown">
+                                                                <option value="8px">8</option>
+                                                                <option value="9px">9</option>
+                                                                <option value="10px">10</option>
+                                                                <option value="11px">11</option>
+                                                                <option value="12px">12</option>
+                                                                <option value="14px">14</option>
+                                                                <option value="16px">16</option>
+                                                                <option value="18px">18</option>
+                                                                <option value="20px">20</option>
+                                                                <option value="22px">22</option>
+                                                                <option value="24px">24</option>
+                                                                <option value="26px" selected="true">26</option>
+                                                                <option value="28px">28</option>
+                                                                <option value="36px">36</option>
+                                                                <option value="40px">40</option>
+                                                                <option value="48px">48</option>
+                                                                <option value="72px">72</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row txt-row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group" style="position:relative;">
+                                                            <label><strong>Your Text:</strong></label>
+                                                            <button class="clearText">Clear</button>
+                                                            <input type="text" class="form-control sign-text" id="signtext"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <!-- <textarea type="text" class="form-control"></textarea> -->
+                                                            <table class="table">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td class="">
+                                                                            <div class="typed-text-block">
+                                                                                <span style="font-family: 'Apple Chancery', cursive; font-size: 40px;"></span>
+                                                                            </div>
+                                                                            <div style="display: none;">
+                                                                                <div class="typed-text-image"></div>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> <!-- in active -->
+                                            <div id="custom_draw" class="tab-pane ">
+                                                <div class="box" style="height: 150px;">
+                                                    <div id="signature-pad">
+                                                        <div id="signature"></div>
+                                                        <canvas id="sketchpad" style="position: absolute;" width="500" ></canvas>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-grid slds-gutters sign-controls">
+                                                    <div class="slds-col controls-color">
+                                                        <span>
+                                                            <label for="favcolor"></label>
+                                                            <input type="color" id="favcolor" name="favcolor" class="sign-color" />
+                                                        </span>
+                                                    </div>
+                                                    <div class="slds-col controls-edit sign-undo" id="undoBtn"  style="font-size:24px;text-align:right;">
+                                                        <span><i aria-hidden="true" class="fa fa-undo" onclick="erase()"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div> <!-- fade -->
+                                            <canvas id="signature-pad-hidden" class="signature-pad" style="display: none;"></canvas>
+                                        </div>
+                                    </div>
+                                    <!-- / Modal Content -->
+                                    <!-- Modal Footer -->
+                                    <div class="slds-modal__footer">
+                                        <button class="slds-button slds-button--neutral" onclick="hideModal()">Cancel</button>
+                                        <button class="slds-button slds-button--brand" id="UseBtn">Use</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- / Modal -->
+                            <div class="slds-backdrop slds-backdrop--open"></div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- go to top -->
+                <div style="position:relative;">
+                    <div class="progress-wrap">
+                        <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+                            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+                        </svg>
+                        <div class="slds-icon_container slds-icon-utility-arrowup lightScrollIcon" >
+                            <svg aria-hidden="true" class="slds-icon slds-icon-text-default" style="height:1.5rem;width:1.5rem;fill:black;">
+                                <use xmlns:xlink=" http://www.w3.org/1999/xlink"
+                                     xlink:href="/apexpages/slds/latest/assets/icons/utility-sprite/svg/symbols.svg#arrowup">
+                                </use>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            
+        </apex:form>
+        <script>
+        <apex:includeScript value="{!$Resource.prepareandsend_PdfJs}" />
+            <apex:includeScript value="{!$Resource.prepareandSendUser_script}" />
+                </script>
+        <script>    
+        $( document ).ready(function() {
+            base64toPDFs();  
+            console.log('{!JSENCODE(recipientName)}')
+            addSignatureCustomEvent('{!JSENCODE(recipientName)}');
+            MakeContainerResponsive();
+        });
+        var closeTab = function(event){
+            event.preventDefault() 
+            event.stopPropagation()
+            console.log('close')
+            window.close()
+            
+        };
+        var BASE64_MARKER = ';base64,';
+        function gotoPadEle(){
+            
+            var padEle = document.getElementById("goToPad")
+            
+            if(padEle){
+                padEle.addEventListener("click",function(eve){
+                    console.log(eve)
+                    eve.preventDefault();
+                    var dropDiv= document.getElementById("drop")
+                    if(dropDiv.querySelectorAll('.listitem.signList').length){
+                        let signElements = dropDiv.querySelectorAll('.listitem.signList');
+                        for(let i=0;i<signElements.length;i++){
+                        	if(dropDiv.querySelectorAll('.listitem.signList')[i].children[0].className == 'signaturedragfield'){
+                                dropDiv.querySelectorAll('.listitem.signList')[i].scrollIntoView();
+                                break;
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        function convertDataURIToBinary(dataURI) {
+            var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+            var base64 = dataURI.substring(base64Index);
+            var raw = window.atob(base64);
+            var rawLength = raw.length;
+            var array = new Uint8Array(new ArrayBuffer(rawLength));
+            
+            for(var i = 0; i < rawLength; i++) {
+                array[i] = raw.charCodeAt(i);
+            }
+            return array;
+        }
+        function base64toPDFs(){
+            $('.droppedElement').remove();
+            if(!$('#Nav_fields').hasClass('draggables')) {
+                $('#Nav_fields').addClass('draggables');
+            }
+            var link = document.createElement('a');
+            //  link.href = 'data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKNSAwIG9iaiA8PC9GaWx0ZXIvRmxhdGVEZWNvZGUvTGVuZ3RoIDI2MDI+PnN0cmVhbQp4nOVbbY/bxhH+rl+xRVsgKVwel8tdLvtNZ5+TC3yXOFZbBE0/yBLPp4CSLpLOzv2b/tTu2+zLiKQEhAUE1AZ8fuiZZ152dnd2Sf86uZ5NclLnRSZrMltObmaT95NfJ3mWs4qTL5OCfKf+/ZcJzcnd5F//zslyQsusNBq0IuuJ4DwrALYO5plSbq1k/Hcv9jj552SjiPXv3SftxNVbakVnDxNqnlNS5EpHyjpTT9eTr+jXs1+0g5To30qtqLKayKrMGFWe0MqIW9gCVByFVNDKpghEHycPI3LpyM5hEzSTzOun6Ngz++9rrHyGZyCqufTYpuMXj1EyeGhgz4/r/CxdljdpNRaE5llSjUxmpVTpLLOCmXr89mb6bvbth9fTe3J7N/3m9v4bV6CGgJE61hYyY4JIzrJSGO2CF5xcN21LftzOlwOavMgYJ7JkWS6N5t12c/i0XTe7l1dk+o4wQWk1ZJlmghLJikzURv+HR/LzV4yVP3+t/q34a1XlbEhdpVznUXlhtN/+lmrnrHDalzWcv9cbv8qUBTczjmtbasEzNA62AEtqoRNGEIT1FDxFxzLBTZVxZghERiOsGP6CKbAM4LJQq/ixT4YC7FiZ9SkdFKWjKNNAUs9TC90UqeenOY69xNkxEznjeS2J/kFr4X9GM1vGBV5Ks/nJslJFoCv89v4f39++vhmpqkMdUVPBjGWVzhenPMDWwapWAQkdmRFG0AubOhqTzqZN5pXUkUnK1VIB+EzXpUqLDNwpih3HCTGSa8Rylv9OVpOqEWDqF8E/nRlVLZKVulasIeWMw23Aaml23EbcQlOnqYqlCJStx7oyiogScEKifpgyAkMWB8ODJDgYjeNgAIMSJk1IwJPUs2PLnSQ4HJ+DiEThqlZidSD1OCbRA8vLkBOH24CHSHA4PgdRYmMlTGpIfu80H306XpxDuD9KuoRStSeCmR25tl3G7ebzdrVoyB8HeotSLeRSjZTyXO3cWis3v6gcafG9uFHxix9XDVVt2IXQO59tYSxsHdSu5GZ9McIIemG9/o1Kd2I3OMeWXitEHcgRjF3HKbGia0x0VgwgbLeEwQi4XUXz0piSuitxuA2YZQV4zVnAtv9JlKy/gbT1mLq2FORpONsFEr1Y6mSCJYuD5UESHA4vWBIOYFDCpAkJeJJ6dmy5kwSH43PgSQzWS6+oAqnHMYkeW7Xd+Jw43AY8RILD8TnwiWWJEiYdZVMYfVZenEODmwJXZwPdvqtNQdqj65v5oRk66nJjQvlsO3FaXDF6VeT+fHtx8Y+2H1jTwthaT4rabEXCmXYwdzuTlU0RiPobo1G4TuwE5xgqRcb8xRZCsdMoE1ZwfcRy2nsQHe2+a7RMXpY3g1OXFZqM22thNROvV2272nwi0+Vy1+z3A3PYajJ/z/V2vl61L+SuWa4Wq01Dtg9k9rxfzNvtdj8/yVP4Wy/KCk7uFm/nu3a+WZLr9vPyFfnwvDo0pMjLk0TUX3/db3eHxyf1xyt9ecbLSox5f3UxxRKO2UKvW6IyttSaV0awBViWGTfnR9EFQdjcO4xJd+reIbXFhcxqGvQBizyjdaBHMHY+ZejzHggwP7af3mbExte9usOZAenYV2BEzqFMY35s/9QliTDtjw7NHMTVQOhW1+E2YDhDg3xymk+UbA7UXyISi3mthjoiBZyQKMe5HiKwZHGwPEiCwymF6fa8J4BBCZM6T2L39QCkJB7D5QTIxzlJlewoBs9aj8EyyCeewEPICViCnODEdpLgcPqGOCQ2JU0SGzyJR+uYpCex6RD3haNqmcqIFHBCoh7WLKoTi9sY95PgcKAuQrFZDEqYNEkskKSjdTwanYnFQwx1EUhSyyCfeBI9NDmJEmlyghPbSYLD6RvikNiUdJzrtLF3mYtzaPg6TbKM6TEo45OT7p0+NLvPq0VyiMKnLqka4DrRfW7IiZNXWTOjVNZ9R6/O85pEWjm7oqXWGu0C79LqwLRqoqi1Cf31QwRbB3mt/iyhrUuRFz3vbOUN0YLqi1WvDli/pPZvQBEKph6Qvlro1CbFaJABDAyYH9s3nWDCoRcKod+QexnAwIFtYB9s0xNz+AH3CbYQGLAF7MHxudKJrvsCHBw7kI0TCnw9wXkGzI/txwkFzp7wPAe2gX2IEwqcKIMWegZsAXtwoou0t3s6/Wb7ofqjAQG4jTF1ZerEw8aR6thxEjTmsFh5VESUDiYU6lltTmLWjIVtBPsIUBj2etF74KBTSNmc/dhlWxqiDgQRpjIKKclDqqRJSj0kEYnFzjCIx35Ez2oepRISgVLZRYFD6RtRn8yE0XkRO26LWvJAEWHbYgX5uCeJlSwJTTmCWRCOvYie1TxKJ+QCpbOLAgfSN6w+nQmj9yLKJrRfwBBhKkNYSSZSndAnBo4iLkgQj72IntU8JBNSkSaziwCF0TeiUS5p5wQLhRlP2KOq6pxi6RTvKW29jpme1cl7HJPwWtovjqwdB1sPhyhQIGFpsCuNgV4DESYTLNRlPGePiqp7gqXTvKe0vV0nn/rhH7pc+AS6ZOCEdpLgYHrGNUppSppMs7g6w8w9qq6+aRZP9s4C91addOqFf+jy4ZPo8oGT2kmCQ+kZ3CipKWk82YAjnbxH87NjsuHpHq0QNfRUcV06+dQL/9DlA3Lo0oFS2kmBAukZ1ySjuDYuq3m/LG9OvInTL60EFVllb+XfP883h9XhZeAcWVTMdIpe502zX+xWT4fVdjN0/KQ0oyzW+xEdPY/Oq1VWxfLT9fZ5cxg4dlLKM3VIEjnN8jr5NLz7+1nVFcfCf2KvpORZng999arEq0Gtyxr98d4WlPo9BddvK8x1JY9gC7CAQ07ZBUHYHGnGpDv1tiC1xcsyKyJ9wKJyn8pZcQRj51OGPu+BAPNj++nbgtj4uldXraNSBOcQBOnYV2BEzjkIBJgf2z/x/UzizrqXbXhcQTr2HhiRu6hOMD+2P8ab39EL9+IcOvr/DkX6aV6p1xz9Tb1d/2bfz6bv0hUT/w8JXtfaY67aGtq/0vZY4tQp/TD96e7mfvZh2JagtekdlZp0xvLzDKnl02lcT99N71/fkDd/vzkvMNXQc/Y/2Q0urtz8SiX0N5JcwjWXSruHLcCSutskfoxkdHV0gkvqr4V4Vdv/ryTMt/0e2jY0IUASDqp21nz/kTrjvhS2JqzIelgDxeYI6jSC1OWUv5sicfo0BXYRJ2WMsf7/cGmwQZYiK/XKRfW7Aj3Bf9o+k8V8QzbbL+Rp/kK2m1Z/vXJ43G2fPz2S7fOObJovZLFrlquDktwtydNuu2j2e/2ZzP5lf2jWfxjoeik3KysXZtZqi4+Hw9P+b1dXytqX1eFRU/6WLbbrq49P7dVjM28Pj/vFnP5ngFTU+mU/L+uscmtp28z3jQrioF1vdg1Z7cmcsIz/mTw0DXnY7uIQ9uTj8yEIbrZeaNl8BJlspCXvAqtO67+f/BfaouHJCmVuZHN0cmVhbQplbmRvYmoKMSAwIG9iajw8L0NvbnRlbnRzIDUgMCBSL1R5cGUvUGFnZS9SZXNvdXJjZXM8PC9Qcm9jU2V0IFsvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJXS9Gb250PDwvRjEgMiAwIFIvRjIgMyAwIFIvRjMgNCAwIFI+Pj4+L1BhcmVudCA2IDAgUi9NZWRpYUJveFswIDAgNjY5LjYgOTAyLjg5XT4+CmVuZG9iago0IDAgb2JqPDwvU3VidHlwZS9UeXBlMS9UeXBlL0ZvbnQvQmFzZUZvbnQvSGVsdmV0aWNhL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZz4+CmVuZG9iagoyIDAgb2JqPDwvU3VidHlwZS9UeXBlMS9UeXBlL0ZvbnQvQmFzZUZvbnQvVGltZXMtUm9tYW4vRW5jb2RpbmcvV2luQW5zaUVuY29kaW5nPj4KZW5kb2JqCjMgMCBvYmo8PC9TdWJ0eXBlL1R5cGUxL1R5cGUvRm9udC9CYXNlRm9udC9IZWx2ZXRpY2EtQm9sZC9FbmNvZGluZy9XaW5BbnNpRW5jb2Rpbmc+PgplbmRvYmoKNiAwIG9iajw8L0tpZHNbMSAwIFJdL1R5cGUvUGFnZXMvQ291bnQgMT4+CmVuZG9iago3IDAgb2JqPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDYgMCBSPj4KZW5kb2JqCjggMCBvYmo8PC9Nb2REYXRlKEQ6MjAyMTAzMDkwOTQ3MTZaKS9DcmVhdGlvbkRhdGUoRDoyMDIxMDMwOTA5NDcxNlopL1Byb2R1Y2VyKGlUZXh0IDIuMC44IFwoYnkgbG93YWdpZS5jb21cKSk+PgplbmRvYmoKeHJlZgowIDkKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAyNjg1IDAwMDAwIG4gCjAwMDAwMDI5NTEgMDAwMDAgbiAKMDAwMDAwMzA0MCAwMDAwMCBuIAowMDAwMDAyODY0IDAwMDAwIG4gCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMzEzMiAwMDAwMCBuIAowMDAwMDAzMTgyIDAwMDAwIG4gCjAwMDAwMDMyMjYgMDAwMDAgbiAKdHJhaWxlcgo8PC9JbmZvIDggMCBSL0lEIFs8YjU0MWY1NmJlMmI2ZWVlYmQ0MTNmZTlmMDdhNzMzNWQ+PGJjMjAzYTEyM2M4MDY5ZmQ4MDAwYWE3MDBkYjgyNmFhPl0vUm9vdCA3IDAgUi9TaXplIDk+PgpzdGFydHhyZWYKMzM0NQolJUVPRgo=';
+            console.log('{!body}')
+            
+            
+        }
+        
+        function buildPad(){
+            console.log(signEleArr) 
+            console.log(dateEleArr) 
+            console.log(textEleArr) 
+            console.log(initialEleArr) 
+            var signCount=0,textCount=0,initialCount=0,dateCount=0;
+            var usersidepagepadList = pageTabPosList; //'{!JSENCODE(pageTabsstring)}';
+            // usersidepagepadList = JSON.parse(usersidepagepadList);
+            console.log(usersidepagepadList);
+            
+            var attachmentList = '{!isattachmentThere}'
+            var showAttachments = JSON.parse('{!showAttachments}')
+            console.log('{!isattachmentThere}')
+            
+            if(usersidepagepadList.length){
+                for(var i=0;i<usersidepagepadList.length;i++){
+                    let txtnode = document.createElement('DIV');
+                    if(usersidepagepadList[i].type == 'text' || usersidepagepadList[i].type == 'initial'){
+                        if(!document.getElementById('textList_'+usersidepagepadList[i]['Name']+'_'+usersidepagepadList[i]['Id'])){
+                            //var txtdivnode = document.createElement('DIV');
+                            
+                            
+                            var leftVal ;topVal ;
+                            if(usersidepagepadList[i].type == 'text'){
+                                leftVal = Number(textEleArr[textCount]['left'].split('px')[0])
+                                
+                                topVal = Number(textEleArr[textCount]['top'].split('px')[0])
+                                $(txtnode).css('top',topVal)
+                                $(txtnode).css('left',leftVal)
+                                txtnode.setAttribute('data-textorderno',textCount);
+                                textCount++;
+                            }
+                            txtnode.setAttribute('data-texttype','text');
+                            
+                            txtnode.setAttribute("class",'listitem textList droppedElement');
+                            txtnode.setAttribute("id",'textList_'+usersidepagepadList[i]['Name']+'_'+usersidepagepadList[i]['Id']);
+                            
+                            $(txtnode).css('padding: 3px;')
+                            txtnode.innerHTML = ' <div class="textInput editable" data-placeholder="Start Typing Name" style="min-width:5rem;font-weight:bold;text-align:center;border:1px solid red;" contenteditable="true"></div>'; 
+                            
+                            if(usersidepagepadList[i].type == 'initial'){
+                                txtnode.setAttribute("class",'listitem textList droppedElement intialList');
+                                var recipientInitials = '{!JSENCODE(recipientName)}'
+                                var recipientInitialsSplitted = recipientInitials.split(' ')
+                                recipientInitials = recipientInitialsSplitted[0][0];
+                                if(recipientInitialsSplitted[1]){
+                                    recipientInitials = recipientInitials+recipientInitialsSplitted[1][0];
+                                }
+                                var leftVal = Number(initialEleArr[initialCount]['left'].split('px')[0])
+                                
+                                var topVal = Number(initialEleArr[initialCount]['top'].split('px')[0])-6;
+                                $(txtnode).css('top',topVal)
+                                $(txtnode).css('left',leftVal)
+                                txtnode.setAttribute('data-initialorderno',initialCount);
+                                initialCount++;
+                                
+                                
+                                txtnode.setAttribute("class",'listitem textList droppedElement intialList');
+                                txtnode.setAttribute('data-texttype','initial')
+                                txtnode.setAttribute("id",'textList_'+usersidepagepadList[i]['Name']+'_'+usersidepagepadList[i]['Id']);
+                                txtnode.setAttribute("data-tempid",'autoScrollItem_'+usersidepagepadList[i]['Name']);
+                                txtnode.setAttribute("data-scrollid",'autoScrollItem');
+                                $(txtnode).css('top',topVal)
+                                $(txtnode).css('left',leftVal)
+                                
+                                txtnode.innerHTML = ' <div class="textInput editable" style="min-width:5rem;font-weight:bold;text-align:center;border:1px solid red;" contenteditable="true"></div>';  
+                            }
+                            
+                            var ele = document.getElementById(usersidepagepadList[i]['Name']);
+                            if(ele){
+                                ele.append(txtnode);
+                                /* Auto scrolling to sign/initials */
+                                if(usersidepagepadList[i].type == 'initial'){
+                                    txtnode.children[0].onblur = function(event){
+                                        let dropDiv =  document.getElementById("drop");
+                                        let initialsList = document.getElementsByClassName('listitem textList intialList');
+                                        let emptyInitials = false;
+                                        let pageNo = event.target.parentElement.id.split('_')[2];
+                                        autoScrollToDivs(pageNo);
+                                    }
+                                }
+                            } 
+                        }
+                        
+                        
+                    }else if(usersidepagepadList[i].type == 'signature'){
+                        if(!document.getElementById('signList_'+usersidepagepadList[i]['Name']+'_'+usersidepagepadList[i]['Id'])){
+                            txtnode.setAttribute("class",'listitem signList droppedElement');
+                            txtnode.setAttribute("id",'signList_'+usersidepagepadList[i]['Name']+'_'+usersidepagepadList[i]['Id']);
+                            txtnode.setAttribute("data-tempid",'autoScrollItem_'+usersidepagepadList[i]['Name']);
+                            txtnode.setAttribute("data-scrollid",'autoScrollItem');
+                            var left = Number(signEleArr[signCount]['left'].split('px')[0])
+                            //var leftVal = left+'px'
+                            var topVal = Number(signEleArr[signCount]['top'].split('px')[0]) -10;
+                            
+                            var leftVal = Number(signEleArr[signCount]['left'].split('px')[0]);
+                            txtnode.setAttribute('data-signorderno',signCount);
+                            signCount++;
+                            $(txtnode).css('top',topVal)
+                            $(txtnode).css('left',leftVal)
+                            $(txtnode).css('margin','0')
+                            txtnode.innerHTML = '<div class="signaturedragfield" id="signeditIcon" style="padding-left:35px"> Sign Here </div> ';
+                            var ele = document.getElementById(usersidepagepadList[i]['Name']);
+                            if(ele){
+                                ele.append(txtnode);
+                            }
+                        }
+                        
+                    }else if(usersidepagepadList[i].type == 'date'){
+                        if(!document.getElementById('dateList_'+usersidepagepadList[i]['Name']+'_'+usersidepagepadList[i]['Id'])){
+                            var dt = new Date();
+                            var todayDate = '{!todayDateValue}';// dt.toLocaleDateString()
+                            var dateValDiv = document.createElement('DIV')
+                            dateValDiv.innerHTML = ' <div class="dateEle dateValue" style="min-width:5rem;">'+todayDate+'</div>';  
+                            
+                            var topVal = Number(dateEleArr[dateCount]['top'].split('px')[0])
+                            
+                            var leftVal = Number(dateEleArr[dateCount]['left'].split('px')[0])
+                            
+                            dateValDiv.setAttribute("class", 'listitem dateList droppedElement')
+                            dateValDiv.setAttribute("id",'dateList_'+usersidepagepadList[i]['Name']+'_'+usersidepagepadList[i]['Id']);
+                            dateValDiv.setAttribute("data-datespanno", $('.dateEle').length) //usersidepagepadList[i]['JunoDoc__Pos_Top__c']
+                            dateValDiv.setAttribute("style","position:absolute;top:"+(topVal+'px')+";left:"+(leftVal+'px')+";");
+                            dateValDiv.setAttribute('data-dateorderno',dateCount);
+                            var ele = document.getElementById(usersidepagepadList[i]['Name']);
+                            dateCount++;
+                            if(ele){
+                                ele.append(dateValDiv);
+                            }
+                        }
+                    }
+                }
+                document.getElementById('compleSign').disabled = false;
+            }
+            
+            if(attachmentList == 'true' &&  showAttachments == true){
+            	let attachmentListTable = document.getElementById('attachmentListTable');
+            	attachmentListTable.style.display = 'block';
+                
+                // initial
+                let txtnode = document.createElement('DIV');
+                txtnode.setAttribute("class",'listitem textList droppedElement intialList');
+                
+                let pageNo = document.querySelectorAll('[data-junopage="junosignpage"]').length;
+                txtnode.setAttribute("class",'listitem textList intialList');
+                txtnode.setAttribute('data-texttype','initial')
+                txtnode.setAttribute("id",'textList_divPageNo_'+pageNo+'_'+'attachmentInitial');
+                txtnode.setAttribute("data-tempid",'autoScrollItem_divPageNo_'+pageNo);
+                txtnode.setAttribute("data-scrollid",'autoScrollItem');
+                txtnode.style.position = 'relative';
+                
+                txtnode.innerHTML = ' <div class="textInput editable" style="min-width:5rem;font-weight:bold;text-align:center;border:1px solid red;" contenteditable="true"></div>';  
+               	document.getElementById('attachmentInitial').append(txtnode);
+                txtnode.children[0].onblur = function(event){
+                                        let dropDiv =  document.getElementById("drop");
+                                        let initialsList = document.getElementsByClassName('listitem textList intialList');
+                                        let emptyInitials = false;
+                                        let pageNo = event.target.parentElement.id.split('_')[2];
+                                        autoScrollToDivs(pageNo);
+                                    }
+                
+                //sign page
+                let signtxtnode = document.createElement('DIV');
+                signtxtnode.setAttribute("class",'listitem signList');
+                signtxtnode.setAttribute("id",'signList_divPageNo_'+pageNo+'_'+'attachmentSign');
+                signtxtnode.setAttribute("data-tempid",'autoScrollItem_'+pageNo);
+                signtxtnode.setAttribute("data-scrollid",'autoScrollItem');
+                signtxtnode.setAttribute('data-signorderno',signCount);
+                signCount++;
+                $(signtxtnode).css('margin','0');
+                signtxtnode.style.position = 'relative';
+
+                signtxtnode.innerHTML = '<div class="signaturedragfield" id="signeditIcon" style="padding-left:35px"> Sign Here </div> ';
+                document.getElementById('attachmentSignature').append(signtxtnode);
+                //attachmentListTable.append(signtxtnode); 
+            }
+            
+            
+            MakeContainerResponsive();
+            
+            let tabElements = document.getElementsByClassName('nav-link');
+            if(tabElements.length){
+            	if(tabElements[0].innerText == '{!defaultSignFormat}'){
+                	tabElements[0].click();
+                }
+                if(tabElements[1].innerText == '{!defaultSignFormat}'){
+                	tabElements[1].click();
+                }
+            }
+            
+            
+            
+            
+            
+        }
+        function rejectPDF(){
+            rejectStatus();
+            console.log('close')
+            MakeContainerResponsive();
+            document.body.style.background = 'white';
+            document.getElementById("pdfViewer").innerHTML = '<p style="color:black !important;">Your document has been rejected.</p>';
+            
+            var isMobileDeviceuser = false;
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                isMobileDeviceuser = true
+            }
+            
+            
+            if(!isMobileDeviceuser){ //navigator.userAgentData.mobile
+                document.getElementById("pdfViewer").innerHTML += '<button id="closeTabEle"   class="btn" style="background:#ffc820;text-align:center;" > Close Tab </button>';
+                console.log('close')
+                document.getElementById('closeTabEle').addEventListener("click",closeTab);
+                deleteDocRecords();
+                //document.getElementById("pdfViewer").style = 'text-align:center';
+            }else{
+                document.getElementsByClassName('content-area p-2')[0].style = 'width:100%';
+                document.getElementById('gotoTopEle').style = 'display:none;';
+                var signBtnn = document.getElementById('goToPad').offsetWidth;
+                var completeBtn = document.getElementById('compleSign').offsetWidth;
+                var sum = signBtnn+completeBtn
+                var headerdiv = document.getElementsByClassName('headerBtns')[0]
+                var ratio = 1;
+                if(sum>headerdiv.offsetWidth/2){
+                    ratio = 0.5
+                }
+                var size =   $('.headerBtns').css("font-size").split('px')[0]
+                headerdiv.style = 'display: flex; font-size:'+ Number(Number(size)*ratio)+'px; font-weight: 500;'
+            }
+            
+        }
+        function generatePDF() {
+            var ind = 0;
+            var blobValArr = [];
+            
+            var signList = document.getElementsByClassName('listitem signList');
+            var initialList = document.getElementsByClassName('listitem textList intialList') 
+            var emptyInitialList = [];
+            var emptySignList = [];
+            for(var i=0;i<initialList.length;i++){
+                if(!initialList[i].getElementsByClassName('textInput')[0].innerText){
+                    emptyInitialList.push(initialList[i])
+                }
+            }
+            for(var i=0;i<signList.length;i++){
+                if(signList[i].getElementsByClassName('signedImage') && signList[i].getElementsByClassName('signedImage').length){
+                    console.log('sign exist');
+                }else{
+                    emptySignList.push(signList[i]);
+                }
+            }
+            if(emptySignList.length){ //#F3F3F3
+                emptySignList[0].innerHTML += '<span style="color:red;background:white;display:block;font-weight:500" class="errorMsg" >Signature Required</span>'
+                var parentEleoffsetTop = emptySignList[0].parentElement.offsetTop
+                var top = signList[0].style.top.split('px')[0]
+                $('html,body').animate({
+                    scrollTop: Number(top)+parentEleoffsetTop
+                }, 1000);
+                window.setTimeout(function(){
+                    $('.errorMsg').eq(0).remove();
+                },5000);
+            }else if(emptyInitialList.length){ //#F3F3F3
+                emptyInitialList[0].innerHTML += '<span style="color:red;background:white;display:block;font-weight:500" class="errorMsg" >Initials Required</span>'
+                var parentEleoffsetTop = emptyInitialList[0].parentElement.offsetTop
+                var top = emptyInitialList[0].style.top.split('px')[0]
+                $('html,body').animate({
+                    scrollTop: Number(top)+parentEleoffsetTop
+                }, 1000);
+                window.setTimeout(function(){
+                    $('.errorMsg').eq(0).remove();
+                },5000)
+            }else{
+                $('.errorMsg').remove();
+                prepareForTemplate();
+            }
+        }
+        
+        
+        
+        function onresponseBlobHandler(){
+            $('.textList div').css('border','none')
+            $('.textList div').attr('placeholder','')
+            debugger;
+            var signList = $('.signList')
+            var TabsignListNotCompleted = [];
+            for(var i=0;i<signList.length;i++){
+                var idele = $(signList)[i].id
+                var splitVal = idele.split(i+'_');
+                TabsignListNotCompleted.push(splitVal[1]);
+            }
+            var idList = JSON.stringify(TabsignListNotCompleted);
+            SavePDF(idList);
+        }
+        
+        function gotoPageTop(){
+            var headerEle = document.getElementsByClassName('headerDiv')[0]
+            if(headerEle){
+                headerEle.scrollIntoView()
+            }
+        }
+        
+        function MakeContainerResponsive(){
+            var $wrapper = $('#templateContainer');//the element we want to measure
+            var wrapperWidth = $wrapper.width();//get its width    
+            console.log( $wrapper.width())
+            console.log('height', $wrapper.height())//add resize listener
+            console.log( $wrapper.width())
+            var wrapperHeight = $wrapper.height();
+            var pageWidth =  $('#divPageNo_0').width()
+            if(!pageWidth){
+                pageWidth = $('#appln').width();
+            }
+            var ratio =  wrapperWidth/pageWidth ;
+            //$('#appln').width(wrapperWidth)
+            
+            if(ratio > 1){
+                ratio = 1;
+            }else{
+                $wrapper.css({
+                    "height":  wrapperHeight*ratio +'px',
+                    "width":	wrapperWidth +'px',
+                    //"overflow": "hidden"
+                });
+            }
+            $('.dataContentcls').css({
+                "transform-origin": "0% 0%",
+                "transform": "scale("+ratio+","+ratio+")"
+            })
+            
+            if(wrapperWidth < 600){
+                $('#propertyModal').css({
+                    "width":	wrapperWidth +'px'
+                })
+                $('#propertyModal .modal-dialog').css({
+                    "width":	wrapperWidth +'px'
+                })
+            }
+            $('.headerDiv').width(wrapperWidth*0.98);
+            var headerBtnsWidth = $('.headerDiv').width();
+            var imgWidth =  $('.imgDiv').width();
+            var imageRatio = imgWidth/wrapperWidth;
+            var headerBtnFontSize = Number($('.headerBtns').css('font-size').split('px')[0]);
+            $('.headerBtns').css({
+                //"width":	headerBtnsWidth*ratio +'px',
+                "font-size" : headerBtnFontSize*ratio+'px',
+                "font-weight" : '500'
+            })
+            $('.imgDiv').css({
+                "width" : imgWidth*0.8466+'px'
+            })
+            if('{!body}'){
+                console.log('body');
+            }else{
+                document.getElementsByClassName('content-area p-2')[0].style = 'width:100%';
+            }
+            
+            
+        }
+        
+        
+        function prepareForTemplate(){
+            //create document records for canvas elements
+            var signeImageElements = document.getElementsByClassName('signedImage');
+            var docToInsertList = [];
+            var usersidepagepadList = JSON.parse('{!JSENCODE(pageTabsstring)}');
+            var currentRecOrder = 1;
+            
+            //if(usersidepagepadList.length){
+                currentRecOrder = Number('{!recipientOrderNumber}');//usersidepagepadList[0]['JunoDoc__Recipient_Sort_Order__c'];
+            //}
+            
+            if(signeImageElements.length){
+                for(var i=0;i<signeImageElements.length;i++){
+                    //if(!signeImageElements[i].id.includes('attachment')){
+                        var docObj = {}
+                        var signEle =document.querySelectorAll('[data-signorderno="'+i+'"]')[0];
+                    	docObj['Name'] = 'by'+currentRecOrder+'_signedImage_'+i;
+                        if(signeImageElements[i].id.includes('attachment')){
+                        	docObj['Name'] = 'attachmentSign_signedImage';
+                        }
+                        
+                        docObj['Value'] = signEle.children[0].src.split('data:image/png;base64,')[1];
+                        docObj['Height'] = 40//signeImageElements[i].height;
+                        docObj['Width'] = signEle.children[0].width;
+                        docObj['PageNo'] = signeImageElements[i].id.split('divPageNo_')[1].split('_')[0];
+                        docToInsertList.push(docObj);
+                    //}
+                   
+                }
+                console.log(docToInsertList);
+            }
+            
+            //textList 
+            var textElementList = document.querySelectorAll('[data-texttype="text"]');
+            var texttoCheckList = []
+            if(textElementList){
+                for(var i=0;i<textElementList.length;i++){
+                    var docObj = {}
+                    var textEle =document.querySelectorAll('[data-textorderno="'+i+'"]')[0]
+                    docObj['Name'] = 'textcontent'+currentRecOrder+'_text_'+i;
+                    docObj['Value'] = textEle.innerText;
+                    docObj['PageNo'] = textEle.id.split('divPageNo_')[1].split('_')[0];
+                    
+                    texttoCheckList.push(docObj);
+                    
+                }
+            }
+            
+            //initial 
+            var initialElementList = document.querySelectorAll('[data-texttype="initial"]');
+            var initialtoCheckList = []
+            if(initialElementList){
+                for(var i=0;i<initialElementList.length;i++){
+                    if(!initialElementList[i].id.includes('attachment')){
+                        var docObj = {}
+                        var initialEle =document.querySelectorAll('[data-initialorderno="'+i+'"]')[0]
+                        docObj['Name'] = 'initialsigned'+currentRecOrder+'_initial_'+i;
+                        docObj['Value'] = initialEle.innerText;
+                        docObj['PageNo'] = initialEle.id.split('divPageNo_')[1].split('_')[0];
+                        initialtoCheckList.push(docObj);
+                    } 
+                }
+            }
+            
+            //date 
+            var dateElementList = document.getElementsByClassName('dateList');
+            var datetoCheckList = []
+            if(dateElementList){
+                for(var i=0;i<dateElementList.length;i++){
+                    var docObj = {}
+                    var dateEle =document.querySelectorAll('[data-dateorderno="'+i+'"]')[0]
+                    docObj['Name'] = 'datesigned'+currentRecOrder+'_date_'+i;
+                    docObj['Value'] = dateEle.innerText;
+                    docObj['PageNo'] = dateEle.id.split('divPageNo_')[1].split('_')[0];
+                    datetoCheckList.push(docObj);
+                    
+                }
+            }
+            console.log(docToInsertList)
+            console.log(texttoCheckList)
+            console.log(initialtoCheckList)
+            console.log(datetoCheckList);
+            let attachmentListTableHtml = '';
+            let attachmentInitialStr = '';
+            
+            if(document.getElementById('attachmentSignature')){
+                document.getElementById('attachmentSignature').innerHTML = ''
+            	document.getElementById('attachmentSignature').innerText = 'attachmentSign:';
+            }
+            if(document.getElementById('attachmentInitial')){
+                attachmentInitialStr = document.getElementById('attachmentInitial').innerText;
+                document.getElementById('attachmentInitial').innerHTML = ''
+            	document.getElementById('attachmentInitial').innerText = 'attachmentInitial:';
+                document.getElementById('attachmentInitial').style.textAlign = 'left';
+            }
+            attachmentListTableHtml = document.getElementById('attachmentListTable')?.innerHTML;
+            
+            console.log(attachmentListTableHtml);
+            createDocumentRecords(JSON.stringify(docToInsertList),JSON.stringify(texttoCheckList),JSON.stringify(initialtoCheckList),JSON.stringify(datetoCheckList), attachmentListTableHtml, attachmentInitialStr);
+        }
+        
+        function ondeleteTemp(){
+            deleteDocTemplateRecord();
+            
+        }
+        
+        function ondeleteDocs(){
+            
+            deleteDocRecords();    
+            
+        }
+        
+        function rejectCompleted(){
+            MakeContainerResponsive();
+            document.body.style.background = 'white';
+            document.getElementById("pdfViewer").innerHTML = '<p style="color:black !important;">Your document has been rejected.</p>';
+            
+            var isMobileDeviceuser = false;
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                isMobileDeviceuser = true
+            }
+            
+            
+            if(!isMobileDeviceuser){ //navigator.userAgentData.mobile
+                document.getElementById("pdfViewer").innerHTML += '<button id="closeTabEle"   class="btn" style="background:#ffc820;text-align:center;" > Close Tab </button>';
+                console.log('close')
+                document.getElementById('closeTabEle').addEventListener("click",closeTab);
+                deleteDocRecords();
+            	//document.getElementById("pdfViewer").style = 'text-align:center';
+            }else{
+                document.getElementsByClassName('content-area p-2')[0].style = 'width:100%';
+                document.getElementById('gotoTopEle').style = 'display:none;';
+                var signBtnn = document.getElementById('goToPad').offsetWidth;
+                var completeBtn = document.getElementById('compleSign').offsetWidth;
+                var sum = signBtnn+completeBtn
+                var headerdiv = document.getElementsByClassName('headerBtns')[0]
+                var ratio = 1;
+                if(sum>headerdiv.offsetWidth/2){
+                    ratio = 0.5
+                }
+                var size =   $('.headerBtns').css("font-size").split('px')[0]
+                headerdiv.style = 'display: flex; font-size:'+ Number(Number(size)*ratio)+'px; font-weight: 500;'
+            }
+        }
+        
+        function onCompleteHandler(){
+            location.reload();
+            
+        }
+        
+        function onCompleteDeleteHandler(){
+            console.log('tette')
+        }
+        
+        function onInsertHandler(){
+            
+            getPdfBolbDate();
+            
+        }
+        
+        var signEleArr=[],dateEleArr=[],textEleArr=[],initialEleArr=[];
+        var pdfDoc = null,
+            pageNum = 1,
+            pageRendering = false,
+            pageNumPending = null,
+            scale = 1.45;
+        var loadedPages = 0;
+        var totalPages = 0;
+        var pdfjsLib = window['pdfjs-dist/build/pdf'];
+        // The workerSrc property shall be specified.
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/resource/JunoDoc__Juno_pdfjsWorkerJS' //'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.10.377/build/pdf.worker.js';//'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+        //for touch on canvas
+        var pageTabPosList =[]
+        
+        
+        
+        
+        function renderPage(num) {
+            pageRendering = true;
+            var parent = document.getElementById('pdfViewer')
+            var canContainer = document.createElement('DIV')
+            canContainer.setAttribute('id','divPageNo_'+Number(num-1));
+            canContainer.setAttribute('data-junopage','junosignpage');
+            canContainer.setAttribute('style','border :1px solid black;overflow:unset;position:relative;')
+            parent.appendChild(canContainer);
+            // Using promise to fetch the page
+            pdfDoc.getPage(num).then(function(page) {
+                var viewport = page.getViewport({scale: scale});
+                var canvas = document.createElement('CANVAS');
+                canvas.setAttribute('class','the-canvas');
+                canvas.setAttribute('id','pageNo_'+Number(num-1));
+                canvas.setAttribute('data-customcanid','canvas_'+Number(num-1));
+                var canvasWrapper = document.getElementById('divPageNo_'+Number(num-1));
+                
+                var ctx = canvas.getContext('2d');
+                
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                // Render PDF page into canvas context
+                var renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                var renderTask = page.render(renderContext);
+                canvasWrapper.appendChild(canvas);
+                
+                // Wait for rendering to finish
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        // New page rendering is pending
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                }).then(function() {
+                    var canEle =  document.querySelector('[data-customcanid="canvas_'+Number(num-1)+'"]')
+                    
+                    // Returns a promise, on resolving it will return text contents of the page
+                    return page.getTextContent();
+                }).then(function(textContent) {
+                    var canContainer = document.getElementById('divPageNo_'+Number(num-1));
+                    // Assign CSS to the textLayer element
+                    var textLayer = document.createElement('DIV')
+                    textLayer.setAttribute('class','textLayer');
+                    textLayer.setAttribute('id','textLayerId_'+Number(num-1));
+                    textLayer.setAttribute('data-pagenumber',Number(num-1));
+                    //var textLayer = document.querySelector(".textLayer");
+                    console.log(num)
+                    // var canEle =  document.querySelector('[data-customcanid=canvas_"'+num+'"]')
+                    canContainer.appendChild(textLayer);
+                    textLayer.style.left = canvas.offsetLeft + 'px';
+                    textLayer.style.top = canvas.offsetTop + 'px';
+                    textLayer.style.height = canvas.offsetHeight + 'px';
+                    textLayer.style.width = canvas.offsetWidth + 'px';
+                    loadedPages++;
+                    // Pass the data to the method for rendering of text over the pdf canvas.
+                    pdfjsLib.renderTextLayer({
+                        textContent: textContent,
+                        container: textLayer,
+                        viewport: viewport,
+                        textDivs: []
+                    });
+                }).then(function() {
+                    console.log('loadedPages-->',loadedPages);
+                    console.log('totalPages-->',totalPages);
+                    
+                    var eleVar = 1;
+                    if(loadedPages == totalPages){
+                        var usersidepagepadList = JSON.parse('{!JSENCODE(pageTabsstring)}');
+                        var currentRecOrder = 1;
+                        //if(usersidepagepadList.length){
+                            currentRecOrder = Number('{!recipientOrderNumber}');//usersidepagepadList[0]['JunoDoc__Recipient_Sort_Order__c'];
+                        //}
+                        
+                        var mainContainer = document.getElementById('pdfViewer')
+                        if(mainContainer){
+                            for(var k=0;k<mainContainer.children.length;k++){
+                                var viewerElement = document.getElementById('divPageNo_'+Number(k+1));
+                                //for(var eleVar=0;eleVar<viewerElement.children.length;eleVar++){
+                                
+                                document.getElementById('divPageNo_'+Number(k)).querySelectorAll("span").forEach(function(a,index){
+                                    if(a.innerText.trim().toLowerCase().includes('by'+Number(currentRecOrder)+':') && a.childElementCount == 0){
+                                        console.log('byele-->',a)
+                                        
+                                        var signEle = a;
+                                        if(signEle){
+                                            var topVal = signEle.offsetTop//+signEle.offsetHeight
+                                            var leftval =0 
+                                            if(signEle.tagName == 'SPAN'){
+                                                //leftval += signEle.offsetWidth/2
+                                            }
+                                            leftval += signEle.offsetLeft
+                                            
+                                            var pgNo =Number(signEle.parentElement.dataset.pagenumber)
+                                            
+                                            var signposObj ={}
+                                            signposObj['top'] = topVal + 'px'
+                                            signposObj['left'] = leftval +'px'
+                                            signposObj['type'] = 'signature';
+                                            signposObj['recipientOrder'] = currentRecOrder;
+                                            debugger;
+                                            signposObj['Name'] = 'divPageNo_'+k; //$(signTabs).eq(i).parent()[0].id
+                                            signposObj['Id'] = 'sign_'+index;
+                                            pageTabPosList.push(signposObj)
+                                            signEleArr.push(signposObj);
+                                        }
+                                    }
+                                    if(a.innerText.trim().toLowerCase().includes('initialsigned'+Number(currentRecOrder)+':') && a.childElementCount == 0  ){
+                                        console.log('signele',a)
+                                        
+                                        var signEle = a;
+                                        
+                                        if(signEle){
+                                            var topVal = signEle.offsetTop//+signEle.offsetHeight
+                                            var leftval =0 
+                                            if(signEle.tagName == 'SPAN'){
+                                                //leftval += signEle.offsetWidth/2
+                                            }
+                                            leftval += signEle.offsetLeft
+                                            
+                                            var pgNo =Number(signEle.parentElement.dataset.pagenumber)
+                                            
+                                            var signposObj ={}
+                                            signposObj['top'] = topVal + 'px'
+                                            signposObj['left'] = leftval +'px'
+                                            signposObj['type'] = 'initial';
+                                            signposObj['recipientOrder'] = currentRecOrder;
+                                            signposObj['Name'] = 'divPageNo_'+k; //$(signTabs).eq(i).parent()[0].id
+                                            signposObj['Id'] = 'initial_'+index;
+                                            pageTabPosList.push(signposObj)
+                                            initialEleArr.push(signposObj);
+                                        }
+                                    }
+                                    if(a.innerText.trim().toLowerCase().includes('textcontent'+Number(currentRecOrder)+':') && a.childElementCount == 0  ){
+                                        console.log('textele',a)
+                                        
+                                        var signEle = a;
+                                        //alert('signEle ' + signEle);
+                                        if(signEle){
+                                            var topVal = signEle.offsetTop//+signEle.offsetHeight
+                                            var leftval =0 
+                                            if(signEle.tagName == 'SPAN'){
+                                                //leftval += signEle.offsetWidth/2
+                                            }
+                                            leftval += signEle.offsetLeft
+                                            
+                                            var pgNo =Number(signEle.parentElement.dataset.pagenumber)
+                                            
+                                            var signposObj ={}
+                                            signposObj['top'] = topVal + 'px'
+                                            signposObj['left'] = leftval +'px'
+                                            signposObj['type'] = 'text';
+                                            signposObj['recipientOrder'] = currentRecOrder;
+                                            signposObj['Name'] = 'divPageNo_'+k; //$(signTabs).eq(i).parent()[0].id
+                                            signposObj['Id'] = 'text_'+index;
+                                            pageTabPosList.push(signposObj)
+                                            textEleArr.push(signposObj);
+                                        }
+                                    }
+                                    if(a.innerText.trim().toLowerCase().includes('datesigned'+Number(currentRecOrder)+':') && a.childElementCount == 0  ){
+                                        console.log('datesigned',a)
+                                        
+                                        var dateEle = a;
+                                        if(dateEle){
+                                            var topVal = dateEle.offsetTop//+dateEle.offsetHeight
+                                            var leftval =0 
+                                            if(dateEle.tagName == 'SPAN'){
+                                                //leftval += dateEle.offsetWidth/2
+                                            }
+                                            leftval += dateEle.offsetLeft
+                                            
+                                            var pgNo =Number(dateEle.parentElement.dataset.pagenumber)
+                                            
+                                            var signposObj ={}
+                                            signposObj['top'] = topVal + 'px'
+                                            signposObj['left'] = leftval +'px'
+                                            signposObj['type'] = 'date';
+                                            signposObj['recipientOrder'] = currentRecOrder;
+                                            signposObj['Name'] = 'divPageNo_'+k; //$(signTabs).eq(i).parent()[0].id
+                                            signposObj['Id'] = 'date_'+index;
+                                            pageTabPosList.push(signposObj)
+                                            dateEleArr.push(signposObj);
+                                        }
+                                    }
+                                });
+                                
+                                console.log(signEleArr) 
+                                console.log(dateEleArr) 
+                                console.log(textEleArr) 
+                                console.log(initialEleArr) 
+                                console.log(pageTabPosList)
+                                //}
+                            }
+                        }
+                        buildPad();
+                    }
+                });
+            });
+        }
+        
+        
+        function renderPages(pdfDoc){
+            for(var i=1;i<=totalPages;i++){
+                renderPage(i);
+            }
+        }
+        
+        if('{!body}' && '{!isExpirationdate}' == 'false' && '{!isRejected}' == 'false'){
+            debugger
+            var link = '{!body}'+''+'{!secondbody}';
+            var pdfData = convertDataURIToBinary(link);//new Uint8Array(this.result);
+            // Using DocumentInitParameters object to load binary data.
+            pdfjsLib.getDocument(pdfData).promise.then(function(pdfDoc_) {
+                $("#pdfViewer").empty()
+                gotoPadEle()
+                pdfDoc = pdfDoc_;
+                totalPages = pdfDoc_._pdfInfo.numPages
+                // Initial/first page rendering
+                renderPages(pdfDoc);
+            });
+
+        }else{            
+            document.getElementById("pdfViewer").innerHTML = '<p style="color:black !important;">Your signature has been completed</p>';
+            
+            if('{!body}' && '{!isExpirationdate}' == 'true'){
+                document.getElementById('rejectBtn').disabled = "true"
+                document.getElementById('rejectBtn').style.opacity = "0.5"
+                document.getElementById("pdfViewer").innerHTML = '<p style="color:black !important;">This link has been expired.</p>';   
+            }
+            if('{!body}' && '{!isRejected}' == 'true'){
+                document.getElementById("pdfViewer").innerHTML = '<p style="color:black !important;">Your document has been Rejected.</p>';
+            }
+            //alert('{!isRejected}--->'+{!isRejected});
+            MakeContainerResponsive();
+            document.body.style.background = 'white';
+            var nextIcon = document.getElementsByClassName('nextIcon')[0];
+            if(nextIcon){
+            	nextIcon.style.display = 'none';
+            }
+            
+            var isMobileDeviceuser = false;
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                isMobileDeviceuser = true
+            }
+            
+            
+            if(!isMobileDeviceuser){ //navigator.userAgentData.mobile
+                document.getElementById("pdfViewer").innerHTML += '<button id="closeTabEle"   class="btn" style="background:#ffc820;text-align:center;" > Close Tab </button>';
+                console.log('close')
+                document.getElementById('closeTabEle').addEventListener("click",closeTab);
+                deleteDocRecords();
+                // document.getElementById("pdfViewer").style = 'text-align:center';
+            }else{
+                document.getElementsByClassName('content-area p-2')[0].style = 'width:100%';
+                document.getElementById('gotoTopEle').style = 'display:none;';
+                var signBtnn = document.getElementById('goToPad').offsetWidth;
+                var completeBtn = document.getElementById('compleSign').offsetWidth;
+                var sum = signBtnn+completeBtn
+                var headerdiv = document.getElementsByClassName('headerBtns')[0]
+                var ratio = 1;
+                if(sum>headerdiv.offsetWidth/2){
+                    ratio = 0.5
+                }
+                var size =   $('.headerBtns').css("font-size").split('px')[0]
+                headerdiv.style = 'display: flex; font-size:'+ Number(Number(size)*ratio)+'px; font-weight: 500;'
+            }
+            
+        }
+        
+        
+        <apex:includeScript value="{!$Resource.JunoSignaturePadJS}" />
+      </script>
+        
+    </html>
+</apex:page>

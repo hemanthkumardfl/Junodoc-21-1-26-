@@ -1,0 +1,60 @@
+<apex:page controller="multiselect_AC">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" />
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <apex:slds />
+    <apex:form >
+         <script type="text/javascript">
+                  var j$ = jQuery.noConflict();
+                 
+                    var names =[];
+                     <apex:repeat value="{!userlist}" var="a">
+                           names.push('{!JSENCODE(HTMLENCODE(a.name))}');
+                   </apex:repeat>
+                    j$(document).ready(function(){
+                        j$("[id$=mydata]").autocomplete({
+                            source : names
+                        }); 
+                    });
+                    
+               j$(function(){
+                 
+                j$("[id$=singleFieldTags]").tagit({
+                    
+                    singleField: true,
+                    singleFieldNode: j$("[id$=mySingleField]")
+                });            
+            });
+            
+            
+            j$(document).ready(function(){
+            j$(".ui-widget-content").attr("placeholder","Enter Email Address");
+            });
+              function sendMail() {
+                paraFunction(document.getElementById("mySingleField").value);
+              }
+            
+               </script>
+    <script>
+    	function userMails(){
+                paraFunction1(document.getElementById("mySingleField").value); 
+              }
+    </script>
+         <apex:actionFunction name="paraFunction1" action="{!userValue}" reRender="opp2">
+                   <apex:param assignTo="{!sendCC}" name="interviewDate" value="" />
+               </apex:actionFunction>  
+    <div>
+    	<div class="col-sm-6">
+                     <div >
+                            <apex:inputText onblur="userMails()" html-placeholder="Search User Email" styleClass="form-control" id="mydata" value="{!inputtext}" style="padding:4px;margin:2px">
+                            </apex:inputText>
+                        </div>
+
+                    </div>                   
+                    <div class="col-sm-6">
+                    <input name="tags" id="mySingleField" value="{!sendCC}" type="hidden"/>
+                    <ul id="singleFieldTags"></ul>
+                    </div>    
+    </div>
+     </apex:form>
+</apex:page>

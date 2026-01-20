@@ -1,0 +1,238 @@
+.document-container {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    background-color: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    background-image: 
+        linear-gradient(rgba(229, 231, 235, 0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(229, 231, 235, 0.5) 1px, transparent 1px);
+    background-size: 20px 20px;
+    user-select: none;
+}
+
+.document-content {
+    padding: 0;
+    /* pointer-events: none; */
+    position: relative;
+    z-index: 1;
+}
+
+.signature-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+}
+
+.signature-overlay > * {
+    pointer-events: auto;
+}
+
+.signature-element {
+    padding: 0.75rem;
+    border: 2px dashed #1589ee;
+    border-radius: 0.25rem;
+    cursor: move;
+    transition: background-color 0.2s;
+    background-color: white;
+}
+
+.signature-element:hover {
+    background-color: #f3f9ff;
+}
+
+.signature-element[data-element-type="signature"] {
+    border-color: #1589ee;
+}
+
+.signature-element[data-element-type="date"] {
+    border-color: #04844b;
+}
+
+.signature-element[data-element-type="text"] {
+    border-color: #5b2d87;
+}
+
+.placed-element {
+    position: absolute;
+    border: 2px dashed;
+    border-radius: 0.25rem;
+    cursor: grab;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.placed-element:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
+}
+
+.placed-element.dragging {
+    cursor: grabbing;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+    z-index: 50;
+}
+
+.placed-element.blue {
+    background-color: #f3f9ff;
+    border-color: #1589ee;
+    color: #0c5aa6;
+}
+
+.placed-element.green {
+    background-color: #f3fdf4;
+    border-color: #04844b;
+    color: #2e7d32;
+}
+
+.placed-element.purple {
+    background-color: #faf5ff;
+    border-color: #5b2d87;
+    color: #5b2d87;
+}
+
+.placed-element.orange {
+    background-color: #fff7ed;
+    border-color: #ea580c;
+    color: #ea580c;
+}
+
+.placed-element.teal {
+    background-color: #f0fdfa;
+    border-color: #0d9488;
+    color: #0d9488;
+}
+
+.placed-element.pink {
+    background-color: #fdf2f8;
+    border-color: #ec4899;
+    color: #ec4899;
+}
+
+.placed-element.indigo {
+    background-color: #f0f9ff;
+    border-color: #4f46e5;
+    color: #4f46e5;
+}
+
+.drag-handle {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    /* background-color: #5c6b73; */
+    color: white;
+    border-radius: 50%;
+    padding: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.placed-element:hover .drag-handle {
+    opacity: 1;
+}
+
+.remove-button {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.placed-element:hover .remove-button {
+    opacity: 1;
+}
+
+.element-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    text-align: center;
+    pointer-events: none;
+}
+
+.element-label-input {
+    pointer-events: auto;
+}
+
+.element-label-input input {
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-weight: 500;
+}
+
+.drop-zone-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(21, 137, 238, 0.1);
+    border: 2px dashed #1589ee;
+    border-radius: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.recipient-card-blue {
+    border: 2px solid #1589ee;
+    background-color: #f3f9ff;
+}
+
+.recipient-card-green {
+    border: 2px solid #04844b;
+    background-color: #f3fdf4;
+}
+
+.recipient-card-purple {
+    border: 2px solid #5b2d87;
+    background-color: #faf5ff;
+}
+
+.recipient-card-orange {
+    border: 2px solid #ea580c;
+    background-color: #fff7ed;
+}
+
+.recipient-card-teal {
+    border: 2px solid #0d9488;
+    background-color: #f0fdfa;
+}
+
+.recipient-card-pink {
+    border: 2px solid #ec4899;
+    background-color: #fdf2f8;
+}
+
+.recipient-card-indigo {
+    border: 2px solid #4f46e5;
+    background-color: #f0f9ff;
+}
+
+.preview-page-wrapper img {
+    display: block;      /* removes inline gap */
+    width: 100%;
+    height: auto;
+}
+
+.preview-page-wrapper {
+    width: fit-content;   /* 🔑 key line */
+    margin: 0 auto;       /* center if needed */
+}

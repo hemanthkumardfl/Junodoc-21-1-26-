@@ -1,0 +1,432 @@
+<apex:page controller="CallOutUtilityController" >  
+    <apex:stylesheet value="{!URLFOR($Resource.jQueryDataTables, 'css/jquery.dataTables.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SLDSv0122, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS090, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.GlobalFundsJqueryUI, 'GlobalFundsJqueryUI/JqueryTabs/jquery-ui.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.custom_jquery,'customjquery/css/jquery-ui.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.GlobalFundsJqueryUI, 'GlobalFundsJqueryUI/CustomEventEditCSS.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.GlobalFundsJqueryUI, 'GlobalFundsJqueryUI/EventJqueryMin.js')}"/>
+    <script type="text/javascript" language="javascript" src="{!URLFOR($Resource.jQueryDataTables, 'js/jquery.dataTables.js')}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.JSCalendar,'calendar/calendar.js')}"/> 
+    <apex:stylesheet value="{!URLFOR($Resource.JSCalendar,'calendar/calendar.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.custom_jquery,'customjquery/js/jquery-ui.js')}"/> 
+    
+    <script>                                                   
+                        
+        $(document).ready(function() {
+            $('[data-aljs="popover"]').popover();
+        });
+        
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function showSpinner(){
+            document.getElementById('opaque').style.display='block';
+            var popUp = document.getElementById('spinner');
+            popUp.style.display = 'block';
+        } 
+        function deletealert(){
+            if(!confirm('Are you sure?')){
+                return false;
+            }
+            else{
+                showSpinner();
+            }
+        } 
+    </script>
+    
+    <script>
+        function createRemoteSiteWithRedirect(remoteSiteSettingURL, remoteSiteSettingName){
+            var binding = new XMLHttpRequest();  
+            var urls = remoteSiteSettingURL;
+            var request = '<?xml version="1.0" encoding="utf-8"?>' +
+                                '<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
+                                    '<env:Header>' +
+                                        '<urn:SessionHeader xmlns:urn="http://soap.sforce.com/2006/04/metadata">' +
+                                            '<urn:sessionId>{!$Api.Session_ID}</urn:sessionId>' +
+                                        '</urn:SessionHeader>' +
+                                    '</env:Header>' +
+                                    '<env:Body>' +
+                                        '<createMetadata xmlns="http://soap.sforce.com/2006/04/metadata">' +
+                                            '<metadata xsi:type="RemoteSiteSetting">' +
+                                                '<fullName>' + remoteSiteSettingName +'</fullName>' +
+                                                '<disableProtocolSecurity>false</disableProtocolSecurity>' +
+                                                '<isActive>true</isActive>' +
+                                                '<url>'+urls+'</url>' +
+                                            '</metadata>' +
+                                        '</createMetadata>' +
+                                    '</env:Body>' +
+                                '</env:Envelope>';
+            binding.open('POST', 'https://{!URLENCODE(HostUrl)}/services/Soap/m/31.0',true);    
+            binding.setRequestHeader('SOAPAction','""');
+            binding.setRequestHeader('Content-Type', 'text/xml');
+            binding.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var parser = new DOMParser();
+                    var doc  = parser.parseFromString(this.response, 'application/xml');
+                }
+            }
+            binding.send(request);
+            redirectToEndPoints();
+        }
+          
+        function createRemoteSite(remoteSiteSettingURL, remoteSiteSettingName){
+            var binding = new XMLHttpRequest();  
+            var urls = remoteSiteSettingURL;
+            var request = '<?xml version="1.0" encoding="utf-8"?>' +
+                                '<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
+                                    '<env:Header>' +
+                                        '<urn:SessionHeader xmlns:urn="http://soap.sforce.com/2006/04/metadata">' +
+                                            '<urn:sessionId>{!$Api.Session_ID}</urn:sessionId>' +
+                                        '</urn:SessionHeader>' +
+                                    '</env:Header>' +
+                                    '<env:Body>' +
+                                        '<createMetadata xmlns="http://soap.sforce.com/2006/04/metadata">' +
+                                            '<metadata xsi:type="RemoteSiteSetting">' +
+                                                '<fullName>' + remoteSiteSettingName +'</fullName>' +
+                                                '<disableProtocolSecurity>false</disableProtocolSecurity>' +
+                                                '<isActive>true</isActive>' +
+                                                '<url>'+urls+'</url>' +
+                                            '</metadata>' +
+                                        '</createMetadata>' +
+                                    '</env:Body>' +
+                                '</env:Envelope>';
+            binding.open('POST', 'https://{!URLENCODE(HostUrl)}/services/Soap/m/31.0',true);    
+            binding.setRequestHeader('SOAPAction','""');
+            binding.setRequestHeader('Content-Type', 'text/xml');
+            binding.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var parser = new DOMParser();
+                    var doc  = parser.parseFromString(this.response, 'application/xml');
+                }
+            }
+            binding.send(request);
+        }
+        
+    </script>
+    
+    <style>
+        #spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            text-align:center;
+            padding:10px;
+            margin-left: -100px;
+            margin-top: -100px;
+            z-index:2;
+            overflow: auto;
+            z-index:100;
+            padding:5px;
+            line-height:20px;
+        }
+        #opaque {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;    
+            z-index: 1;
+            display: none;
+            background-color: gray;
+            filter: alpha(opacity=30);
+            opacity: 0.3;
+            -moz-opacity:0.3;
+            -khtml-opacity:0.3
+        }
+        *html #opaque {
+            position: absolute;
+        }
+        .slds-large-size--1-of-4 {
+            padding:0.5%;
+        }
+        .widthtofields {
+            width:90%;
+        }
+        
+        .logo-cldly{
+            width: 40px !important;
+            height: 35px !important;
+        }
+        .slds .slds-page-header {
+            padding: 18px 18px !important;
+            background: #ef7c16 !important;
+            color: black !important;
+        }
+        .slds .slds-media__figure {
+            background: #fff !important;
+        } 
+        .outer td.oRight {
+            padding: 2px 10px 20px 10px !important;
+        }
+    </style>
+    
+    <apex:form id="formid">  
+    
+        <apex:actionFunction name="redirectToEndPoints" action="{!redirectToEndPoints}" reRender="formid"/>  
+        <apex:outputPanel rendered="{!createRemoteSiteSettings}">  
+            <script>
+                createRemoteSiteWithRedirect('{!remoteSiteSettingURL}', '{!remoteSiteSettingName}');
+            </script>
+        </apex:outputPanel>
+        
+        <apex:outputPanel rendered="{!upsertRemoteSiteSettings}">  
+            <script>
+                createRemoteSite('{!remoteSiteSettingURL}', '{!remoteSiteSettingName}');
+            </script>
+        </apex:outputPanel>
+        
+        <div class="slds">
+            <div id="opaque"/>
+            <div id="spinner">
+                <p align="center">
+                    <div class="slds-spinner--medium">
+                        <img src="{!URLFOR($Resource.Spinnerforstatus)}"/>
+                    </div>
+                </p>
+            </div>
+            
+            <apex:outputPanel rendered="{!hide}">
+                 <div class="slds-page-header" role="banner">
+                    <div class="slds-grid">
+                        <div class="slds-col">
+                            <div class="slds-media">
+                                <div class="slds-media__figure" style="border-radius: 50%;">
+                                    <img src="{!URLFOR($Resource.cldlylogo)}" class="logo-cldly"/>
+                                </div>
+                                <div class="slds-media__body">
+                                    <p class="slds-text-heading--label">CloudSync Endpoints</p>
+                                    <h1 class="slds-text-heading--medium">Home</h1>
+                                </div>
+                            </div>    
+                        </div>    
+                        <div class="slds-col slds-no-flex slds-align-middle" >
+                                <apex:commandButton styleClass="slds-button slds-button--neutral" value="New Connection" action="{!newconn}" onclick="showSpinner()"/>&nbsp;&nbsp;
+                                <a href="https://www.cloudsyncapp.com" target="_blank">
+                                <img style= "width:20px;height:20px;" src="{!URLFOR($Resource.HelpText_Img)}"/> 
+                                </a>
+                              
+                        </div>
+                    </div>
+                </div>
+                <apex:pageMessages />
+                <div class="myapp">
+                    <!-- For space --> 
+                    <div class="slds-card" style="border:none; background-color:white">  
+                    </div>         
+                    <div class="slds-card" >
+                        <section class="slds-card__body">
+                            <div class="slds-scrollable--x">
+                                <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+                                    <thead>
+                                        <tr>
+                                            <th class="slds-text-heading--label slds-size--1-of-6" scope="col">Action</th>
+                                            <th class="slds-text-heading--label slds-size--1-of-6" scope="col">Destination Org Name</th>
+                                            <th class="slds-text-heading--label slds-size--1-of-6" scope="col">Dest Org Type</th>
+                                            <th class="slds-text-heading--label slds-size--1-of-6" scope="col">Dest UserName</th>
+                                        </tr>
+                                    </thead>                                    
+                                    <tbody>
+                                        <apex:repeat value="{!wraplist}" var="a">
+                                            <tr class="slds-hint-parent">
+                                                <td>
+                                                    <apex:commandLink action="{!editreord}" value="Edit" onclick="showSpinner();">
+                                                        <apex:param value="{!a.connection.Id}" name="idToDel" assignTo="{!SelectedId}"/>
+                                                    </apex:commandLink> 
+                                                    &nbsp;|&nbsp;
+                                                    <apex:commandLink action="{!delrecord}" onclick="return deletealert();" value="Del">
+                                                        <apex:param value="{!a.connection.Id}" name="idToDel" assignTo="{!SelectedId}"/>
+                                                    </apex:commandLink>
+                                                    &nbsp;|&nbsp;
+                                                    <apex:commandLink action="{!VerifyConnection}" onclick="showSpinner();" value="Test Connection" rerender="formid">
+                                                        <apex:param value="{!a.connection.Id}" name="idToVerify" assignTo="{!SelectedId}"/>
+                                                    </apex:commandLink>  
+                                                </td>
+                                                <td class="slds-cell-wrap">
+                                                    <apex:commandLink action="{!view}" value="{!a.connection.name}" onclick="showSpinner();">
+                                                        <apex:param value="{!a.connection.Id}" name="idToDel" assignTo="{!SelectedId}"/>
+                                                    </apex:commandLink>
+                                                </td>
+                                                <td>
+                                                    <apex:outputText styleClass="slds-output" value="{!a.type}" />
+                                                </td>
+                                                <td>
+                                                      <apex:outputText styleClass="slds-output" value="{!a.connection.Username__c}" />
+                                                </td>
+                                            </tr>
+                                        </apex:repeat>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </apex:outputPanel>    
+        </div> 
+        <div class="slds">
+            <apex:outputPanel rendered="{!show}">           
+                <div class="slds-page-header" role="banner">
+                    <div class="slds-grid">
+                        <div class="slds-col">
+                            <div class="slds-media">
+                                <div class="slds-media__figure" style="border-radius: 50%;">
+                                    <img src="{!URLFOR($Resource.cldlylogo)}" class="logo-cldly"/>
+                                </div>
+                                <div class="slds-media__body">
+                                    <apex:outputpanel rendered="{!IF(newconnection.id=null, true, false)}">
+                                        <h1 class="slds-text-heading--medium">Setup New Connection to Dest Org</h1>
+                                    </apex:outputpanel>
+                                    <apex:outputpanel rendered="{!IF(newconnection.id=null, false, true)}">
+                                        <p class="slds-text-heading--label">Connection Edit</p>
+                                        <h1 class="slds-text-heading--medium">{!newconnection.name}</h1>
+                                    </apex:outputpanel>
+                                </div>
+                            </div>    
+                        </div>    
+                        <div class="slds-col slds-no-flex slds-align-middle">
+                            <div class="slds-media slds-no-space slds-grow" >
+                                <apex:commandButton styleclass="slds-button slds-button--neutral" value="save" action="{!save}" onclick="showSpinner()" reRender="formid"/>
+                                <apex:commandButton styleclass="slds-button slds-button--neutral" value="Cancel" action="{!cancel}" onclick="showSpinner()" immediate="true"/>
+                            </div>  
+                        </div>
+                    </div>
+                </div>
+                <apex:pageMessages />
+                <div class="slds" style="border:1px solid #d8dde6; margin-bottom:10px">  
+                    <div class="slds-page-header" style="background:#f4f6f9 !important;">
+                        <div class="slds-grid" >
+                            <div class="slds-col slds-has-flexi-truncate">
+                                <div class="slds-media slds-no-space slds-grow" style="float:left">
+                                    <div class="slds-media__figure">
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <p class="slds-text-title--caps slds-line-height--reset" style="font-size: 16px;">
+                                            To Migrate data/Content, First step is to establish connection between this ORG &amp; Dest Org. Please Enter Destination Org Details below.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Org Name<span style="color:red">*</span></label>
+                                    <div class="slds-form-element__control">
+                                        <apex:inputText value="{!connectionname}" Styleclass="slds-input" html-placeholder="Please Enter Destination Org Name"/>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Org Type<span style="color:red">*</span></label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-select_container">
+                                            <apex:selectList value="{!picklist}" multiselect="false" size="1" styleclass="slds-select" label="Connection Type">
+                                                <apex:selectOption itemValue="None" itemLabel="Select the Destination Type"/>
+                                                <apex:selectOption itemValue="Sandbox" itemLabel="Sandbox"/>
+                                                <apex:selectOption itemValue="Production" itemLabel="Production"/>
+                                            </apex:selectList> 
+                                        </div>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Dest UserName<span style="color:red">*</span></label>
+                                    <div class="slds-form-element__control">
+                                        <apex:inputField value="{!newconnection.Username__c}" html-placeholder="Please Enter Destination UserName" Styleclass="slds-input" />
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Dest Password<span style="color:red">*</span></label>
+                                    <div class="slds-form-element__control">
+                                        <apex:inputSecret value="{!newconnection.Password_Encrypted__c}" Styleclass="slds-input" html-placeholder="Enter the Destination Password" redisplay="true"/>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">
+                                        Dest Security Token
+                                        <c:helpTextComponent link="https://help.salesforce.com/articleView?id=user_security_token.htm&type=0"/> 
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                        <apex:inputField value="{!newconnection.Security_Token__c}" html-placeholder="Please Enter Security Token ID" Styleclass="slds-input"/>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">
+                                        Daily API Usage Limit%<span style="color:red">*</span>
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                       <apex:inputField value="{!newconnection.API_Usage__c}" Styleclass="slds-input" />
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">
+                                        Dest Org ID<span style="color:red">*</span>
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                       <apex:inputField value="{!newconnection.Org_Id__c}" html-placeholder="Please Enter Destination Salesforce Org ID" Styleclass="slds-input"/>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">
+                                        Set Audit Fields
+                                        <c:helpTextComponent helpText="Set audit fields, such as Created By and Last Modified By, when you create a record"/> 
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                       <apex:inputField value="{!newconnection.Set_Audit_Fields__c}" Styleclass="slds-checkbox"/>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-2 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">
+                                        Hourly Scheduled
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                       <apex:inputField value="{!newconnection.Hourly_Scheduled__c}" Styleclass="slds-checkbox"/>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </apex:outputPanel>
+        </div>
+    </apex:form>
+</apex:page>

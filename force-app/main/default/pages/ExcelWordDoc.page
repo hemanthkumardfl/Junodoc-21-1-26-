@@ -1,0 +1,5 @@
+<apex:page id="pageId"  Controller="PreviewPDF_Controller" applyBodyTag="false" showHeader="false" sidebar="false" applyHtmlTag="false">
+   <div class="number-of-pages">
+       <apex:dynamicComponent componentValue="{!ClassroomRelatedLists}" />      
+    </div>
+</apex:page>

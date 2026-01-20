@@ -1,0 +1,231 @@
+<aura:component controller="DynamicListView_AC" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:html tag="style">
+        .slds-modal__container{
+        max-width: 80rem !important;
+        width:80% !important;
+        }
+    </aura:html>    
+    <aura:attribute name="objectName" type="string" default=""/>
+    <aura:attribute name="records" type="list" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="Spinner" type="Boolean" /> 
+    <aura:attribute name="isSendPDF" type="boolean" default="false"/>
+    <aura:attribute name="toUserEmailsList" type="list" />
+    <aura:attribute name="toContactEmailsList" type="list" />
+    <aura:attribute name="toEmails" type="String" />    
+    <aura:attribute name="subject" type="String" />
+     <aura:attribute name="test1" type="String" default=""/>
+    <aura:attribute name="accList" type="list" default="[]"/>  
+    <aura:attribute name="emailbody" type="String" />   
+    <aura:attribute name="SaveAsActivity" type="Boolean" default="true" />
+    <aura:attribute name="AvailableDocTemplatesList" type="List" default="[]"/>    
+    <aura:attribute name="AvailableDocTemplateSelectedValue" type="String" default=""/>    
+    <aura:attribute name="StandardEmailTemplatesList" type="List" default="[]"/>    
+    <aura:attribute name="StandardEmailTemplateSelectedValue" type="String" default=""/>    
+    <aura:attribute name="JunoDocEmailTemplatesList" type="List" default="[]"/>    
+    <aura:attribute name="JunoDocEmailTemplateSelectedValue" type="String" default=""/>    
+    <aura:attribute name="DocTemplateId" type="String" />   
+    <aura:attribute name="isDocTemplate" type="boolean" default="false"/>
+    <aura:attribute name="DocTemplatesWraplist" type="list" default=""/>
+    <aura:attribute name="EmailField" type="string" default=""/>
+    <aura:attribute name="ErrorMessage" type="string" default=""/>
+    <aura:attribute name="isError" type="boolean" default=""/>
+    <aura:attribute name="ShowData" type="boolean" default="false"/>
+    <aura:attribute name="ShowActData" type="boolean" default="false"/>    
+    <aura:attribute name="activeSections" type="List" default="['A','B','C']" />    
+    <aura:handler action="{!c.handleNotification}" event="c:sendEmailList" name="emailList" />
+    <aura:attribute name="ObjectAPIName" type="String" />
+    <aura:attribute name="ToTextEmailsList" type="list" />
+    <aura:attribute name="ToEmailMergeFieldsList" type="list" />    
+    <aura:attribute name="CCTextEmailsList" type="list" />
+    <aura:attribute name="CCEmailMergeFieldsList" type="list" />        
+    <aura:attribute name="BCCTextEmailsList" type="list" />
+    <aura:attribute name="BCCEmailMergeFieldsList" type="list" />	    
+    <aura:attribute name="OrgwideEmailAddressList" type="List" default="[]"/>    
+    <aura:attribute name="FromEmailAddress" type="String" default=""/>
+    <aura:attribute name="SetReplyTo" type="String" default=""/>   
+    <aura:attribute name="variable1" type="boolean" default="false"/>
+    <aura:attribute name="listview" type="boolean" default="false"/>
+    <aura:attribute name="selectedValues" type="list" default="" description="Selected value in single Select" />
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+             aria-modal="true" aria-describedby="modal-content-id-1" 
+             class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container" >
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{!c.closeSendPDFModel}"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      size="large"                                          
+                                      class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Send PDF
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium " id="modal-content-id-1">
+                <aura:if isTrue="{!v.Spinner}">
+                    <div aura:id="spinnerId" class="slds-spinner_container" style="position: fixed;">
+                        <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </aura:if>
+                <br/>
+                <aura:if isTrue="{!v.isError}">
+                    <div style="padding:10px;font-weight:bold;background:darkred;color:white;position:absolute;width:98%;top:0px">
+                        {!v.ErrorMessage}
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.ShowData}">
+                    
+                    <aura:if isTrue="{!v.ShowActData}">
+                        <div class="slds-scrollable--x">
+                            <div class="slds-col slds-size_12-of-12">
+                                <lightning:accordion allowMultipleSectionsOpen="true"
+                                                     activeSectionName="{! v.activeSections }">
+                                    <lightning:accordionSection name="A" label="Select Email Addresses">
+                                        <aura:set attribute="body">
+                                            <aura:if isTrue="{!v.variable1}">
+                                            <c:AddEmailReceipient ObjectAPIName="{!v.objectName}" accList="{!v.accList}"/>
+                                        	</aura:if>
+                                        </aura:set>
+                                    </lightning:accordionSection>
+                                    
+                                    
+                                    <lightning:accordionSection name="B" label="Select From Email Address">
+                                        <div class="slds-col slds-size_12-of-12">
+                                            <div class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                                                <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large">
+                                                    <label>From Email Address:</label>	
+                                                    <!-- <lightning:helptext content="Please enter from Email Addresses [specify org wide email address only]" class="customIcon"/> -->
+                                                </div>
+                                                <div class="slds-col slds-size_8-of-12">
+                                                    <ui:inputSelect class="slds-select" aura:id="InputSelectSingle" value="{!v.FromEmailAddress}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.OrgwideEmailAddressList}" var="EmailTemplate">
+                                                            <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.FromEmailAddress ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                                                <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large">
+                                                    <label>Set Reply To:</label>	
+                                                    <!-- <lightning:helptext content="Please enter email address to set as reply to" class="customIcon"/>  -->
+                                                </div>
+                                                <div class="slds-col slds-size_8-of-12">
+                                                    <lightning:input name="input1"  value="{!v.SetReplyTo}" />                                            	    
+                                                </div>
+                                            </div>                                                                              
+                                        </div>
+                                    </lightning:accordionSection>
+                                    
+                                    <lightning:accordionSection name="C" label="Select Templates">
+                                        <div class="slds-col slds-size_12-of-12">
+                                            <div class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                                                <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large">
+                                                    Junodoc Email Templates:
+                                                    <!--lightning help text for input field-->
+                                                    <!-- <lightning:helptext content="Select JunoDoc Template." class="customIcon"/>   -->
+                                                </div>
+                                                <div class="slds-col slds-size_8-of-12">
+                                                    <ui:inputSelect class="slds-select" label="" aura:id="InputSelectSingle1" value="{!v.JunoDocEmailTemplateSelectedValue}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.JunoDocEmailTemplatesList}" var="EmailTemplate">
+                                                            <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.JunoDocEmailTemplateSelectedValue ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                    
+                                                </div>
+                                            </div>                                        
+                                            
+                                            <div class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                                                <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large">
+                                                    <label>Standard Email Templates:</label>	
+                                                    <!-- <lightning:helptext content="Select Email Template to auto fill Subject and Body. You can create new Email Template from Setup" class="customIcon"/>    -->
+                                                </div>
+                                                <div class="slds-col slds-size_8-of-12">
+                                                    <ui:inputSelect class="slds-select" aura:id="InputSelectSingle" value="{!v.StandardEmailTemplateSelectedValue}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.StandardEmailTemplatesList}" var="EmailTemplate">
+                                                            <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.StandardEmailTemplateSelectedValue ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                    
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                                                <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large">
+                                                    Junodoc Templates:
+                                                    <!--lightning help text for input field-->
+                                                    <!-- <lightning:helptext content="Select JunoDoc Email Template to auto fill Subject and Body." class="customIcon"/>   -->
+                                                </div>
+                                                <div class="slds-col slds-size_8-of-12">
+                                                    
+                                                    <ui:inputSelect class="slds-select" aura:id="JunoDocTemplateSelect" value="{!v.AvailableDocTemplateSelectedValue}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.AvailableDocTemplatesList}" var="EmailTemplate">
+                                                            <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.AvailableDocTemplateSelectedValue ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                </div>
+                                            </div>
+                                            
+                                            
+                                            
+                                            <div style="display:none;" class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                                                <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large">
+                                                    Enter Subject:  <label style="color:red;">*</label>   
+                                                </div>
+                                                <div class="slds-col slds-size_8-of-12">
+                                                    <lightning:input name="input2"  value="{!v.subject}" variant="label-hidden"/>	    
+                                                </div>
+                                            </div>
+                                            <div  style="display:none;" class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                                                <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large">
+                                                    Enter Body:  <label style="color:red;">*</label>    
+                                                </div>
+                                                <div class="slds-col slds-size_8-of-12">
+                                                    <lightning:inputRichText class="emailpre" value="{!v.emailbody}" variant="label-hidden"/>    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:accordionSection>
+                                </lightning:accordion>    
+                                
+                                
+                            </div>                        
+                        </div>
+                    </aura:if>
+                    
+                </aura:if>
+                <aura:if isTrue="{!!v.ShowData}">
+                    <div style="padding:10px;font-weight:bold;background:darkred;color:white;width:100%;top:0px;text-align:ceneter">
+                        Please select Records
+                    </div>
+                </aura:if>
+            </div>
+            
+            <footer class="slds-modal__footer">
+                <div>
+                    
+                    
+                    <div style="float:right;">
+                        <aura:if isTrue="{!v.ShowData}">
+                            <lightning:button variant="brand" onclick="{!c.SendPDFhandler}" >Send </lightning:button>
+                        </aura:if>
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{!c.closeSendPDFModel}"/>                            
+                    </div>
+                </div>
+                
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</aura:component>

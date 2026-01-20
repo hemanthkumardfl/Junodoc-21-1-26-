@@ -1,0 +1,27 @@
+<apex:page controller="Barcode_AC" renderAs="pdf">
+	<div style=" border: 1px solid black; min-width: 3in; padding: 0.2in 0.1in;text-align:center" >
+													<div>
+														<apex:repeat value="{!barCodeBars}" var="bar">
+																<h3  style="{!if(bar='1','margin-left:-3.2px;background-color: black;display: inline-block;padding: 0;width: 1px;height: 1cm;overflow: hidden','margin-left: -2.9px;background-color: white;display: inline-block;padding: 0;width: 1px;height: 1cm;overflow: hidden')}" />
+													   
+														</apex:repeat>
+													</div>
+													<div style="text-align: center">
+														<!-- we'll show the output text on the bottom, too -->
+														{!sourceCodeValue}
+													</div>
+												</div>
+    
+     <table>
+                <tr>
+                  <td colspan="8">         
+                    <apex:image value="{!imageUrl}"/>
+                  </td>
+                </tr>
+          </table>
+										
+                                  
+                                    
+                                    
+                                
+</apex:page>

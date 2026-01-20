@@ -1,0 +1,43 @@
+<apex:page showHeader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false">
+
+    <!-- Load PDF.js from static resources -->
+    <script src="{!$Resource.PdfMinJsMobile}"></script>
+     <script src="{!$Resource.PdfWorkerMinJs}"></script>
+
+
+
+    <div id="pdfViewer" style="width:100%;height:100vh;overflow:auto;background:#f3f3f3;"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        var recordId     = "{!JSENCODE($CurrentPage.parameters.id)}";
+        var docTemplateId = "{!JSENCODE($CurrentPage.parameters.DocTemplateId)}";
+
+        // Never hardcode namespace — use URLFOR
+        let pdfUrl = "{!URLFOR($Page.JunodocPDF)}" 
+                     + "?id=" + recordId 
+                     + "&DocTemplateId=" + docTemplateId;
+
+        const loadingTask = pdfjsLib.getDocument(pdfUrl);
+        const pdf = await loadingTask.promise;
+
+        const viewer = document.getElementById("pdfViewer");
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const vp = page.getViewport({ scale: 1.4 });
+
+          const canvas = document.createElement("canvas");
+          canvas.width = vp.width;
+          canvas.height = vp.height;
+
+          viewer.appendChild(canvas);
+
+          await page.render({
+            canvasContext: canvas.getContext("2d"),
+            viewport: vp
+          }).promise;
+        }
+      });
+    </script>
+</apex:page>

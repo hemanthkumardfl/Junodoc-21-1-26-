@@ -1,0 +1,8 @@
+<apex:page Controller="EmailTemplate_AC"  docType="html-5.0" standardStylesheets="true" showHeader="false" sidebar="false" applyHtmlTag="false" cache="true">
+      <html>
+    
+     <body>       
+			<apex:dynamicComponent componentValue="{!EmailBody}" />              
+      </body>
+    </html>   
+</apex:page>

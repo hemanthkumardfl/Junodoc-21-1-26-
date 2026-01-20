@@ -1,0 +1,263 @@
+<aura:component  implements="flexipage:availableForRecordHome,force:hasRecordId" controller="JunoSignDocumentSelectorCntrl" access="global">
+    <!-- Component Attributes -->
+    <aura:attribute name="selectedDocument" type="Object" default="null"/>
+    <aura:attribute name="activeTab" type="String" default="template"/>
+    <aura:attribute name="searchTerm" type="String" default=""/>
+    <aura:attribute name="defaultDocTemplate" type="Object" />
+    <aura:registerEvent name="docSelectorEvt" type="c:JunoSignDocumentSelectorEvt"/>
+    
+    <aura:attribute name="filetype" type="List" default="['.pdf','.docx']" />
+    <aura:attribute name="multiple" type="Boolean" default="true" />
+    <aura:attribute name="disabled" type="Boolean" default="true" />
+    <aura:attribute name="recordId" type="String" />
+    
+    <!-- Templates -->
+    <aura:attribute name="templates" type="List" default="[]"/>
+    <aura:attribute name="templatesPageNumber" type="Integer" default="1"/>
+    <aura:attribute name="templatesTotalRecords" type="Integer" default="0"/>
+    
+    <!-- Records -->
+    <aura:attribute name="recordFiles" type="List" default="[]"/>
+    <aura:attribute name="recordsPageNumber" type="Integer" default="1"/>
+    <aura:attribute name="recordsTotalRecords" type="Integer" default="0"/>
+    
+    <aura:attribute name="pageSize" type="Integer" default="10"/>
+    <aura:attribute name="totalRecords" type="Integer" default="0"/>
+    
+    
+    <!-- Component Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!-- CONTAINER -->
+    <div class="slds-container_large slds-container_center">
+        <!-- Header -->
+        <div class="slds-m-bottom_large">
+            <h1 class="slds-text-heading_large slds-m-bottom_x-small">Select Document for Signing</h1>
+            <!-- <aura:if isTrue="{!v.selectedDocument.label}">
+                <p>Selected Document/Template Name: {!v.selectedDocument.label}</p>
+            </aura:if> -->
+            
+        </div>
+        
+        <!-- lightning:tabset -->
+        <lightning:tabset variant="default" selectedTabId="{!v.activeTab}">
+            
+           
+            
+            <!-- Templates Tab -->
+            <lightning:tab label="Templates" iconName="utility:file" id="template">
+                <div class="slds-m-top_medium">
+                    <div class="slds-grid slds-grid_align-spread slds-m-around_medium slds-grid_align-end">
+                        <!-- Previous Button -->
+                        <lightning:button 
+                                          label="Previous" 
+                                          iconName="utility:chevronleft" 
+                                          variant="neutral"
+                                          onclick="{!c.handlePrevious}" 
+                                          class="slds-m-right_medium" 
+                                          disabled="{!v.templatesPageNumber == 1}"/>
+                        
+                        <!-- Page Number -->
+                        <span class="slds-text-heading_medium">
+                            Page {!v.templatesPageNumber}
+                        </span>
+                        
+                        <!-- Next Button -->
+                        <lightning:button 
+                                          label="Next" 
+                                          iconName="utility:chevronright" 
+                                          iconPosition="right" 
+                                          variant="brand"
+                                          onclick="{!c.handleNext}" 
+                                          class="slds-m-left_medium" 
+                                          disabled="{!v.templatesPageNumber * v.pageSize >= v.templatesTotalRecords}"/>
+                    </div>
+                </div>
+                
+                <div class="slds-form-element slds-m-top_medium slds-m-bottom_medium">
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
+                        
+                        <lightning:input type="search" placeholder="Search templates..."
+                                         value="{!v.searchTerm}" onchange="{!c.handleSearch}"/>
+                    </div>
+                </div>
+                <div class="slds-grid slds-wrap slds-gutters_small">
+                    <aura:iteration items="{!v.templates}" var="template">
+                        <div class="slds-col slds-size_1-of-1">
+                            <div class="{!'slds-box slds-box_link slds-p-around_medium slds-m-bottom_x-small' + 
+                                        (v.selectedDocument.id == template.value ? ' slds-box_link-selected' : '')}"
+                                 onclick="{!c.handleDocumentSelect}"
+                                 data-id="{!template.value}"
+                                 data-type="{!template.type}">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning:icon iconName="utility:file" size="medium" variant="success"/>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-grid slds-grid_align-spread">
+                                            <div class="slds-col">
+                                                <h4 class="slds-text-heading_x-small slds-m-bottom_xx-small">
+                                                    {!template.label}
+                                                </h4>
+                                            </div>
+                                            <div class="slds-col slds-no-flex">
+                                                <aura:if isTrue="{!template.isSelected}">
+                                                    <lightning:icon iconName="utility:check" size="small" variant="success"/>
+                                                </aura:if>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aura:iteration>
+                </div>
+            </lightning:tab>
+            
+            <!-- Records Tab -->
+            <lightning:tab label="Records" iconName="utility:open_folder" id="records">
+
+                <div class="slds-m-top_medium">
+                    <div class="slds-grid slds-grid_align-spread slds-m-around_medium slds-grid_align-end">
+                        <!-- Previous Button -->
+                        <lightning:button 
+                                          label="Previous" 
+                                          iconName="utility:chevronleft" 
+                                          variant="neutral"
+                                          onclick="{!c.handlePrevious}" 
+                                          class="slds-m-right_medium" 
+                                          disabled="{!v.recordsPageNumber == 1}"/>
+                        
+                        <!-- Page Number -->
+                        <span class="slds-text-heading_medium">
+                            Page {!v.recordsPageNumber}
+                        </span>
+                        
+                        <!-- Next Button -->
+                        <lightning:button 
+                                          label="Next" 
+                                          iconName="utility:chevronright" 
+                                          iconPosition="right" 
+                                          variant="brand"
+                                          onclick="{!c.handleNext}" 
+                                          class="slds-m-left_medium" 
+                                          disabled="{!v.recordsPageNumber * v.pageSize >= v.recordsTotalRecords}"/>
+                    </div>
+                </div>
+                
+                <div class="slds-form-element slds-m-top_medium slds-m-bottom_medium">
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
+                       
+                        <lightning:input type="search" placeholder="Search your files..."
+                                         value="{!v.searchTerm}" onchange="{!c.handleSearch}"/>
+                    </div>
+                </div>
+                <div class="slds-grid slds-wrap slds-gutters_small">
+                    <aura:iteration items="{!v.recordFiles}" var="record">
+                        <div class="slds-col slds-size_1-of-1">
+                            <div class="{!'slds-box slds-box_link slds-p-around_medium slds-m-bottom_x-small' + 
+                                        (v.selectedDocument.id == record.budgetRecord.ContentDocumentId ? ' slds-box_link-selected' : '')}"
+                                 onclick="{!c.handleDocumentSelect}"
+                                 data-id="{!record.budgetRecord.ContentDocumentId}"
+                                 data-type="records">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning:icon iconName="doctype:pdf" size="medium" variant="brand"/>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-grid slds-grid_align-spread">
+                                            <div class="slds-col">
+                                                <h4 class="slds-text-heading_x-small slds-m-bottom_xx-small">
+                                                    {!record.budgetRecord.ContentDocument.Title}
+                                                </h4>
+                                                <!-- div class="slds-grid slds-gutters_medium">
+                                                    <div class="slds-col slds-no-flex">
+                                                        <span class="slds-text-body_small slds-text-color_weak">{!record.type}</span>
+                                                    </div>
+                                                    <div class="slds-col slds-no-flex">
+                                                        <span class="slds-text-body_small slds-text-color_weak">{!record.size}</span>
+                                                    </div>
+                                                    <div class="slds-col slds-no-flex">
+                                                        <span class="slds-text-body_small slds-text-color_weak">{!record.date}</span>
+                                                    </div>
+                                                </div -->
+                                            </div>
+                                            <div class="slds-col slds-no-flex">
+                                                <aura:if isTrue="{!record.isSelected}">
+                                                    <lightning:icon iconName="utility:check" size="small" variant="success"/>
+                                                </aura:if>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aura:iteration>
+                </div>
+            </lightning:tab>
+            
+             <!-- Upload Tab -->
+            <lightning:tab label="Upload" iconName="utility:upload" id="upload">
+                <div class="slds-box slds-box_link slds-text-align_center slds-p-around_xx-large slds-m-top_medium"
+                     style="border: 2px dashed #dddbda; background-color: #fafaf9;">
+                    <lightning:icon iconName="utility:upload" size="large" class="slds-m-bottom_medium" variant="neutral"/>
+                    <!--h3 class="slds-text-heading_small slds-m-bottom_small">Upload your document</h3>
+                    <p class="slds-text-color_weak slds-m-bottom_medium">Drag &amp; drop or click to browse</p>
+                    <lightning:button variant="brand" label="Choose File" onclick="{!c.handleFileUpload}"/>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_small">PDF</p -->
+                    
+                    <lightning:fileUpload label="Choose file"
+                                          name="fileUploader"
+                                          multiple="false"
+                                          accept="{!v.filetype}"
+                                          recordId="{!v.recordId}"
+                                          disabled="{!v.selectedDocument.label}"
+                                          onuploadfinished="{!c.handleUploadFinished}" />
+                </div>
+                 <aura:if isTrue="{!v.selectedDocument.label}">
+                    <div class="slds-grid slds-m-top_small">
+                <p>Selected Document/Template Name: {!v.selectedDocument.label}</p> &nbsp;
+                            <lightning:buttonIcon
+                        iconName="utility:close"
+                        variant="bare"
+                        alternativeText="Remove"
+                        title="Remove"
+                        onclick="{!c.clearSelectedDocument}" />
+                        </div>
+
+            </aura:if>
+            </lightning:tab>
+            
+        </lightning:tabset>
+        
+        <!-- Selected Document Confirmation -->
+        <!-- aura:if isTrue="{!not(empty(v.selectedDocument))}">
+            <div class="slds-box slds-theme_success slds-m-top_large">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <lightning:icon iconName="utility:success" size="small" variant="inverse"/>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                            <div class="slds-col">
+                                <h4 class="slds-text-heading_x-small slds-text-color_inverse">
+                                    Selected: {!v.selectedDocument.name}
+                                </h4>
+                                <p class="slds-text-body_small slds-text-color_inverse-weak">
+                                    Ready for signing
+                                </p>
+                            </div>
+                            <div class="slds-col slds-no-flex">
+                                <div class="slds-button-group" role="group">
+                                    <lightning:button variant="neutral" label="Change" onclick="{!c.handleChangeDocument}"/>
+                                    <lightning:button variant="brand" label="Continue to Sign" onclick="{!c.handleContinueToSign}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aura:if-->
+        
+    </div>
+</aura:component>

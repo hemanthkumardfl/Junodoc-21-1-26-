@@ -1,0 +1,570 @@
+<aura:component controller="Dynamic_GeneratePDF_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,lightning:isUrlAddressable" access="global" >
+        
+        <!--style to incraee width-->
+        <aura:html tag="style">
+            .slds-modal__container{
+                max-width: 80rem !important;
+                width:80% !important;
+            }
+            
+                .buttonMobile{
+                    padding: 0.25rem 0.5rem !important;
+                    font-size: 0.70rem !important;
+                    white-space: nowrap;
+                }
+            
+                .button-bar {
+                    gap: 2px;
+                }
+            
+        </aura:html> 
+        <aura:attribute name="isMobile" type="Boolean" default="false" />
+        <aura:attribute name = "DisableEmailBody" type = "boolean" default = "true"/>
+        <aura:attribute name = "isCancelGenerate" type = "boolean" default = "false"/>
+        <aura:attribute name="isGeneratedFrom" type="Boolean" default = "false"/> 
+        <aura:attribute name="Spinner" type="Boolean" /> 
+        <aura:attribute name="urillink" type="string" default=""/>
+        <aura:attribute name="isSendPDF" type="boolean" default="false"/>
+        <aura:attribute name="toUserEmailsList" type="list" />
+        <aura:attribute name="toContactEmailsList" type="list" />
+        <aura:attribute name="toEmails" type="String" />  
+        <aura:attribute name="SetReplyTo" type="String" /> 
+                   <!--siddhu-->
+         <aura:attribute name="isInputDisabled" type="Boolean" default="false" />
+         <aura:attribute name="referenceValues" type="String" /> 
+         <aura:attribute name="textValues" type="String" /> 
+          <aura:attribute name="fieldDetails" type="String" />
+         <aura:attribute name="VFpageName" type="String" /> 
+         <aura:attribute name="isVFPage" type="Boolean" default = "True"/> 
+    
+        <aura:attribute name="SetSenderDisplayName" type="String" />            
+        <aura:attribute name="subject" type="String" />
+        <aura:attribute name="emailbody" type="String" />  
+        <aura:attribute name="variable1" type="boolean" default="false"/>
+        <aura:attribute name="SaveAsActivity" type="Boolean" default="true" />
+        <aura:attribute name="AvailableDocList" type="string" />
+        <aura:attribute name="AvailableDocTemplatesList" type="List" default="[]"/>    
+        <aura:attribute name="AvailableDocTemplateSelectedValue" type="String" default=""/>    
+        <aura:attribute name="StandardEmailTemplatesList" type="List" default="[]"/>    
+        <aura:attribute name="StandardEmailTemplateSelectedValue" type="String" default=""/>    
+        <aura:attribute name="JunoDocEmailTemplatesList" type="List" default="[]"/>    
+        <aura:attribute name="JunoDocEmailTemplateSelectedValue" type="String" default=""/>    
+        <aura:attribute name="DocTemplateId" type="String" />
+        <aura:attribute name="DocTemplatesWraplist" type="list" />
+        <aura:attribute name="selectedValues" type="String" />
+        <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+        <aura:attribute name="isDocTemplate" type="boolean" default="false"/>
+        <aura:attribute name="isDocWordTemplate" type="boolean" default="false"/>
+        <aura:attribute name="isDocWordTemplateAttach" type="boolean" default="false"/>
+        
+        <aura:attribute name="isDocExcelTemplate" type="boolean" default="false"/>
+        <aura:attribute name="activeSections" type="List" default="['A','B','C']" />    
+        <aura:handler action="{!c.handleNotification}" event="c:sendEmailList" name="emailList" />
+        <aura:attribute name="ObjectAPIName" type="String" />
+        <aura:attribute name="ToTextEmailsList" type="list" />
+        <aura:attribute name="ToEmailMergeFieldsList" type="list" />    
+        <aura:attribute name="CCTextEmailsList" type="list" />
+        <aura:attribute name="CCEmailMergeFieldsList" type="list" />        
+        <aura:attribute name="BCCTextEmailsList" type="list" />
+        <aura:attribute name="BCCEmailMergeFieldsList" type="list" />	    
+        <aura:attribute name="OrgwideEmailAddressList" type="List" default="[]"/>    
+        <aura:attribute name="FromEmailAddress" type="String" default=""/>    
+        <aura:attribute name="JunodocUrl" type="String" default="apex"/>    
+        <aura:attribute name="VFPage" type="boolean" default="false"/> 
+        <aura:attribute name="uploadFile" type="boolean" default="false"/> 
+        <aura:attribute name = "accList" type ="list"></aura:attribute>
+        <aura:attribute name="Selectedfile" type="string"/>
+        <aura:attribute name="isJunosign" type="boolean" default="false"/>
+        <aura:attribute name="EnableJuno" type="boolean" default="false"/>
+        
+        <aura:attribute name="isError" type="Boolean" access="global" default="false"/>
+        <aura:attribute name="message" type="String" access="global"/>
+        
+        <aura:attribute name="showLoadingSpinner" type="boolean" default="false" />
+        
+        <!--List of file which are uploaded -->
+        <aura:attribute name="FilesUploaded" type="List" />
+        
+        
+        <aura:attribute name="uploadFileList" type="List" />
+        <aura:attribute name="removefiledataList" type="List" />
+        <aura:attribute name="fileData" type="List" access="global"/>
+        <aura:attribute name="FileNameList" type="List" />
+        <aura:attribute name="fileName" type="String" access="global"/>
+        <aura:attribute name="FileLabelList" type="List" default="[]"/>
+        <aura:attribute name="DivStyle" type="string" default=""/>
+        <aura:attribute name="baseString" type="string" default=""/>
+        
+        <aura:attribute name="isFile" type="boolean" default="false"/>
+        <aura:attribute name="FileId" type="string"/>
+        <aura:attribute name="recType" type="string" default=""/>
+        
+        <aura:attribute name="PostActList" type="list"/>
+        
+        <!-- Added by Sainath on 09-Sep-2025 Start -->
+        <aura:attribute name="hideAttachAsPDF" type="boolean" default="true"/>
+        <aura:attribute name="hideSaveAsActivity" type="boolean" default="true"/>
+        <!-- Added by Sainath on 09-Sep-2025 End -->
+        
+        
+        <div style = "{!v.DivStyle}">
+            
+        <div>    
+            <div class="divAvailableDocTemplates" style="float:left;position: relative;bottom: 14px;">
+                <div >
+                <label>Available Doc Templates </label>
+                <ui:inputSelect class="slds-select" aura:id="InputSelectSingle" value="{!v.AvailableDocTemplateSelectedValue}" change="{!c.AvailableDocTemplateOnchangeHandler}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.AvailableDocTemplatesList}" var="DocTemplate">
+                                                            <ui:inputSelectOption text="{!DocTemplate.value}" label="{!DocTemplate.label}" value="{!DocTemplate.value == v.AvailableDocTemplateSelectedValue ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                </div>
+            </div>
+           <aura:if isTrue="{!v.isMobile}">
+            <div class="button-bar" style="float:right;">
+                <aura:if isTrue = "{!v.isCancelGenerate}">
+                    <lightning:button variant="neutral" label="Cancel" class="buttonMobile"
+                                  onclick="{! c.CancelGenerate }" /> 
+                </aura:if>
+                <aura:if isTrue="{!v.isDocTemplate}">
+                    <aura:if isTrue="{!v.EnableJuno}">
+                        <lightning:button variant="brand" label="JunoSign" title="This PDF will be sent as an attachment to email"  class="buttonMobile"
+                                          onclick="{! c.openJunosignModel }" /> 
+                    </aura:if>
+                    <aura:if isTrue="{!v.hideAttachAsPDF}">
+                        <lightning:button variant="brand" label="Attach as PDF" title="This PDF will be created as file for this record"  class="buttonMobile"
+                                          onclick="{! c.handleCreatePDF }" />
+                    </aura:if>
+                    <lightning:button variant="brand" label="Send as PDF" title="This PDF will be sent as an attachment to email"  class="buttonMobile"
+                                      onclick="{! c.openSendPDFModel }" /> 
+                </aura:if>
+               <aura:if isTrue="{!or(v.isDocWordTemplate,v.isDocWordTemplateAttach)}">
+               <lightning:button variant="brand" label="Attach as Word" title="This PDF will be sent as an attachment to email"  class="buttonMobile"
+                                  onclick="{! c.handleCreateWord }" /> 
+                
+                <lightning:button variant="brand" label="Send as Word" title="This PDF will be sent as an attachment to email"  class="buttonMobile"
+                                  onclick="{! c.openSendPDFModel }" /> 
+                </aura:if> 
+                
+                <aura:if isTrue="{!v.isDocExcelTemplate}">
+               <lightning:button variant="brand" label="Attach as Excel" title="This PDF will be sent as an attachment to email"  class="buttonMobile"
+                                  onclick="{! c.handleCreateExcel }" /> 
+                
+                <lightning:button variant="brand" label="Send as Excel" title="This PDF will be sent as an attachment to email"  class="buttonMobile"
+                                  onclick="{! c.openSendPDFModel }" /> 
+                </aura:if> 
+              <!--   <lightning:button variant="brand" label="Create Excel" title="This PDF will be sent as an attachment to email"  
+                                  onclick="{! c.handleCreateExcel }" />  -->
+                
+                
+            </div>  
+            </aura:if>
+             <aura:if isTrue="{!!v.isMobile}">
+            <div  style="float:right;">
+                <aura:if isTrue = "{!v.isCancelGenerate}">
+                    <lightning:button variant="neutral" label="Cancel" 
+                                  onclick="{! c.CancelGenerate }" /> 
+                </aura:if>
+                <aura:if isTrue="{!v.isDocTemplate}">
+                    <aura:if isTrue="{!v.EnableJuno}">
+                        <lightning:button variant="brand" label="JunoSign" title="This PDF will be sent as an attachment to email"  
+                                          onclick="{! c.openJunosignModel }" /> 
+                    </aura:if>
+                    <aura:if isTrue="{!v.hideAttachAsPDF}">
+                        <lightning:button variant="brand" label="Attach as PDF" title="This PDF will be created as file for this record"  
+                                          onclick="{! c.handleCreatePDF }" />
+                    </aura:if>
+                    <lightning:button variant="brand" label="Send as PDF" title="This PDF will be sent as an attachment to email"  
+                                      onclick="{! c.openSendPDFModel }" /> 
+                </aura:if>
+               <aura:if isTrue="{!or(v.isDocWordTemplate,v.isDocWordTemplateAttach)}">
+               <lightning:button variant="brand" label="Attach as Word" title="This PDF will be sent as an attachment to email"  
+                                  onclick="{! c.handleCreateWord }" /> 
+                
+                <lightning:button variant="brand" label="Send as Word" title="This PDF will be sent as an attachment to email"  
+                                  onclick="{! c.openSendPDFModel }" /> 
+                </aura:if> 
+                
+                <aura:if isTrue="{!v.isDocExcelTemplate}">
+               <lightning:button variant="brand" label="Attach as Excel" title="This PDF will be sent as an attachment to email"  
+                                  onclick="{! c.handleCreateExcel }" /> 
+                
+                <lightning:button variant="brand" label="Send as Excel" title="This PDF will be sent as an attachment to email"  
+                                  onclick="{! c.openSendPDFModel }" /> 
+                </aura:if> 
+              <!--   <lightning:button variant="brand" label="Create Excel" title="This PDF will be sent as an attachment to email"  
+                                  onclick="{! c.handleCreateExcel }" />  -->
+                
+                
+            </div>  
+            </aura:if>
+        </div>        
+            
+        <br/><br/>
+        <aura:if isTrue="{!v.isDocTemplate}">
+            <aura:if isTrue="{!v.isMobile}">
+                <div style="text-align: center;">
+
+                     <iframe src="{!v.JunodocUrl+'/JunoDoc__JunodocPDFMobile?id='+v.recordId+'&amp;DocTemplateId='+v.DocTemplateId}"   width="100%" height="800px;"
+                frameBorder="0"
+                />                               
+                </div>
+            <aura:set attribute="else">
+                <div class="row" style="border:2px solid silver;">   
+                    <aura:if isTrue="{!v.DocTemplateId!=''}">
+                        <!-- <iframe src="{! '/apex/DocTemplatePDF_VF?id='+v.recordId}" width="100%" height="500px;" frameBorder="0"/> -->
+                        <iframe src="{!v.JunodocUrl+'/JunoDoc__JunodocPDF?id='+v.recordId+'&amp;DocTemplateId='+v.DocTemplateId}" width="100%" height="800px;" frameBorder="0"/>   
+                        <aura:set attribute="else">
+                            <div style="width:25%; height:500px;font-family:sans-serif;margin:0 auto;font-size:14px;">
+                                 <label>Please Select Available Doc Template</label>
+                            </div>
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </aura:set>
+            </aura:if>
+        </aura:if>
+            
+            
+         
+            
+     	<aura:if isTrue="{!v.isDocWordTemplate}">
+            <aura:if isTrue="{!v.isMobile}">
+                <div style="text-align: center;">
+                    <iframe src="{!v.JunodocUrl+'/JunoDoc__PreviewTemplateWord?id='+v.recordId+'&amp;DocTemplateId='+v.DocTemplateId}"  width="100%" 
+                        height="800px" 
+                        frameBorder="0"
+                        />                               
+                </div>
+            <aura:set attribute="else">
+                <div class="row" style="border:2px solid silver;">   
+                    <aura:if isTrue="{!v.DocTemplateId!=''}">
+                        <iframe src="{!v.JunodocUrl+'/JunoDoc__PreviewTemplateWord?id='+v.recordId+'&amp;DocTemplateId='+v.DocTemplateId}" width="100%" height="500px;" frameBorder="0" />                               
+                    </aura:if>
+                </div>
+            </aura:set>
+            </aura:if>
+            
+        </aura:if>
+       <!-- <aura:if isTrue="{!v.isDocWordTemplateAttach}">
+            <div class="row" style="border:2px solid silver;">   
+                <aura:if isTrue="{!v.DocTemplateId!=''}">
+                    <iframe src="{! '/'+v.JunodocUrl+'/JunoDoc__PreviewWordDoc?id='+v.recordId+'&amp;DocTemplateId='+v.DocTemplateId+'&amp;redirecturl='+v.urillink}" width="100%" height="500px;" frameBorder="0"/>                               
+                </aura:if>
+            </div>
+        </aura:if>-->
+        <aura:if isTrue="{!v.isDocExcelTemplate}">
+            <div class="row" style="border:2px solid silver;">
+                <aura:if isTrue="{!v.isMobile}">
+                    <div style="text-align: center;">
+                        <aura:if isTrue="{!v.isFile}">
+                            <aura:if isTrue="{!(v.recType == 'Excel')}">
+                                <iframe src="{!v.JunodocUrl+'/JunoDoc__FileUploadAndReplace?Id='+v.recordId+'&amp;versionId='+v.FileId}" 
+                                        width="100%" 
+                                        height="500px;" 
+                                        frameBorder="0"/>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!!v.isFile}">
+                            <aura:if isTrue="{!v.DocTemplateId!=''}">
+                                <iframe src="{!v.JunodocUrl+'/JunoDoc__PreviewExcelMobile?id='+v.recordId+'&amp;DocTemplateId='+v.DocTemplateId}" 
+                                        width="100%" 
+                                        height="500px;" 
+                                        frameBorder="0"/>
+                            </aura:if>
+                        </aura:if>
+                    </div> 
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!v.isFile}">
+                            <aura:if isTrue="{!(v.recType == 'Excel')}">
+                                <iframe src="{!v.JunodocUrl+'/JunoDoc__FileUploadAndReplace?Id='+v.recordId+'&amp;versionId='+v.FileId}" 
+                                        width="100%" 
+                                        height="500px;" 
+                                        frameBorder="0"/>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!!v.isFile}">
+                            <aura:if isTrue="{!v.DocTemplateId!=''}">
+                                <iframe src="{!v.JunodocUrl+'/JunoDoc__PreviewExcel?id='+v.recordId+'&amp;DocTemplateId='+v.DocTemplateId}" 
+                                        width="100%" 
+                                        height="500px;" 
+                                        frameBorder="0"/>
+                            </aura:if>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+            </div>
+          </aura:if>
+           
+        </div>
+        
+        <aura:if isTrue="{!v.Spinner}">
+            <div aura:id="spinnerId" class="slds-spinner_container" style="position: fixed;">
+                <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                    <span class="slds-assistive-text">Loading</span>
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                    <div class="custom-loading-text">
+                        <b>Processing, Please Wait</b>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.isJunosign}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+                     aria-modal="true" aria-describedby="modal-content-id-1" 
+                     class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" style="width:100% !important;min-width:100% !important;background;background: rgb(0 0 0 / 60%);" >
+                     <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{!c.closeJunosignModel}"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              size="large"                                          
+                                              class="slds-modal__close"/>
+                    </header>
+                    <div >
+                         <c:Junodoc_Sign recordId = "{!v.recordId}" Selectedfiles="{!v.Selectedfile}" isVFpage="{!v.VFPage}"/>
+                    </div>
+                    
+                </div>
+            </section> 
+        </aura:if>
+        
+        
+        
+        <aura:if isTrue="{!v.isSendPDF}">
+            
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+                     aria-modal="true" aria-describedby="modal-content-id-1" 
+                     class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container" >
+                     <aura:if isTrue="{!v.isError}">
+                            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                                <span class="slds-assistive-text">error</span>
+                                <h2>
+                                    {!v.message}
+                                </h2>
+                                <div class="slds-notify__close">
+                                    
+                                </div>
+                            </div>
+                        </aura:if>
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{!c.closeSendPDFModel}"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              size="large"                                          
+                                              class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Send PDF
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium " id="modal-content-id-1">
+                        <aura:if isTrue="{!v.Spinner}">
+                            <div aura:id="spinnerId" class="slds-spinner_container" style="position: fixed;">
+                                <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                                    <span class="slds-assistive-text">Loading</span>
+                                    <div class="slds-spinner__dot-a"></div>
+                                    <div class="slds-spinner__dot-b"></div>
+                                </div>
+                            </div>
+                        </aura:if>
+                        <br/>
+                        
+                        <div class="slds-scrollable--x">
+                            <div class="slds-col slds-size_12-of-12">
+                                <lightning:accordion allowMultipleSectionsOpen="true"
+                                                      
+                                                    activeSectionName="{! v.activeSections }">
+                                    <lightning:accordionSection name="A" label="Select Email Addresses">
+                                        <aura:set attribute="body">
+                                             <aura:if isTrue="{!v.variable1}">
+                                            <c:AddEmailReceipient ObjectAPIName="{!v.ObjectAPIName}" accList = "{!v.accList}" />
+                                            </aura:if>
+                                       </aura:set>
+                                    </lightning:accordionSection>
+                                    
+                                    
+                                    <lightning:accordionSection name="B" label="Select From Email Address">
+                                        <div class="slds-col slds-size_12-of-12 slds-p-horizontal_medium"> 
+                                            
+                                            <div class="slds-grid slds-wrap slds-m-bottom_small">
+                                                
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_3-of-12 slds-p-horizontal_small">
+                                                    <label>From Email Address:</label>
+                                                    <lightning:helptext content="Please enter from Email Addresses [specify org wide email address only]" class="customIcon" onclick="{!c.goToUrl}"/>
+                                                </div>
+                                                
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_9-of-12 slds-p-horizontal_small">
+                                                    <ui:inputSelect class="slds-select" aura:id="InputSelectSingle" value="{!v.FromEmailAddress}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.OrgwideEmailAddressList}" var="EmailTemplate">
+                                                            <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.FromEmailAddress ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="slds-grid slds-wrap slds-m-bottom_small">
+                                                
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_3-of-12 slds-p-horizontal_small">
+                                                    <label>Set Reply To:</label>	
+                                                    <lightning:helptext content="Please enter email address to set as reply to" class="customIcon"/>
+                                                </div>
+                                                
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_9-of-12 slds-p-horizontal_small">
+                                                    <lightning:input name="input1" value="{!v.SetReplyTo}" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:accordionSection>
+                                    
+                                    <lightning:accordionSection name="C" label="Select Templates">
+                                        <div class="slds-col slds-size_12-of-12 slds-p-horizontal_medium">
+                                            
+                                            <div class="slds-grid slds-wrap slds-m-bottom_small">
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_3-of-12 slds-p-horizontal_small">
+                                                    <label>Standard Email Templates:</label>	
+                                                    <lightning:helptext content="Select Email Template to auto fill Subject and Body. You can create new Email Template from Setup" class="customIcon"/>
+                                                </div>
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_9-of-12 slds-p-horizontal_small">
+                                                    <ui:inputSelect class="slds-select" aura:id="InputSelectSingle" value="{!v.StandardEmailTemplateSelectedValue}" change="{!c.StandardEmailTemplateOnchangeHandler}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.StandardEmailTemplatesList}" var="EmailTemplate">
+                                                            <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.StandardEmailTemplateSelectedValue ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="slds-grid slds-wrap slds-m-bottom_small">
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_3-of-12 slds-p-horizontal_small">
+                                                    <label>Junodoc Email Templates:</label>
+                                                    <lightning:helptext content="Select JunoDoc Email Template to auto fill Subject and Body." class="customIcon"/>
+                                                </div>
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_9-of-12 slds-p-horizontal_small">
+                                                    <ui:inputSelect class="slds-select" label="" aura:id="InputSelectSingle1" value="{!v.JunoDocEmailTemplateSelectedValue}" change="{!c.JunoDocEmailTemplateOnchangeHandler}">
+                                                        <ui:inputSelectOption text="" label="choose one..."/>
+                                                        <aura:iteration items="{!v.JunoDocEmailTemplatesList}" var="EmailTemplate">
+                                                            <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.JunoDocEmailTemplateSelectedValue ? 'true' : 'false'}"/>	
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="slds-grid slds-wrap slds-m-bottom_small">
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_3-of-12 slds-p-horizontal_small">
+                                                    <label>Enter Subject: <span style="color:red;">*</span></label>
+                                                </div>
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_9-of-12 slds-p-horizontal_small">
+                                                    <lightning:input name="input2" value="{!v.subject}" variant="label-hidden"/>	
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="slds-grid slds-wrap slds-m-bottom_small">
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_3-of-12 slds-p-horizontal_small">
+                                                    <label>Enter Body: <span style="color:red;">*</span></label>
+                                                </div>
+                                                <div class="slds-col slds-size_12-of-12 slds-medium-size_9-of-12 slds-p-horizontal_small">
+                                                    <aura:if isTrue="{!!v.DisableEmailBody}">
+                                                        <div style="width:100%;text-align:right"><lightning:buttonIcon iconName="utility:skip_back" variant="bare" onclick="{! c.handleout }" alternativeText="Edit" /></div>
+                                                        <lightning:inputRichText aura:id="richText2" value="{!v.emailbody}"/>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.DisableEmailBody}">	
+                                                        <div style="width:100%;text-align:right"><lightning:buttonIcon iconName="utility:edit" variant="bare" onclick="{! c.handleClick }" alternativeText="Edit" /></div>
+                                                        <div style="padding:5px;border:1px solid lightgray;border-radius:3px;overflow-y:scroll;width:100%">
+                                                            <aura:unescapedHtml value="{!v.emailbody}"></aura:unescapedHtml>
+                                                        </div>
+                                                    </aura:if>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row slds-p-vertical_small">
+                                                <div class="slds-grid slds-wrap">
+                                                    <div class="slds-col slds-size_12-of-12">
+                                                        <div class="slds-form-element__control">
+                                                            <div class="slds-file-selector slds-file-selector_files">
+                                                                <div class="slds-file-selector__dropzone">
+                                                                    <input type="file" class="slds-file-selector__input slds-assistive-text" id="file-upload-input-01" onchange="{!c.handleFilesChange}" aria-labelledby="file-selector-primary-label file-selector-secondary-label" disabled="{!v.isInputDisabled}" multiple="true"/>
+                                                                    <label class="slds-file-selector__body" for="file-upload-input-01" id="file-selector-secondary-label">
+                                                                        <span class="slds-file-selector__button slds-button slds-button_neutral">
+                                                                            Upload Files
+                                                                        </span>
+                                                                        <span class="slds-file-selector__text slds-medium-show">or Drop Files</span>
+                                                                        </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="slds-col slds-size_12-of-12 slds-p-top_small">
+                                                        <aura:iteration items="{!v.FileNameList}" var="item" indexVar="indx">
+                                                            <lightning:layout class="slds-wrap">
+                                                                <lightning:layoutItem size="10" smallDeviceSize="10" padding="around-small" class="myclass">
+                                                                    <div style="word-break: break-word;">
+                                                                        {!item}
+                                                                    </div>
+                                                                </lightning:layoutItem>
+                                                                <lightning:layoutItem size="2" smallDeviceSize="2" padding="around-small" class="myclass slds-align_absolute-center">
+                                                                    <div onclick="{!c.removeRow}" title="{!indx}">
+                                                                        <lightning:icon iconName="utility:close" class="myUniqueClass" size="xx-small" alternativeText="Remove File" />
+                                                                    </div>
+                                                                </lightning:layoutItem>
+                                                            </lightning:layout>
+                                                        </aura:iteration>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:accordionSection>
+                                </lightning:accordion>    
+                            </div>
+                            
+                        </div>                    
+                        
+                    </div>
+                    
+                    <footer class="slds-modal__footer">   
+                        <div class="slds-grid slds-grid_align-spread slds-wrap slds-col slds-size_1-of-1">
+                            
+                            <aura:if isTrue="{!v.hideSaveAsActivity}">
+                                <div class="slds-col slds-size_5-of-12 slds-small-size_4-of-5 slds-p-top_x-small" style="text-align:right">
+                                    <div class="slds-form-element slds-form-element_control slds-p-left_small">
+                                        <div class="slds-checkbox">
+                                            <input type="checkbox" id="SaveAsActivityCheckbox"
+                                                   checked="{!v.SaveAsActivity}"
+                                                   value="{!v.SaveAsActivity}"
+                                                   onchange="{!c.SaveAsActivityHandler}" />
+                                            <label class="slds-checkbox__label" for="SaveAsActivityCheckbox">
+                                                <span class="slds-checkbox_faux"></span>
+                                                <span class="slds-form-element__label">Save as Activity</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            
+                            <div class="slds-col slds-size_7-of-12 slds-small-size_1-of-5 slds-align_right">
+                                <lightning:button variant="brand" 
+                                                  onclick="{!c.SendPDFhandler}"
+                                                  class="slds-m-left_x-small">Send</lightning:button>
+                                <lightning:button variant="neutral"
+                                                  label="Cancel"
+                                                  title="Cancel"
+                                                  onclick="{!c.closeSendPDFModel}"/>
+                            </div>
+                            
+                        </div>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+    
+    
+        
+    </aura:component>

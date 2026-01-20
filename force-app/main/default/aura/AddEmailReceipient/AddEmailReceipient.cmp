@@ -1,0 +1,858 @@
+<aura:component controller = "AddEmailRecipientController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="docTemp" type="string"/>
+    <aura:attribute name="toggleSpinner" type="boolean" default="false" />
+    <!-- Need to pass this APIName Dyanamically -->
+    <aura:attribute name="ObjectAPIName" type="string" default="Contact"/>
+    <aura:attribute name="showChildComponent" type="Boolean" default="false" />
+    <aura:attribute name="parents" type="string" default="" />
+    <aura:attribute name="ObjectLabelName" type="string" />
+    <aura:attribute name="InitialObjectFields" type="List" />
+    <aura:attribute name="FirstLevelObjectFields" type="List" />
+    <aura:attribute name="SecondLevelObjectFields" type="List" />
+    <aura:attribute name="ThirdLevelObjectFields" type="List" />
+    <aura:attribute name="FinalLevelObjectFields" type="List" />
+    <aura:attribute name="FirstLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="SecondLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="ThirdLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="FinalLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="fieldDetails" type="String" />
+    <aura:attribute name="FirstLevField" type="string" />
+    <aura:attribute name="SecondLevField" type="string" />
+    <aura:attribute name="ThirdLevField" type="string" />
+    <aura:attribute name="FinalLevField" type="string" />
+    <aura:attribute name="ShowLevel1" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel2" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel3" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel4" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel5" type="boolean" default="false" />
+    <aura:attribute name="ispostaActions" type="boolean" default="true" />
+    <aura:attribute name="toAddRowListExist" type="boolean" default="false" />
+    <aura:attribute name="isManualEmailAddRow" type="boolean" default="false" />
+    <aura:attribute name="isSigneeMapping" type="boolean" default="false" />
+    <aura:attribute name="ToCcBccPicklistVal" type="string" default = "To" />
+    <aura:attribute name="TextRefPicklistVal" type="string" default = "Text" />
+    <aura:attribute name="TextName" type="string" default = "" />
+    <!-- <aura:attribute name="options2" type="List" default="[]"/> -->
+    
+    <aura:attribute name="selectedValue" type="string" />
+    <aura:attribute name="SecondSelectedValue" type="string" />
+    <aura:attribute name="ThirdSelectedValue" type="string" />
+    <aura:attribute name="FourthSelectedValue" type="string" />
+    <aura:attribute name="toEmailListExist" type="boolean" default="false" />
+    <aura:attribute name="manualEmailAddress" type="string" />
+    <aura:attribute name="SaveButtonDisabled" type="boolean" default="true" />
+    <aura:attribute name="AddRowButtonDisabled" type="boolean" default="true" />    
+    <aura:attribute name="breadcrumbCollection" type="Object"/>
+    <aura:attribute name="AddRowTemporaryList" type="List"/>
+    <aura:attribute name="AddRowButtonClicked" type="boolean" default="false" />
+    
+    <aura:attribute name="VFPage" type="boolean" default="false"/>   
+    
+    <aura:attribute name="emailTypeRecipient" type="String" />
+    <aura:attribute name="docTemplate" type="String" />
+    <aura:attribute name="isReference" type="boolean" default="false" />
+    <aura:attribute name = "accList" type ="list"></aura:attribute>
+    <aura:attribute name = "ccaccList" type ="list"></aura:attribute>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:registerEvent name="emailList" type="c:sendEmailList"/>
+    
+    <aura:attribute name="AvailableDocTemplateSelectedValue" type="String" default=""/>
+    <aura:attribute name="AvailableDocTemplatesList" type="List" default="[]"/>
+    <aura:attribute name="DocTemplateId" type="String" />
+    <aura:attribute name="selectedDefaultDocTemplate" type="Object" />
+    
+    <aura:attribute name="isContactorUser" type="Boolean" default="false" />
+    <aura:attribute name="selectedReferenceValue" type="String" />
+    <aura:attribute name="conorUserListInOrg" type="List" />
+    <aura:attribute name="selectedContactOrUserVal" type="String" />
+    <aura:attribute name="selectedConOrUser" type="string" />
+    <aura:attribute name="showdropdown" type="Boolean" default="false" />
+    
+    <!--/********* SAIRAM 21-02-2023 ***********/-->
+    <aura:attribute name="JunoEmailTemplateSelectedValue" type="String" default=""/>
+    <aura:attribute name="JunoEmailTemplatesList" type="List" default="[]"/>
+    <aura:attribute name="EmailTemplateId" type="String" />
+    <aura:attribute name="selectedJunoEmailTemplate" type="Object" />
+    
+    <aura:attribute name="JunoEmailTemplateSelectedValueForOwner" type="String" default=""/>
+    <aura:attribute name="JunoEmailTemplatesForOwnerList" type="List" default="[]"/>
+    <aura:attribute name="EmailTemplateForOwnerId" type="String" />
+    <aura:attribute name="selectedJunoEmailTemplateForOwner" type="Object" />
+    
+    <aura:attribute name="JunoEmailTemplateSelectedValueForSignee" type="String" default=""/>
+    <aura:attribute name="JunoEmailTemplatesForSigneeList" type="List" default="[]"/>
+    <aura:attribute name="EmailTemplateForSigneeId" type="String" />
+    <aura:attribute name="selectedJunoEmailTemplateForSignee" type="Object" />
+    <aura:attribute name="SetReplyToValue" type="String"/>
+    <aura:attribute name="childRows" type="List" />
+    <!--/********* SAIRAM 21-02-2023 ***********/-->
+    
+    
+    <aura:html tag="style">
+        .slds-modal__container {
+        margin: 0 auto;
+        width: 75%;
+        max-width: 56rem;
+        min-width: 20rem;
+        }
+    </aura:html> 
+    
+    <aura:if isTrue="{!v.toggleSpinner}">
+        <div class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.isSigneeMapping}">
+        <div class="slds-card slds-m-around_small" style="width:100%">
+            
+            <!-- To emails -->
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >
+                                Set Reply To Email Address
+                            </span>
+                        </h2>
+                        
+                        
+                    </div>
+                    
+                </header>
+            </div>
+            <div class="slds-p-horizontal_small slds-p-bottom_large" style="width:30%;top:5px">
+                <lightning:input type="String" name="SetReplyToValue"  value="{!v.SetReplyToValue}"/>
+            </div>
+            
+        </div>
+    </aura:if>
+    <div class="slds-card slds-m-around_small" style="width:100%">
+        
+        <!-- To emails -->
+        <div class="slds-card__header slds-grid" >
+            <header class="slds-media slds-media_center slds-has-flexi-truncate slds-wrap" >
+                <div class="slds-media__body slds-p-bottom_x-small" > <aura:if isTrue="{!v.isSigneeMapping}">
+                    <h2 class="slds-card__header-title" >
+                        <span class="slds-text-heading_medium slds-text-wrap" > Signees Mappings
+                        </span>
+                    </h2>
+                    <aura:set attribute="else">
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_medium slds-text-wrap" > Email Mappings
+                            </span>
+                        </h2>
+                    </aura:set>
+                    </aura:if>
+                </div>
+                
+                <div class="slds-no-flex slds-shrink_none slds-align_absolute-center" > 
+                    <aura:if isTrue="{!v.isSigneeMapping}">
+                        <div class="slds-button-group" role="group" data-emailtype="To" onclick="{! c.handleAddEmailRecipientButtonClick }">
+                            <lightning:button label="{! $Browser.isPhone ? 'Add Recipient' : 'Add Email Recipient' }" 
+                                              title="Add Recipient" 
+                                              value="" />
+                        </div>
+                        <aura:set attribute="else">
+                            <div class="slds-button-group" role="group" data-emailtype="" onclick="{! c.handleAddEmailRecipientButtonClick }">
+                                <lightning:button label="{! $Browser.isPhone ? 'Add Recipient' : 'Add Email Recipient' }" 
+                                                  title="Add Recipient" 
+                                                  value="" />
+                            </div>
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </header>
+        </div>
+        <aura:if isTrue="{!v.toEmailListExist}">
+            <div class="slds-card__body slds-p-around_none"> <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer slds-max-medium-table--stacked">
+                
+                <thead>
+                    <tr class="slds-text-title_caps" >
+                        <th scope="col" >
+                            <div class="slds-truncate" title="To,CC" >To</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Reference Type" >Type</div>
+                        </th>
+                        <aura:if isTrue="{!v.isSigneeMapping}">
+                            <th scope="col">
+                                <div class="slds-truncate" title="Reference Type" >Name</div>
+                            </th>
+                        </aura:if>
+                        <th scope="col" >
+                            <div class="slds-truncate" title="Email Value" >Email Value</div>
+                        </th>
+                        <th class="slds-row-action" scope="col" >
+                            <div class="slds-truncate" title="Action" >Action</div>
+                        </th>
+                    </tr>
+                </thead>
+                
+                <tbody >
+                    <aura:iteration items="{!v.accList}" var="a" indexVar = "index">
+                        <aura:if isTrue="{!or(a.Tovalue == 'To',v.isSigneeMapping == false)}">
+                            <tr class="slds-hint-parent" >
+                                
+                                <td data-label="To" > 
+                                    <p class="slds-truncate" title="{!a.Tovalue}">{!a.Tovalue}</p>
+                                </td>
+                                
+                                <td data-label="Type" >
+                                    <p class="slds-truncate" title="{!a.TextRefVal}" >{!a.TextRefVal}</p>
+                                </td>
+                                
+                                <aura:if isTrue="{!v.isSigneeMapping}">
+                                    <td data-label="Name" >
+                                        <p class="slds-truncate" title="{!a.TextName}" >{!a.TextName}</p>
+                                    </td>
+                                </aura:if>
+                                
+                                <td data-label="Email Value" class="slds-cell-wrap">
+                                    <aura:if isTrue="{!a.TextRefVal == 'Text'}">
+                                        <p class="slds-cell-wrap" >{!a.Email}</p>
+                                        <aura:set attribute="else">
+                                            <p class="slds-cell-wrap" >{!a.Email}</p>
+                                        </aura:set>
+                                    </aura:if>
+                                </td>
+                                
+                                <td data-label="Action" class="slds-cell-action">
+                                    <div class="slds-dropdown-trigger slds-dropdown-trigger_click" >
+                                        <span data-id="{!index}" onclick= "{!c.deleteMainListClick}">
+                                            <lightning:icon iconName="utility:delete" size="xx-small" />
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </aura:if>
+                    </aura:iteration>
+                </tbody>
+                </table>
+            </div>
+        </aura:if>
+    </div>
+    
+    <aura:if isTrue = "{!v.isSigneeMapping}">
+        <div class="slds-card slds-m-around_small" style="width:100%">
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >CC Mappings</span>
+                        </h2>
+                    </div>
+                    <div class="slds-no-flex" >
+                        <div class="slds-button-group" role="group" data-emailtype = "CC" onclick="{! c.handleAddEmailRecipientButtonClick }">
+                            <lightning:button label="Add Email Recipient" title="Add Recipient" />
+                        </div>
+                    </div>
+                </header>
+            </div>
+            
+            <aura:if isTrue="{!v.toEmailListExist}">
+                <div class="slds-card__body slds-p-around_none">
+                    <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer slds-max-medium-table--stacked">
+                        <thead>
+                            <tr class="slds-text-title_caps" >
+                                <th scope="col" ><div class="slds-truncate" title="CC" >CC</div></th>
+                                <th scope="col"><div class="slds-truncate" title="Reference Type" >Reference Type</div></th>
+                                <th scope="col"><div class="slds-truncate" title="Name" >Name</div></th>
+                                <th scope="col" ><div class="slds-truncate" title="Email Value" >Email Value</div></th>
+                                <th class="slds-row-action" scope="col" ><div class="slds-truncate" title="Action" >Action</div></th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <aura:iteration items="{!v.accList}" var="a" indexVar = "index">
+                                <aura:if isTrue="{!a.Tovalue == 'CC'}">
+                                    <tr class="slds-hint-parent" >
+                                        <td data-label="CC"><p class="slds-truncate" title="CC">{!a.Tovalue}</p></td>
+                                        <td data-label="Reference Type"><p class="slds-truncate" title="Reference" >{!a.TextRefVal}</p></td>
+                                        <td data-label="Name"><p class="slds-truncate" title="Reference" >{!a.TextName}</p></td>
+                                        <td data-label="Email Value" class="slds-cell-wrap">
+                                            <p class="slds-cell-wrap" >{!a.Email}</p>
+                                        </td>
+                                        <td data-label="Action" class="slds-cell-action">
+                                            <div class="slds-dropdown-trigger slds-dropdown-trigger_click" >
+                                                <span data-id="{!index}" onclick= "{!c.deleteMainListClick}">
+                                                    <lightning:icon iconName="utility:delete" size="xx-small" />
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </aura:if>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </div>
+            </aura:if>
+        </div>
+    </aura:if>
+    
+    
+    
+    
+    <aura:if isTrue = "{!v.isSigneeMapping}">
+        <div class="slds-card slds-m-around_small" style="width:100%">
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >BCC Mappings</span>
+                        </h2>
+                    </div>
+                    <div class="slds-no-flex" >
+                        <div class="slds-button-group" role="group" data-emailtype = "BCC" onclick="{! c.handleAddEmailRecipientButtonClick }">
+                            <lightning:button label="Add Email Recipient" title="Add Recipient" />
+                        </div>
+                    </div>
+                </header>
+            </div>
+            
+            <aura:if isTrue="{!v.toEmailListExist}">
+                <div class="slds-card__body slds-p-around_none" style="width:100%">
+                    <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer slds-max-medium-table--stacked">
+                        <thead>
+                            <tr class="slds-text-title_caps" >
+                                <th scope="col" ><div class="slds-truncate" title="BCC" >BCC</div></th>
+                                <th scope="col"><div class="slds-truncate" title="Reference Type" >Reference Type</div></th>
+                                <th scope="col"><div class="slds-truncate" title="Name" >Name</div></th>
+                                <th scope="col" ><div class="slds-truncate" title="Email Value" >Email Value</div></th>
+                                <th class="slds-row-action" scope="col" ><div class="slds-truncate" title="Action" >Action</div></th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <aura:iteration items="{!v.accList}" var="a" indexVar = "index">
+                                <aura:if isTrue="{!a.Tovalue == 'BCC'}">
+                                    <tr class="slds-hint-parent" >
+                                        <td data-label="BCC"><p class="slds-truncate" title="BCC">{!a.Tovalue}</p></td>
+                                        <td data-label="Reference Type"><p class="slds-truncate" title="Reference" >{!a.TextRefVal}</p></td>
+                                        <td data-label="Name"><p class="slds-truncate" title="Reference" >{!a.TextName}</p></td>
+                                        <td data-label="Email Value" class="slds-cell-wrap">
+                                            <p class="slds-cell-wrap" >{!a.Email}</p>
+                                        </td>
+                                        <td data-label="Action" class="slds-cell-action">
+                                            <div class="slds-dropdown-trigger slds-dropdown-trigger_click" >
+                                                <span data-id="{!index}" onclick= "{!c.deleteMainListClick}">
+                                                    <lightning:icon iconName="utility:delete" size="xx-small" />
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </aura:if>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </div>
+            </aura:if>
+        </div>
+    </aura:if>
+    
+    
+    
+    
+    <aura:if isTrue="{!v.isSigneeMapping}">
+        <div class="slds-card slds-m-around_small" style="width:100%">
+            
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >Default DocTemplate</span>
+                        </h2>
+                    </div>
+                </header>
+            </div>
+            
+            <div class="slds-p-horizontal_small slds-p-bottom_large slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                <lightning:select class="Picklist label-hidden" required="false" variant="label-hidden"
+                                  value="{!v.AvailableDocTemplateSelectedValue}"
+                                  onchange="{!c.AvailableDocTemplateOnchangeHandler}">
+                    
+                    <aura:if isTrue="{!v.selectedDefaultDocTemplate}">
+                        <aura:iteration items="{!v.AvailableDocTemplatesList}" var="DocTemplate">
+                            <option value="{!DocTemplate.value}" selected="{!DocTemplate.value == v.selectedDefaultDocTemplate.value}">{!DocTemplate.label}</option>	
+                        </aura:iteration>
+                        <aura:set attribute="else">
+                            <option value="">Select Doc Templates</option> <aura:iteration items="{!v.AvailableDocTemplatesList}" var="DocTemplate">
+                            <option value="{!DocTemplate.value}">{!DocTemplate.label}</option>	
+                            </aura:iteration>
+                        </aura:set>
+                    </aura:if>
+                    
+                </lightning:select>
+            </div>
+            
+        </div>
+    </aura:if>
+    
+    <!--End-->
+    
+    <!--/********* SAIRAM 21-02-2023 ***********/-->
+    <aura:if isTrue="{!v.isSigneeMapping}">
+        <div class="slds-card slds-m-around_small" style="width:100%">
+            
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >JunoSign Email Template</span>
+                        </h2>
+                    </div>
+                </header>
+            </div>
+            
+            <div class="slds-p-horizontal_small slds-p-bottom_large slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                <lightning:select class="Picklist label-hidden" required="false" variant="label-hidden"
+                                  value="{!v.JunoEmailTemplateSelectedValue}"
+                                  onchange="{!c.JunoEmailTemplateOnchangeHandler}">
+                    
+                    <aura:if isTrue="{!v.selectedJunoEmailTemplate}">
+                        <aura:iteration items="{!v.JunoEmailTemplatesList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}" selected="{!EmailTemplate.value == v.selectedJunoEmailTemplate.value}">{!EmailTemplate.label}</option>	
+                        </aura:iteration>
+                        <aura:set attribute="else">
+                            <option value="">Select an Email Template</option> <aura:iteration items="{!v.JunoEmailTemplatesList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}">{!EmailTemplate.label}</option>	
+                            </aura:iteration>
+                        </aura:set>
+                    </aura:if>
+                    
+                </lightning:select>
+            </div>
+            
+        </div>
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.isSigneeMapping}">
+        <div class="slds-card slds-m-around_small" style="width:100%">
+            
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >JunoSign Email Template For Owner</span>
+                        </h2>
+                    </div>
+                </header>
+            </div>
+            
+            <div class="slds-p-horizontal_small slds-p-bottom_large slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                <lightning:select class="Picklist label-hidden" required="false" variant="label-hidden"
+                                  value="{!v.JunoEmailTemplateSelectedValueForOwner}"
+                                  onchange="{!c.JunoEmailTemplateOnchangeHandlerForOwner}">
+                    
+                    <aura:if isTrue="{!v.selectedJunoEmailTemplateForOwner}">
+                        <aura:iteration items="{!v.JunoEmailTemplatesForOwnerList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}" selected="{!EmailTemplate.value == v.selectedJunoEmailTemplateForOwner.value}">{!EmailTemplate.label}</option>	
+                        </aura:iteration>
+                        <aura:set attribute="else">
+                            <option value="">Select an Email Template</option>
+                            <aura:iteration items="{!v.JunoEmailTemplatesForOwnerList}" var="EmailTemplate">
+                                <option value="{!EmailTemplate.value}">{!EmailTemplate.label}</option>	
+                            </aura:iteration>
+                        </aura:set>
+                    </aura:if>
+                    
+                </lightning:select>
+            </div>
+            
+        </div>
+    </aura:if>
+    
+    
+    
+    <aura:if isTrue="{!v.isSigneeMapping}">
+        <div class="slds-card slds-m-around_small" style="width:100%">
+            
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >JunoSign Email Template For Signee</span>
+                        </h2>
+                    </div>
+                </header>
+            </div>
+            
+            <div class="slds-p-horizontal_small slds-p-bottom_large slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+                <lightning:select class="Picklist label-hidden" required="false" variant="label-hidden"
+                                  value="{!v.JunoEmailTemplateSelectedValueForSignee}"
+                                  onchange="{!c.JunoEmailTemplateOnchangeHandlerForSignee}">
+                    
+                    <aura:if isTrue="{!v.selectedJunoEmailTemplateForSignee}">
+                        <aura:iteration items="{!v.JunoEmailTemplatesForSigneeList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}" selected="{!EmailTemplate.value == v.selectedJunoEmailTemplateForSignee.value}">{!EmailTemplate.label}</option>	
+                        </aura:iteration>
+                        <aura:set attribute="else">
+                            <option value="">Select an Email Template</option>
+                            <aura:iteration items="{!v.JunoEmailTemplatesForSigneeList}" var="EmailTemplate">
+                                <option value="{!EmailTemplate.value}" >{!EmailTemplate.label}</option>	
+                            </aura:iteration>
+                        </aura:set>
+                    </aura:if>
+                    
+                </lightning:select>
+            </div>
+            
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.showChildComponent}">
+        <aura:if isTrue="{!v.isSigneeMapping}">
+            <div class="slds-card slds-m-around_small" style="width:100%">
+                <c:JunoSignObjectPostAction aura:id="childCmponent" ObjectAPIName="{!v.ObjectAPIName}"/>
+            </div>
+        </aura:if>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showChildComponent}">
+        <aura:if isTrue="{!v.isSigneeMapping}">
+            <div class="slds-card slds-m-around_small" style="width:100%">
+                <c:JunoSignImmediateActions aura:id="ImmediateActions" ObjectAPIName="{!v.ObjectAPIName}"/>
+            </div>
+        </aura:if>
+    </aura:if>
+    <!-- <aura:if isTrue="{!v.showChildComponent}">
+            <aura:if isTrue="{!v.isSigneeMapping}">
+                 <div class="slds-card slds-m-around_small" style="width:100%">
+                 <c:JunoSignReminders aura:id="Reminders"
+                                 ObjectAPIName="{!v.ObjectAPIName}" />
+                </div>
+            </aura:if>
+       </aura:if>
+     -->       
+    <!--/********* SAIRAM 21-02-2023 ***********/-->
+    
+    <!--/********* SAIRAM 09-03-2023 ***********/-->
+    <aura:if isTrue="{!v.isSigneeMapping}">
+        <div class="slds-m-bottom_x-small slds-grid slds-align_absolute-center">
+            <lightning:button label="Submit" onclick="{!c.record}" variant="brand"/>
+        </div>
+    </aura:if>
+    <!--/********* SAIRAM 09-03-2023 ***********/-->
+    
+    <div class="slds" style="width:100%" onclick="{!c.closeDropDown}">
+        <div class="slds-modal slds-modal--prompt slds-fade-in-hide" aura:id="ToEmailPopupdialog" aria-hidden="false" role="dialog"  >
+            <div class="slds-modal__container" style="width: 75%;max-width: 65rem;">
+                <div class="slds-modal__header" >
+                    
+                </div>
+                <div class="slds-modal__content slds-p-around_large">
+                    <div class="slds-form slds-form_compound" >
+                        <div class="slds-show">
+                            <div class="slds-text-body_small" >Recipient</div>
+                            <div class="slds-box slds-m-bottom_medium" >
+                                <div class="slds-grid slds-m-bottom_x-small slds-wrap" style="padding-right: 2rem;">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12 slds-m-right_x-small slds-m-top_x-small">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" >
+                                                <span class="" >To,CC,BCC</span>
+                                            </label>
+                                            <aura:if isTrue="{!v.isSigneeMapping}">
+                                                <div class="slds-form-element__control slds-grow" >
+                                                    <lightning:select aura:id="select" name="TextRefSelect" value = "{!v.ToCcBccPicklistVal}" onchange="{!c.onToCcBccChange}">
+                                                        <aura:if isTrue="{!v.emailTypeRecipient == 'To'}">
+                                                            <option value="To">To</option>
+                                                        </aura:if>
+                                                        <aura:if isTrue="{!v.emailTypeRecipient == 'CC'}">
+                                                            <option value="CC">CC</option>
+                                                        </aura:if>
+                                                        <aura:if isTrue="{!v.emailTypeRecipient == 'BCC'}">
+                                                            <option value="BCC">BCC</option>
+                                                        </aura:if>
+                                                    </lightning:select>
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!!v.isSigneeMapping}">
+                                                <div class="slds-form-element__control slds-grow" >
+                                                    <lightning:select aura:id="select" name="TextRefSelect" value = "{!v.ToCcBccPicklistVal}" onchange="{!c.onToCcBccChange}">
+                                                        <option value="To">To</option>
+                                                        <option value="CC">CC</option>
+                                                        <option value="BCC">BCC</option>
+                                                    </lightning:select>
+                                                </div>
+                                            </aura:if>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12 slds-m-right_x-small slds-m-top_x-small">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" >
+                                                <span class="" >Reference Type</span>
+                                            </label>
+                                            <div class="slds-form-element__control slds-grow" >
+                                                <lightning:select aura:id="select" name="TextRefSelect" value = "{!v.TextRefPicklistVal}" onchange="{! c.onTextRefChange }" variant="label-hidden">
+                                                    <option value="Text">Text</option>
+                                                    <option value="Reference">Reference</option>
+                                                    <option value="Contact">Contact</option>
+                                                    <option value="User">User</option>
+                                                </lightning:select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <aura:if isTrue = "{!!v.isReference}">
+                                        <aura:if isTrue="{!and(v.isSigneeMapping,!v.isContactorUser)}">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12  slds-m-right_x-small slds-m-top_x-small" >
+                                                <div class="slds-form-element" >
+                                                    <label class="slds-form-element__label" >
+                                                        <span class="" >Name</span>
+                                                    </label>
+                                                    <div class="slds-form-element__control slds-grow" >
+                                                        <lightning:input type="text" name="name6"  value="{!v.TextName}" onchange ="{!c.OnEmailChange}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </aura:if>
+                                    </aura:if>
+                                    <aura:if isTrue = "{!!v.isReference}">
+                                        <aura:if isTrue="{!v.isContactorUser}">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-m-right_x-small slds-m-top_x-small" >
+                                                <div class="slds-form-element__control slds-grow" >
+                                                    <div class="slds-form-element__control" >
+                                                        <label class="slds-form-element__label" >
+                                                            Select {!v.TextRefPicklistVal}
+                                                        </label>
+                                                        <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open"
+                                                             aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                                                            
+                                                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                                                <div class="inputBox" data-title="{!v.TextRefPicklistVal}" style="margin-top:1.2rem;">
+                                                                    <input type="text"
+                                                                           class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+                                                                           id="mySearchInput" aria-autocomplete="no" aria-controls="listbox-id-11"
+                                                                           autocomplete="no" onkeyup="{!c.searchHandler}" role="textbox" onclick="{!c.searchAll}"  placeholder="Please Select"
+                                                                           value="{!v.selectedConOrUser}"/>
+                                                                </div>
+                                                            </div>
+                                                            <aura:if isTrue="{!v.showdropdown}">
+                                                                <div id="listbox-id-11" class="dropDownClass slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                                                     role="listbox">
+                                                                    <ul id="mySearchUL" class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                        <aura:iteration items="{!v.conorUserListInOrg}" var="innerresult">
+                                                                            <li role="presentation" class="slds-listbox__item"  data-name="{!innerresult.Name}"
+                                                                                data-value="{!innerresult.Email}"  data-title="{!innerresult.Name}" data-Id="{!innerresult.Id}" onclick="{!c.optionClickHandler}">
+                                                                                <div
+                                                                                     class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                                                     role="option">
+                                                                                    <span class="slds-media__body">
+                                                                                        <span class="slds-truncate" title="All Oobjects">
+                                                                                            <span>{!innerresult.Name}</span>
+                                                                                        </span>
+                                                                                    </span>
+                                                                                </div>
+                                                                            </li>
+                                                                        </aura:iteration>
+                                                                    </ul>
+                                                                </div>
+                                                            </aura:if>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12 slds-m-right_x-small slds-m-top_x-small" >
+                                                <div class="slds-form-element">
+                                                    <label class="slds-form-element__label" >
+                                                        Email Address
+                                                    </label>
+                                                    <div class="slds-form-element__control slds-grow" >
+                                                        <lightning:input type="email" name="email7"  value="{!v.manualEmailAddress}" onchange="{!c.handleconUserEmailChange}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </aura:if>
+                                        <aura:if isTrue="{!!v.isContactorUser}">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-m-right_x-small slds-m-top_x-small" >
+                                                <div class="slds-form-element">
+                                                    <label class="slds-form-element__label" >
+                                                        <span class="" style="color:red">*</span><span >Email Address</span>
+                                                    </label>
+                                                    <div class="slds-form-element__control slds-grow" >
+                                                        <lightning:input type="email" name="email6"  value="{!v.manualEmailAddress}" onchange ="{!c.OnEmailChange}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </aura:if>
+                                        
+                                    </aura:if>
+                                </div>
+                            </div>
+                        </div>
+                        <aura:if isTrue= "{!v.isReference}">
+                            <lightning:breadcrumbs>
+                                <aura:iteration items="{! v.breadcrumbCollection }" var="breadcrumb">
+                                    <lightning:breadcrumb label="{! breadcrumb.label }" onclick="{! c.navigateTo }" name="{!breadcrumb.level}"/>
+                                    
+                                </aura:iteration>
+                            </lightning:breadcrumbs> 
+                            <aura:if isTrue= "{!v.ShowLevel1}">
+                                <div class="slds-grid slds-m-bottom_x-small" >
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                        <div class="slds-form-element" >
+                                            <label class="slds-form-element__label">
+                                                <span class="" >Select Field</span>
+                                            </label>
+                                            <div class="slds-form-element__control slds-grow" >
+                                                <lightning:select name="colorId" aura:id="initialSelect" onchange ="{!c.FirstLevelSelectChange}" value="{!v.selectedValue}">
+                                                    <option value="None-None-None">--None--</option>
+                                                    <aura:iteration items="{!v.InitialObjectFields}" var="option">
+                                                        <option text="{!option.Label}" value="{!option.APIName+'-'+option.LookUpAPIName+'-'+option.Label}"/>
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue= "{!v.ShowLevel2}">
+                                <div class="slds-grid slds-m-bottom_x-small" >
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                        <div class="slds-form-element" >
+                                            <label class="slds-form-element__label">
+                                                <span class="" >Select Field</span>
+                                            </label>
+                                            <div class="slds-form-element__control slds-grow" >
+                                                <lightning:select name="colorId"  aura:id="secondSelect" onchange ="{!c.GetSecLevelSelectedField}" value="{!v.SecondSelectedValue}">
+                                                    <option value="None-None-None">--None--</option>
+                                                    <aura:iteration items="{!v.FirstLevelObjectFields}" var="option">
+                                                        <option text="{!option.Label}" value="{!option.APIName+'-'+option.LookUpAPIName+'-'+option.Label}"/>
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue= "{!v.ShowLevel3}">
+                                <div class="slds-grid slds-m-bottom_x-small" >
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                        <div class="slds-form-element" >
+                                            <label class="slds-form-element__label">
+                                                <span class="" >Select Field</span>
+                                            </label>
+                                            <div class="slds-form-element__control slds-grow" >
+                                                <lightning:select name="colorId"  aura:id="thirdSelect" onchange ="{!c.GetThirdLevelSelectedField}" value="{!v.ThirdSelectedValue}">
+                                                    <option value="None-None-None">--None--</option>
+                                                    <aura:iteration items="{!v.SecondLevelObjectFields}" var="Field">
+                                                        <option value="{!Field.APIName+'-'+Field.LookUpAPIName+'-'+Field.Label}" aura:id="{!Field.APIName}" >{!Field.Label}</option>
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue= "{!v.ShowLevel4}">
+                                <div class="slds-grid slds-m-bottom_x-small" >
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                        <div class="slds-form-element" >
+                                            <label class="slds-form-element__label">
+                                                <span class="" >Select Field</span>
+                                            </label>
+                                            <div class="slds-form-element__control slds-grow" >
+                                                <lightning:select name="colorId"  aura:id="fourthSelect" onchange ="{!c.GetFinalLevelSelectedField}" value="{!v.FourthSelectedValue}">
+                                                    <option value="None-None-None">--None--</option>
+                                                    <aura:iteration items="{!v.ThirdLevelObjectFields}" var="Field">
+                                                        <option value="{!Field.APIName+'-'+Field.LookUpAPIName+'-'+Field.Label}" aura:id="{!Field.APIName}">{!Field.Label}</option>
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            
+                            
+                        </aura:if>
+                        <lightning:button label="Add Row" title="Add Row"  disabled="{!v.AddRowButtonDisabled}" value="" onclick="{! c.handleAddRowButtonClick }"/>
+                        <aura:if isTrue="{!v.AddRowButtonClicked}">
+                            <aura:if isTrue="{!v.AddRowTemporaryList.length > 0}">
+                                <div class="slds-card__body">
+                                    <div class="slds-scrollable_x">
+                                        
+                                        <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer slds-max-medium-table_stacked">
+                                            
+                                            <thead>
+                                                <tr class="slds-text-title_caps">
+                                                    <th scope="col">
+                                                        <div class="slds-truncate" title="To,CC,BCC">To,CC,BCC</div>
+                                                    </th>
+                                                    <th scope="col">
+                                                        <div class="slds-truncate" title="Reference Type">Reference Type</div>
+                                                    </th>
+                                                    <th scope="col">
+                                                        <div class="slds-truncate" title="Email Value">Email Value</div>
+                                                    </th>
+                                                    <th scope="col">
+                                                        <div class="slds-truncate" title="Name">Name</div>
+                                                    </th>
+                                                    <th class="slds-row-action" scope="col" style="width: 3.25rem;">
+                                                        <div class="slds-truncate" title="Action">Action</div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            
+                                            <tbody>
+                                                <aura:if isTrue="{!v.AddRowTemporaryList.length > 0}">
+                                                    <aura:iteration items="{!v.AddRowTemporaryList}" var="a" indexVar="index">
+                                                        <tr class="slds-hint-parent">
+                                                            
+                                                            <td data-label="To, CC, BCC">
+                                                                <p class="slds-truncate" title="{!a.Tovalue}">{!a.Tovalue}</p>
+                                                            </td>
+                                                            
+                                                            <td data-label="Reference Type">
+                                                                <p class="slds-truncate" title="{!a.TextRefVal}">{!a.TextRefVal}</p>
+                                                            </td>
+                                                            
+                                                            <td data-label="Email Value" >
+                                                                <aura:if isTrue="{!a.TextRefVal == 'Text'}">
+                                                                    <p class="slds-truncate" >{!a.Email}</p>
+                                                                    <aura:set attribute="else">
+                                                                        <p class="slds-truncate" >{!a.Email}</p>
+                                                                    </aura:set>
+                                                                </aura:if>
+                                                            </td>
+                                                            
+                                                            <td data-label="Name">
+                                                                <p class="slds-truncate" title="{!a.TextName}">{!a.TextName}</p>
+                                                            </td>
+                                                            
+                                                            <td data-label="Action" class="slds-row-action">
+                                                                <div class="slds-dropdown-trigger slds-dropdown-trigger_click">
+                                                                    <span data-id="{!index}" onclick="{!c.deleteAddRowClick}">
+                                                                        <lightning:icon iconName="utility:delete" size="xx-small" />
+                                                                    </span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </aura:iteration>
+                                                </aura:if>
+                                            </tbody>
+                                            
+                                        </table>
+                                    </div>
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                    </div>
+                </div>
+                <div class="slds-modal__footer" >
+                    <div class="slds-x-small-buttons_horizontal" >
+                        <button class="slds-button slds-button_neutral" type="button" onclick="{!c.closeToEmailPopup}">
+                            Cancel
+                        </button>
+                        <button class="slds-button slds-button_brand" type="button" disabled="{!v.SaveButtonDisabled}" onclick = "{!c.SaveEmail}">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop--hide" aura:id="ToEmailPopupbackdrop"></div>
+    </div>
+</aura:component>

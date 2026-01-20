@@ -1,0 +1,15 @@
+<apex:page standardController="Doc_Template__c" recordSetVar="objects" extensions="SelectedRecordsFIleGenerate">
+    
+    
+    <apex:variable var="dataValue" value="Hello World" />
+    <script>
+    var url = "/apex/JunoMigration?dataParam={!URLENCODE(query)}"
+    window.open(url,'_self');
+    </script>
+    <!--  <apex:outputLink value="/apex/JunoMigration?dataParam={!URLENCODE(query)}">Go to Page2</apex:outputLink> -->
+    
+    <!-- <apex:include pageName="JunoMigration">
+<apex:param name="dataParam" value="{!query}" assignTo="{!dataParam}" /> 
+</apex:include> -->
+    
+</apex:page>

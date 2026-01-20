@@ -1,0 +1,143 @@
+<template>
+    
+		<div class="slds-grid slds-grid_align-spread slds-box slds-theme_shade">
+			<div class="slds-col slds-text-heading_medium" style="color:black;">JunodocMergefields</div>
+		</div>
+       
+			<lightning-layout-item size="3">
+				<lightning-helptext content="Please select the  object  on which you want to create a template. "
+					style="position: absolute;margin-left: 5.5rem;margin-top: 1rem;"></lightning-helptext>
+				<lightning-input value={selectedObject} type="search" onchange={objectSelector} label="Select Object"
+					placeholder="Search object name" class="slds-p-around_medium">
+				</lightning-input>
+			</lightning-layout-item>
+    <div class="slds-float_right">
+        <lightning-button variant="brand-outline" label="Fields" title="" onclick={openFieldsBox}>
+        </lightning-button>
+    </div>
+<template if:true={fieldBoxOpen}>
+    <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+        class="slds-modal slds-fade-in-open slds-modal_Large" style="width: 106%;margin-left: -2%;height:106%;">
+        <div class="slds-modal__container" style="max-width: 80rem !important;width: 80% !important">
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_2-of-12" style="margin-right: 2rem;" >
+                        <select id="FieldTreeSelect0" name="FieldTreeSelect0" size="9" onclick={selectOption}
+                        value={copiedtext} style= "width:13rem;" class="slds-scrollable">
+                        <template for:each={firstBoxFields} for:item="item">
+                            <option key={item.value} value={item.value}>{item.label}</option>
+                        </template>
+                        <template for:each={firstBoxReferenceFields} for:item="item">
+                            <option key={item.value} value={item.value}>{item.label} ></option>
+                        </template>
+                    </select>
+                    </div>
+                    
+                    <template if:true={openSecondBox}>
+                        <div class="slds-col slds-size_2-of-12" style="margin-right: 2rem;">
+                            <select id="FieldTreeSelect1" name="FieldTreeSelect1" size="9" onclick={selectOption2}
+                            value={secondcopiedtext} style= "width:13rem;" class="slds-scrollable">
+                            <template for:each={secondBoxFields} for:item="item">
+                                <option key={item.value} value={item.value}>{item.label}</option>
+                            </template>
+                            <template for:each={secondBoxReferenceFields} for:item="item">
+                                <option key={item.value} value={item.value}>{item.label} ></option>
+                            </template>
+                        </select>
+                        </div>
+                       
+                    </template>
+                    <template if:true={openThirdBox}>
+                        <div class="slds-col slds-size_2-of-12" style="margin-right: 2rem;">
+                            <select id="FieldTreeSelect2" name="FieldTreeSelect0" size="9" onclick={selectOption3}
+                                value={thirdcopiedtext} style= "width:13rem;" class="slds-scrollable">
+                                <template for:each={thirdBox} for:item="item">
+                                    <option key={item.value} value={item.value}>{item.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                        
+                    </template>
+                    <template if:true={showSpinner}>
+                        <div class="slds-spinner_container" style="height:40%;margin-top:14%;">
+                            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative"
+                                role="alert">
+                                <span class="slds-assistive-text">Loading</span>
+                                <div class="slds-spinner__dot-a"></div>
+                                <div class="slds-spinner__dot-b"></div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={firstBoxSelected}>
+                        <div style="" class="slds-p-around_medium slds-box slds-col slds-size_5-of-12">
+                            <div class="slds-align_absolute-center slds-p-around_small"><b>You have selected:</b></div>
+                            <div class="slds-align_absolute-center slds-p-around_small">
+                                {!<b>relatedTo.{firstBoxselectedField}</b>}
+                            </div>
+                            <template if:true={showbutton}>
+                                <div class="slds-align_absolute-center slds-p-around_small">
+                                    <lightning-button label="Copy" title="" icon-name="utility:copy"
+                                        data-selected-option={selectedOptionValue} onclick={copyToClipboard}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                            <template if:true={hidebutton}>
+                                <div class="slds-align_absolute-center slds-p-around_small">
+                                    <lightning-button label="Copied" title="" icon-name="utility:check"
+                                        data-selected-option={selectedOptionValue} onclick={copyToClipboard}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    <template if:true={secondBoxSelected}>
+                        <div style="" class="slds-p-around_medium slds-box slds-col slds-size_5-of-12">
+                            <div class="slds-align_absolute-center slds-p-around_small"><b>You have selected:</b></div>
+                            <div class="slds-align_absolute-center slds-p-around_small">
+                                {!<b>relatedTo.{firstRelationShipName}.{secondBoxselectedField}</b>}</div>
+                            <template if:true={secondshowbutton}>
+                                <div class="slds-align_absolute-center slds-p-around_small">
+                                    <lightning-button label="Copy" title="" icon-name="utility:copy"
+                                        data-selected-option={selectedOptionValue} onclick={clipboardcopy}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                            <template if:true={secondhidebutton}>
+                                <div class="slds-align_absolute-center slds-p-around_small">
+                                    <lightning-button label="Copied" title="" icon-name="utility:check"
+                                        data-selected-option={selectedOptionValue} onclick={clipboardcopy}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    <template if:true={thirdBoxSelected}>
+                        <div style="" class="slds-p-around_medium slds-box slds-col slds-size_5-of-12">
+                            <div class="slds-align_absolute-center slds-p-around_small"><b>You have selected:</b></div>
+                            <div class="slds-align_absolute-center slds-p-around_small">
+                                {!<b>relatedTo.{firstRelationShipName}.{secondRelationShipName}__r.{thirdBoxselectedField}</b>}
+                            </div>
+                            <template if:true={thirdshowbutton}>
+                                <div class="slds-align_absolute-center slds-p-around_small">
+                                    <lightning-button label="Copy" title="" icon-name="utility:copy"
+                                        data-selected-option={selectedOptionValue} onclick={clipboard}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                            <template if:true={thirdhidebutton}>
+                                <div class="slds-align_absolute-center">
+                                    <lightning-button label="Copied" title="" icon-name="utility:check"
+                                        data-selected-option={selectedOptionValue} onclick={clipboard}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--<div style="margin-left: -3%;width: 105%;height: 87%;margin-top: 4%;" class="slds-backdrop slds-backdrop_open">-->
+    </div>
+</template>
+</template>

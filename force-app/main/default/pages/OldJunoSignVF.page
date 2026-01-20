@@ -1,0 +1,553 @@
+<apex:page controller="JunoSignCls" applyBodyTag="false" sidebar="false" showHeader="false" title="Object Selector">
+    <html style="background: #E7E9FF;">
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>JunoSign</title>
+            <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+            <apex:stylesheet value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/css/bootstrap.min.css')}" />
+            <apex:stylesheet value="{!$Resource.Pdfpixie_css}" />
+            <apex:stylesheet value="{!$Resource.Pixie_ig}" />
+            <apex:stylesheet value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/css/pixie-main.css')}" />
+            <apex:stylesheet value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/css/pixie-media.css')}" />
+            <apex:stylesheet value="{!$Resource.prettifyMin_css}" />
+            <apex:stylesheet value="{!$Resource.fontAwesomeMinCss}" />
+            
+            <script>
+            	<apex:includeScript value="{!$Resource.SigJuerymin_js}" />
+				 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/jquery.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/jquery-ui.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/bootstrap.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/jSignature.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/jspdf.umd.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/html2canvas.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/jszip.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/FileSaver.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/zip.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/pdf.js')}" /> 
+                     
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/pdf.worker.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/fabric.min.js')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/read-zip-file.js?v=1')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/pdfpixie.js?v=12')}" />  
+                 <apex:includeScript value="{!URLFOR($Resource.JunoSignOldZip, 'Juno/js/script.js?v=28')}" />  
+                     
+              
+            </script>
+            
+             <script>
+            $( document ).ready(function() {
+                base64toPDFs();   
+                callApexFunction();
+            });
+          function base64toPDFs() {
+        var inputElement = document.createElement("input");
+        $(inputElement).css('display', 'none');
+        $('.con-detail').find('.left-box').css({
+            display: 'none'
+        });
+        $('.con-detail').find('.center-box').css({
+            display: 'none'
+        });
+              //inputElement.type = 'file'
+        //inputElement.accept = ".pdf"; /* ,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.PNG,.JPG,.JPEG */
+              // inputElement.onchange = function() {
+            $('#pageLoadModal').modal('show');
+              // var reader = new FileReader();
+            //eader.addEventListener("load", function() {
+                inputElement.remove()
+                var link = document.createElement('a');
+              //  link.href = 'data:application/pdf;base64,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bnRzIDUgMCBSL1R5cGUvUGFnZS9SZXNvdXJjZXM8PC9Qcm9jU2V0IFsvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJXS9Gb250PDwvRjEgMiAwIFIvRjIgMyAwIFIvRjMgNCAwIFI+Pj4+L1BhcmVudCA2IDAgUi9NZWRpYUJveFswIDAgNjY5LjYgOTAyLjg5XT4+CmVuZG9iago0IDAgb2JqPDwvU3VidHlwZS9UeXBlMS9UeXBlL0ZvbnQvQmFzZUZvbnQvSGVsdmV0aWNhL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZz4+CmVuZG9iagoyIDAgb2JqPDwvU3VidHlwZS9UeXBlMS9UeXBlL0ZvbnQvQmFzZUZvbnQvVGltZXMtUm9tYW4vRW5jb2RpbmcvV2luQW5zaUVuY29kaW5nPj4KZW5kb2JqCjMgMCBvYmo8PC9TdWJ0eXBlL1R5cGUxL1R5cGUvRm9udC9CYXNlRm9udC9IZWx2ZXRpY2EtQm9sZC9FbmNvZGluZy9XaW5BbnNpRW5jb2Rpbmc+PgplbmRvYmoKNiAwIG9iajw8L0tpZHNbMSAwIFJdL1R5cGUvUGFnZXMvQ291bnQgMT4+CmVuZG9iago3IDAgb2JqPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDYgMCBSPj4KZW5kb2JqCjggMCBvYmo8PC9Nb2REYXRlKEQ6MjAyMTAzMDkwOTQ3MTZaKS9DcmVhdGlvbkRhdGUoRDoyMDIxMDMwOTA5NDcxNlopL1Byb2R1Y2VyKGlUZXh0IDIuMC44IFwoYnkgbG93YWdpZS5jb21cKSk+PgplbmRvYmoKeHJlZgowIDkKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAyNjg1IDAwMDAwIG4gCjAwMDAwMDI5NTEgMDAwMDAgbiAKMDAwMDAwMzA0MCAwMDAwMCBuIAowMDAwMDAyODY0IDAwMDAwIG4gCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMzEzMiAwMDAwMCBuIAowMDAwMDAzMTgyIDAwMDAwIG4gCjAwMDAwMDMyMjYgMDAwMDAgbiAKdHJhaWxlcgo8PC9JbmZvIDggMCBSL0lEIFs8YjU0MWY1NmJlMmI2ZWVlYmQ0MTNmZTlmMDdhNzMzNWQ+PGJjMjAzYTEyM2M4MDY5ZmQ4MDAwYWE3MDBkYjgyNmFhPl0vUm9vdCA3IDAgUi9TaXplIDk+PgpzdGFydHhyZWYKMzM0NQolJUVPRgo=';
+              
+               link.href = '{!body}'+''+'{!secondbody}';
+              console.log(link.href);
+              //  document.getElementById("signtext").value='Sriram';
+              //link.href ='{"internal":{"collections":{"addImage_images":{"0":{"alias":"page-1","data":"x^ì\u0007¼\u0014EÖÅ9`\\\u0014\u0011\u00141 \u0001QY\u0015\u0013 (0\u0001ê³¨¬Ù5aXÑ5\u0001\n¸\u0004\u0003(`ÎYY\u0013¨V\u00170íÊ¾ÿãúÕÝ3=ÝÓÞÌ\u0019÷÷vW]]uªzÞ=uï=wñ_ýu1½\u0010\u0010\u0002B@\b\b\u0001! \u0004\u0010\u0010\u0002ÕÀâ\"9Õ²\u0010\u0010\u0002B@\b\b\u0001! \u0004\u0010\u0010\u0002u\bäh\u001f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bäTÕrj2B@\b\b\u0001! \u0004\u0010\u0010\u0002B@\bäh\u000f\b\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!PU\bä|÷Ýw\r\u0016½ª\n9MF\b\b\u0001! \u0004\u0010\u0010\u0002B@\b\bD \u0014$§\"'®A\t\u0001! \u0004\u0010\u0010\u0002B@\b\b\u0001!P\bäTçºjVB@\b\b\u0001! \u0004\u0010\u0010\u0002B f\u0011\u0010É©Ù¥×Ä\u0010\u0010\u0002B@\b\b\u0001! \u0004@u\" SëªY\t\u0001! \u0004\u0010\u0010\u0002B@\b\bE@$§f^\u0013\u0017\u0002B@\b\b\u0001! \u0004\u0010\u0010\u0002ÕHNu®«f%\u0004\u0010\u0010\u0002B@\b\b\u0001! \u0004j\u0016\u0001]zM\\\b\b\u0001! \u0004\u0010\u0010\u0002B@\bT'\u0002\"9Õ¹®\u0010\u0010\u0002B@\b\b\u0001! \u0004\u0010¨Y\u0004Drjvé5q! \u0004\u0010\u0010\u0002B@\b\b\u0001!P\bäTçºjVB@\b\b\u0001! \u0004\u0010\u0010\u0002B f\u0011\u0010É©Ù¥×Ä\u0010\u0010\u0002B@\b\b\u0001! \u0004@u\" SëªY\t\u0001! \u0004\u0010\u0010\u0002B@\b\bE@$§f^\u0013\u0017\u0002B@\b\b\u0001! \u0004\u0010\u0010\u0002ÕHNu®«f%\u0004\u0010\u0010\u0002B@\b\b\u0001! \u0004j\u0016\u0001]zM\\\b\b\u0001! \u0004\u0010\u0010\u0002B@\bT'\u0002\"9Õ¹®\u0010\u0010\u0002B@\b\b\u0001! \u0004\u0010¨Y\u0004Drjvé5q! \u0004\u0010\u0010\u0002B@\b\b\u0001!P\bäTçºjVB@\b\b\u0001! \u0004\u0010\u0010\u0002B f\u0011\u0010É©Ù¥×Ä\u0010\u0010\u0002B@\b\b\u0001! \u0004@u\" SëªY\t\u0001! \u0004\u0010\u0010\u0002B@\b\bE@$§f^\u0013\u0017\u0002B@\b\b\u0001! \u0004\u0010\u0010\u0002ÕHNu®«f%\u0004\u0010\u0010\u0002B@\b\b\u0001! \u0004j\u0016\u0001]zM\\\b\b\u0001! \u0004\u0010\u0010\u0002B@\bT'\u0002\"9Õ¹®\u0010\u0010\u0002B@\b\b\u0001! \u0004\u0010¨Y\u0004Drjvé5q! \u0004\u0010\u0010\u0002B@\b\b\u0001!P\bäTçºjVB@\b\b\u0001! \u0004\u0010\u0010\u0002B f\u0011\u0010É©Ù¥×Ä\u0010\u0010\u0002B@\b\b\u0001! \u0004@u\" SëªY\t\u0001! \u0004\u0010\u0010\u0002B@\b\bE@$§f^\u0013\u0017\u0002B@\b\b\u0001! \u0004\u0010\u0010\u0002ÕHNu®«f%\u0004\u0010\u0010\u0002B@\b\b\u0001! \u0004j\u0016zOrî¼óÎ~ýúí¾ûî¼iÜ¸±-ä¿þõ¯\u0003\u000f<pêÔ©O?ýt\u000e\u001dþñì¿ÿþ¯¾újx·Øb±cÇn´ÑFîWþó\f\u0019Â?\u0003}òÉþó\u0013N8aøðá£F¢ÿpoÏ<óÌ\u000e;ìm3M<yØ°a*p¹Má¨£ºêª«YfÀ\u0014ì\u0019ï\u0018¸] 83r@\u0005®5\u00102v\u0018\u0000ÁÇvèÐ¡çsNø¾@v\u001b,>¶öI`\u0018I'âVÙz\u000b°f¿\u00114q! \u0004\u0010\u0010\u0002B@\bT\u0001\u0002\"9¿#9ÎVÎH-JFr2²2B¸· Ï\u0004ømôüßú<*?ãÓB¿ç\u0000\u001eRxÌþ\u001c\u001d\bÙHN\u0010'\u0012Áx³q×*xÎ5\u0005! \u0004\u0010\u0010\u0002B@\bÔ\u0014\u00025DrX×Ó&¼Òæ\u001bÁXçuâ'\u0006\\\u00199Iß¡×>3qÆ}NONÀ=eÿô©ór8Jãl÷\u0003*zFÙ¨H~$é»ñø^¦\u0000É\t²?N»E\u0004Éñ/\fLÄõã£ä ?§¦¾û4Y! \u0004\u0010\u0010\u0002B \u0011\u0010ÉùÝâ:fÒ»wo\"Ü\u0002¼¨d$'inö}6²\u0004yàB?lñGÏ(àTq,\u000f\u0003\\pHÇß¬\u0007û0@\u001e¢d\u0014(Ì7l¨ÃYÄZ\u0004Éá·Ù&1¸öðã;`B?p±\u001f{MM\b\b\u0001! \u0004\u0010\u0010\u0002ÕHÎÿÖ×ÏäiÛ¶m8ý¦d$Çwc¨²ÑðNÍ9#×ÀØsÅäArHUºá\u001b¶Ýv[2è\u0007ôþùA\u0006á\rËè°e\u00049âÖþ\u0004³Ø¨\u0018g w¨ºpÍN\b\b\u0001! \u0004\u0010\u0010\u00025@l+SxÀ·w]\u00189CÂ§þ\"9\u0019G1õßµô\u001b\u0018gÄ®Í9#ß)ôÁ\u0007\u001fà{±8.èJRáiÓ¦\u001f?\u001ebcd\t²\u0001áéÙ³gçÎ}sHá0¿\u0013ÌFràÙ&âHrojðNS\u0016\u0002B@\b\b\u0001! \u0004j\n\u0001ÿ\t\u0005ÌkªáòLJIrØ\u0014yG\u0015â3òIN»víLÎñDêj 4gÎ\u001cr¸ÁÛfÍ\u0005bÏr\u000e)Lr\u0002JhÆK#HN¶INX¿Aü§¦¾þ4Y! \u0004\u0010\u0010\u0002B Z\u0011¨\u0012\u0013GB%\u0010\u001e\bd§øëMÑ+zO¤\u0011\u001e\bôì¢×l$1ÃÕâÌ(Þã\u0014\u000eÖ\\sM<3II\u000eÃÒôéÓ7cÆöØ'Å\u0019R8\\-)É!u'ãD\u001cÉ\t/¨\u0003\\$§Z¿é4/! \u0004\u0010\u0010\u0002B ¦\u0010\u0010Éùm¹ÃUYÜ>p\fªPhuµº\u0002~-ÿûßV\u0005(Ð\u000fägðàÁÈÅQà^\u0001ÏFRÓªU+\u001b\u0018Ð\u0019h³fÍòIN!9F\u0017Ð';
+              if (link.href.slice(5, 20) == "application/pdf") {
+                    $('.btnSavePdf').attr("PDF-Name", "document-Signed");
+                    pdf = new PDFPixie("pdf-container", link.href, {
+                        onPageUpdated(page, oldData, newData) {
+                            // console.log(page, oldData, newData);
+                        },
+                        ready() {
+                            /* console.log("Plugin initialized successfully"); */
+                            droppableCanvas();
+                            $('.con-detail').find('.left-box').css({
+                                display: 'block'
+                            });
+                            $('.con-detail').find('.center-box').css({
+                                display: 'block'
+                            });
+                            setTimeout(function() {
+                                $('#pageLoadModal').modal('hide');
+                            }, 500);
+                        },
+                        scale: 1,
+                        pageImageCompression: "FAST",
+                        /* FAST, MEDIUM, SLOW(Helps to control the new PDF file size) */
+                    });
+                    link.remove();
+                } else {
+                    alert("Please select pdf file only.");
+                }
+    
+              //, false);
+    
+        //eader.readAsDataURL(inputElement.files[0]);
+        //}
+        document.getElementsByTagName('body')[0].appendChild(inputElement);
+        inputElement.click();
+        // callback();
+    }
+    
+        /* save pdf file */
+    	function savePDFs(filename) {
+        if (fabricObj) {
+            $('#pageLoadModal').modal('show');
+            // alert('hii');
+            setTimeout(function() {
+                pdf.savePdfs(filename);
+            }, 500);
+            // pdf.savePdf(filename); /* save with given file name */
+        } else {
+            $('#pageLoadModal').modal('hide');
+            alert("Please import any pdf document.");
+        }
+    }
+        
+        
+        PDFPixie.prototype.savePdfs = function (fileName) {
+            var inst = this;
+            var doc;
+            var annoObjts = JSON.parse(pdf.serializePdf());
+            var annotationCount = 0;
+            for (var objts in annoObjts) {
+                annotationCount = annotationCount + annoObjts[objts].objects.length;
+            }
+            if (annotationCount > 0) {
+                var canvas = document.getElementsByClassName('lower-canvas')[0];
+                if (canvas.width > canvas.height) {
+                    var height = parseInt(canvas.height * 297) / parseInt(canvas.width);
+                    doc = new jspdf.jsPDF('l', 'mm', [297, parseInt(height)]);
+                } else {
+                    var height = parseInt(canvas.height * 210) / parseInt(canvas.width);
+                    doc = new jspdf.jsPDF('p', 'mm', [parseInt(height), 210]);
+                }
+                //(JSON.stringify(doc));
+                if (typeof fileName === 'undefined') {
+                    fileName = `${new Date().getTime()}.pdf`;
+                }
+        
+                inst.fabricObjects.forEach(function (fabricObj, index) {
+                    if (index != 0) {
+                        doc.addPage();
+                        doc.setPage(index + 1);
+                    }
+                    doc.addImage(
+                        fabricObj.toDataURL('image/jpeg', 1.0),
+                        inst.pageImageCompression == "NONE" ? "PNG" : "JPEG",
+                        0,
+                        0,
+                        doc.internal.pageSize.getWidth(),
+                        doc.internal.pageSize.getHeight(),
+                        `page-${index + 1}`, ["FAST", "MEDIUM", "SLOW"].indexOf(inst.pageImageCompression) >= 0 ?
+                        inst.pageImageCompression :
+                        undefined
+                    );
+                    if (index === inst.fabricObjects.length - 1) {
+                        $('#pageLoadModal').modal('hide');
+                        
+                        console.log("@@"+JSON.stringify(btoa(doc.output())));
+                        //alert(doc.output());
+                        SavePDF(btoa(doc.output()));
+                        // doc.save(fileName);
+                         
+                        
+                    }
+                })
+            } else {
+                $('#pageLoadModal').modal('hide');
+                setTimeout(function () {
+                    ("Please add atleast one annotation to save this document.");
+                }, 500);
+            }
+        }
+        
+        function NewDocument(a){
+            console.log(a.download + ' Get Blobs ' + a);
+            console.log(JSON.stringify(a));
+        }
+        
+        function RejectPDF(){
+            RejectMethod(); 
+        }
+        function CancelPDF(){
+            CancelMethod(); 
+        }
+        
+        </script>
+   		 <style>
+            ul li, ol li {
+                margin-left: 0em;
+                padding-left: 0;
+            }    
+        </style> 
+    </head>
+  
+    <apex:form >
+       <apex:actionFunction name="SavePDF" action="{!Reference}" reRender="FiltersId" status="status">
+                    <apex:param name="strImageBlob" assignTo="{!strImageBlob}" value=""/>
+                </apex:actionFunction>
+       
+         <apex:actionFunction name="callApexFunction" action="{!callApexFunction}" reRender="">
+            </apex:actionFunction>
+        
+        <apex:actionFunction name="RejectMethod" action="{!RejectMethod}"  reRender="FiltersId" status="status" >
+            </apex:actionFunction>
+         <apex:actionFunction name="CancelMethod" action="{!CancelMethod}" reRender="FiltersId" status="status">
+            </apex:actionFunction>
+        
+    <body>
+         
+        <apex:actionStatus id="status">
+                <apex:facet name="start"> 
+                   <div class="demo-only demo-only" style="height:100%;background-color:#d0d0d0;position:fixed;width:100%;opacity: 1.7;">
+                      <div class="slds-spinner_container">
+                        <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_inverse" style="text-align:center;margin-top:10px">
+                            <img src="/img/loading.gif" style=" margin: 8px;" />  
+                            <span style="display: inline-block; padding: 10px 0px;">Please Wait...</span>
+                        </div>
+                      </div>
+                </div>
+               </apex:facet>
+            </apex:actionStatus> 
+        
+        <apex:outputpanel id="FiltersId">
+              <apex:outputpanel rendered="{!showSucessMessage}">
+                    <div style="padding: 20px;font-size: 18px;text-align: center;background: green;color: white;z-index:1000">
+                         {!showMessage}
+                    </div>
+              </apex:outputpanel>
+            <apex:outputpanel rendered="{!showRejError}">
+                    <div style="padding: 10px;font-size: 16px;text-align: center;background: red;color: white;">
+                         {!showErrorMessage}
+                    </div>
+                    <apex:outputText value="{!reload}" escape="false"></apex:outputText>
+              </apex:outputpanel>
+            <apex:outputpanel rendered="{!showError}">
+                    <div style="padding: 10px;font-size: 16px;text-align: center;background: red;color: white;">
+                         {!showErrorMessage} 
+                    </div>
+              </apex:outputpanel>
+        
+
+<apex:outputpanel rendered="{!IF(AND(showSucessMessage != true,showRejError != true),true,false)}">
+                <apex:outputText value="{!reload}" escape="false"></apex:outputText>
+       		
+    <div class="wrapper">
+        <header>
+            <div class="logo-box">
+                <h1>Juno Signature</h1>
+            </div>
+            <div class="nav-box">
+                 <a href="javascript:void(0);" title="Import" onclick="CancelPDF()" class="btn btn-primary" style="color:rgb(0, 112, 210);background: White;font-weight:300">Cancel</a>
+                        <a href="javascript:void(0);" title="Import" onclick="RejectPDF()" class="btn btn-primary" style="color:rgb(0, 112, 210);background: White;font-weight:300">Reject</a>
+                       <a href="javascript:void(0);" title="Import" onclick="savePDFs($('.btnSavePdf').attr('pdf-name'))" class="btn btn-primary btnSavePdf" style="color: white;background: rgb(0, 112, 210);font-weight:300">Complete Signature</a>
+                      
+            </div>
+        </header>
+
+        <div class="con-detail">
+            <div class="left-box" style="display: none; z-index: 1000;">
+                <div class="inner-box">
+                    <h3>Annotations</h3>
+                    <ul>
+                        <li><a href="javascript:void(0);" title="Direct Signature" class="direct-signature"
+                                style="cursor: default !important;"><i class="fa fa-pencil"
+                                    aria-hidden="true"></i><span>Direct Signature</span></a>
+                        </li>
+                        <li class="signature sign-tool-li" draggable="true"><a href="javascript:void(0);"
+                                title="Signature"><i class="fa fa-pencil-square-o" aria-hidden="true"></i><span>Signature
+                                Pad</span></a>
+                        </li>
+                        <li class="date sign-tool-li" draggable="true"><a href="javascript:void(0);" title="Date"><i
+                                    class="fa fa-calendar-o" aria-hidden="true"></i><span>Date</span></a></li>
+                        <li class="text sign-tool-li" draggable="true"><a href="javascript:void(0);" title="Text"><i
+                                    class="fa fa-font" aria-hidden="true"></i><span>Text</span></a></li>
+                        <li class="image sign-tool-li" draggable="true"><a href="javascript:void(0);" title="Image"><i
+                                    class="fa fa-picture-o" aria-hidden="true"></i><span>Image</span></a></li>
+                        <li><a href="javascript:void(0);" title="Reset" onclick="clearPage()" draggable="true"
+                                style="cursor: default !important;"><i class="fa fa-reply"
+                                    aria-hidden="true"></i><span>Reset</span></a></li>
+                    </ul>
+
+                </div>
+            </div>
+            <div class="center-box" style="display: none; z-index: 999;">
+                <div class="inner-box">
+                    <div id="pdf-container" droppable="true"></div>
+                </div>
+
+                <div id="divEditProperties" class="edit-box" style="display: none">
+                    <a href="javascript:void(0);" style="display: none" class="edit-date-prop" title="Edit">
+                        MM/DD/YY</a>
+                    <div class="edit-date-box floating-menu" style="display: none;">
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="MM/DD/YY">MM/DD/YY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="DD/MM/YY">DD/MM/YY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="MM/DD/YYYY">MM/DD/YYYY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="DD/MM/YYYY">DD/MM/YYYY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="YYYY/MM/DD">YYYY/MM/DD</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="DD-MMM-YYYY">DD-MMM-YYYY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="DD MMMM YYYY">DD MMMM YYYY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="dddd, DD MMM YYYY">dddd, DD MMM YYYY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="DD.MM.YY">DD.MM.YY</a>
+                        <a href="javascript:void(0);" style="display: block" class="date-prop"
+                            data-format="DD.MM.YYYY">DD.MM.YYYY</a>
+                    </div>
+                    <a href="javascript:void(0);" style="display: none" class="edit-prop"
+                        onclick="editSignatureProperties()" title="Edit">Edit</a>
+                    <a href="javascript:void(0);" onclick="deleteSelectedObject(event)" title="Delete">Delete</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true" >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Your Signature</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a class="active" data-toggle="tab" href="#text">Text</a></li>
+                            <li><a class="draw-sign" data-toggle="tab" href="#draw">Draw</a></li>
+                            <li><a data-toggle="tab" href="#upload">Upload</a></li>
+                            <li><a data-toggle="tab" href="#save">Saved</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="text" class="tab-pane in active">
+
+                                <div class="row txt-row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <!-- <input type="text" class="form-control sign-text"> -->
+                                            <label><strong>Font-Family:</strong></label>
+                                            <select class="form-control fontstyle">
+                                                <option value="Apple Chancery, cursive"
+                                                    style="font-family: Apple Chancery, cursive;">Apple Chancery,
+                                                    cursive
+                                                </option>
+                                                <option value="Brush Script MT, Brush Script Std, cursive"
+                                                    style="font-family:Brush Script MT, Brush Script Std, cursive;">
+                                                    Brush
+                                                    Script
+                                                    MT, Brush Script Std, cursive</option>
+                                                <option value="URW Chancery L, cursive"
+                                                    style="font-family:URW Chancery L, cursive;">URW Chancery L, cursive
+                                                </option>
+                                                <option value="Axure Handwriting"
+                                                    style="font-family: Axure Handwriting;">
+                                                    Axure
+                                                    Handwriting
+                                                </option>
+                                                <option value="Book Antiqua" style="font-family: Book Antiqua;">Book
+                                                    Antiqua
+                                                </option>
+                                                <option value="Blackadder ITC" style="font-family: Blackadder ITC;">
+                                                    Blackadder
+                                                    ITC</option>
+                                                <option value="Brush Script MT" style="font-family: Brush Script MT;">
+                                                    Brush
+                                                    Script MT
+                                                </option>
+                                                <option value="Chiller" style="font-family: Chiller;">Chiller</option>
+                                                <option value="Edwardian Script ITC"
+                                                    style="font-family: Edwardian Script ITC;">
+                                                    Edwardian
+                                                    Script ITC</option>
+                                                <option value="Freestyle Script" style="font-family: Freestyle Script;">
+                                                    Freestyle Script
+                                                </option>
+                                                <option value="French Script MT" style="font-family: French Script MT;">
+                                                    French
+                                                    Script MT
+                                                </option>
+                                                <option value="Mistral" style="font-family: Mistral;">Mistral</option>
+
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><strong>Font Size:</strong></label>
+                                            <select class="form-control fontsize">
+                                                <option value="8px">8</option>
+                                                <option value="9px">9</option>
+                                                <option value="10px">10</option>
+                                                <option value="11px">11</option>
+                                                <option value="12px">12</option>
+                                                <option value="14px">14</option>
+                                                <option value="16px">16</option>
+                                                <option value="18px">18</option>
+                                                <option value="20px">20</option>
+                                                <option value="22px">22</option>
+                                                <option value="24px">24</option>
+                                                <option value="26px">26</option>
+                                                <option value="28px">28</option>
+                                                <option value="36px">36</option>
+                                                <option value="40px" selected="true">40</option>
+                                                <option value="48px">48</option>
+                                                <option value="72px">72</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row txt-row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label><strong>Your Text:</strong></label>
+                                            <input type="text" class="form-control sign-text" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <!-- <textarea type="text" class="form-control"></textarea> -->
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="">
+                                                            <div class="typed-text-block">
+                                                                <span
+                                                                    style="font-family: 'Apple Chancery', cursive; font-size: 40px;"></span>
+                                                            </div>
+                                                            <div style="display: none;">
+                                                                <div class="typed-text-image"></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="draw" class="tab-pane fade">
+                                <div class="box">
+                                    <div id="signatureparent">
+                                        <div id="signature"></div>
+                                    </div>
+                                </div>
+
+                                <div class="sign-controls">
+                                    <div class="controls-color">
+                                        <input type="color" class="sign-color" />
+                                    </div>
+                                    <div class="controls-edit pad-top-3 sign-delete"><img src="{!URLFOR($Resource.JunoSignOldZip, 'Juno/images/delete-sign.svg')}" />
+                                    </div>
+                                    <div id="undoBtn" class="controls-edit sign-undo"><img src="{!URLFOR($Resource.JunoSignOldZip, 'Juno/images/undo.svg')}" /></div>
+                                </div>
+                            </div>
+                            <div id="upload" class="tab-pane fade">
+                                <div class="form-group">
+                                    <div class="jumbotron-box">
+                                        <div class="dropzone" id="productImg">
+                                            <div class="fallback">
+                                                <label for="file" class="upload-label upload-btn">
+                                                    <img src="{!URLFOR($Resource.JunoSignOldZip, 'Juno/images/upload-sign.svg')}" />
+                                                    <span>Upload Signature Image</span>
+                                                </label>
+                                                <label>
+                                                    <img src="" class="upload-img" style="display: none;" />
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="save" class="tab-pane fade">
+                                <div class="box save-images">
+                                    <img src="" class="sign-img-save" />
+                                </div>
+                            </div>
+                            <canvas id="signature-pad-hidden" class="signature-pad" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="text-box">
+                            <div class="input-group-text">
+                                <input type="checkbox" class="chk-primary-sign" id="chk-sign"
+                                    aria-label="Checkbox for following text input" /><label for="chk-sign">Save signature</label>
+                            </div>
+                        </div>
+                        <div class="btn-box">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary btn-save-sign">Use</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="dataModalLabel">Signature Data</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <pre></pre>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-box">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Loader Modal-->
+        <div class="modal fade" id="pageLoadModal" tabindex="-1" role="dialog" aria-labelledby="pageLoadModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content page-loader-content">
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <div class="loader4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </apex:outputpanel>
+        </apex:outputpanel>
+    </body>
+    </apex:form>
+    </html>
+      
+    </apex:page>

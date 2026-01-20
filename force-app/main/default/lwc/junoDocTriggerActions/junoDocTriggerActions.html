@@ -1,0 +1,1245 @@
+<template>
+    <lightning-card>
+        <div>   
+            <template if:true={ShowHomeScreen}>
+            <table style="width:90%; margin:0 auto;">
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td><lightning-button label="Create New Trigger" 
+                        variant="brand" onclick={handleCreateNewTriggerAction}></lightning-button>
+                        <lightning-helptext content="create Triggers to send juno doc to specified emails based on filter conditions"></lightning-helptext>
+                    </td>
+                </tr>
+            </table>
+            <br/>
+
+            <template if:true={showTriggerActions}>
+                <table style="width:90%; margin:0 auto;"
+                class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Action</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">TRIGGER NAME</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">OBJECT</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">STATUS</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">ENABBLE RECURRING TRIGGER</div>
+                            </th>                                                                                   
+                        </tr> 
+                    </thead>
+                    
+                    <tbody>                        
+
+                    
+                    <template for:each={TriggerActionsList} for:item = "rec" for:index="index" >
+                        <tr key={TriggerActionKeyIndex} class="slds-hint-parent" 
+                        >                    
+                            <td>
+                                                                
+                                <lightning-icon size="x-small" icon-name="action:edit" style="cursor:pointer;"
+                                alternative-text="Edit" variant="brand"  access-key={index} id={index}
+                                onclick={handleTriggerActionEditClick}></lightning-icon>
+                                &nbsp;&nbsp;&nbsp;                                  
+                                <lightning-icon size="x-small" icon-name="action:delete" style="cursor:pointer;"
+                                alternative-text="Delete" variant="brand" access-key={index} id={index}
+                                onclick={handleTriggerActionDeleteClick}></lightning-icon>
+            
+                            </td>                                
+                            <td>
+                                <label>{rec.Name}</label>
+                            </td>
+                            <td>
+                                <label>{rec.JunoDoc__Object_Name__c}</label> 
+                                <lightning-output-field name="FieldValue" type="text" 
+                                access-key={index} id={index}
+                                value={rec.ObjectName} 
+                                ></lightning-output-field>
+                            </td>
+                            <td>
+                                <lightning-input type="toggle"
+                                access-key={index} id={index}
+                                checked={rec.JunoDoc__IsActive__c}
+                                onchange={handleToggleChange} 
+                                ></lightning-input>
+                            </td>
+                            <td>
+                                <lightning-input type="toggle"
+                                access-key={index} id={index}
+                                checked={rec.JunoDoc__Enable_Recurring_Trigger__c}
+                                onchange={handleToggleRecurringChange} 
+                                ></lightning-input>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+
+                </table>
+
+                <c-confirmation-dialog title='Confirmation Alert'
+                message={ConfirmationAlertMsg}
+                confirm-label='Yes'
+                cancel-label='No'
+                visible={isDialogVisible}
+                original-message={originalMessage}
+                name="confirmModal"
+                onclick={handleClick}>
+                </c-confirmation-dialog>                
+
+            </template>
+        </template>
+        <template if:false={ShowHomeScreen}>
+            <div class="slds-grid slds-grid_align-spread ">
+                <div class="slds-col slds-text-heading_medium" style="color:black;padding-left:15px;">
+                    <template if:true={ShowObjectDetails}>
+                    New Trigger
+                    </template>
+                    <template if:true={showTriggerConditions}>
+                        {ObjectLabel} : Trigger Filter Conditions
+                    </template>
+                    <template if:true={showTriggerAction}>
+                        {ObjectLabel} : Trigger Action
+                    </template>
+                   
+                    <template if:true={showPostTriggerActions}>
+                        {ObjectLabel} : Post Trigger Actions
+                    </template>
+                </div>
+                <div class="slds-col">
+                    
+                </div>
+                <div class="slds-col" style="padding-right:15px;">
+                    <template if:true={ShowObjectDetails}>
+                        <span style="padding-right:15px;">
+                            <button class="slds-button slds-button_neutral" onclick={handleNewTriggerClose} title="Cancel">Cancel</button>
+                            <button class="slds-button slds-button_brand" onclick={handleNewTriggerNext2} title="Next">Next</button>
+                        </span>
+                        </template>
+                        <template if:true={showTriggerConditions}>
+                            <button class="slds-button slds-button_neutral" onclick={handleTriggerConditionsBack} title="Back">Back</button>
+                            <button class="slds-button slds-button_brand" onclick={handleTriggerConditionsSave2} title="Save &amp; Next">Save &amp; Next</button>
+                            </template>
+                            <template if:true={showTriggerAction}>
+                                <button class="slds-button slds-button_neutral" onclick={handleTriggerActionBack} title="Back">Back</button>
+                            <button class="slds-button slds-button_brand" onclick={handleTriggerActionSave2} title="Save &amp; Next">Save &amp; Next</button>
+                            </template>
+                            
+                            <template if:true={showPostTriggerActions}>
+                                <button class="slds-button slds-button_neutral" onclick={handlePostTriggerActionBack} title="Back">Back</button>
+                            <button class="slds-button slds-button_brand" onclick={handlePostTriggerActionSave2} title="Save">Save</button>
+                            <button class="slds-button slds-button_brand" onclick={handlePostTriggerActionClose} title="Close">Close</button>
+                            </template>
+                </div>
+            </div>
+            <br/>
+            <div style="padding-left:15px;padding-right:15px;">
+    <lightning-progress-indicator type="path" current-step={DupeselectedStep}>
+    <template if:true={createNewTriggerAction}>
+    <lightning-progress-step label="New Trigger" onstepfocus={selectStep1} onclick={handleProgress} value="Step1">
+    </lightning-progress-step>
+    </template>
+        <lightning-progress-step label="Filter Conditions" onstepfocus={selectStep2} onclick={handleProgress} value="Step2">
+        </lightning-progress-step>
+        <lightning-progress-step label="Trigger Action" onstepfocus={selectStep3} onclick={handleProgress} value="Step3">
+        </lightning-progress-step>
+        <lightning-progress-step label="Post Actions" onstepfocus={selectStep4} onclick={handleProgress} value="Step4">
+        </lightning-progress-step>
+    </lightning-progress-indicator>
+    </div>
+    <br/>
+    <br/>
+
+    <template if:true={ShowObjectDetails}>
+        <div style="width:50%; margin:0 auto; padding-top:30px;">
+
+            <lightning-input 
+            label = "Enter Trigger Name"
+            data-field="triggerName"
+            type="text" 
+            value={triggerName}
+            disabled={disableTriggerName}
+            onchange={handleTriggerName}
+            required></lightning-input>
+
+            <br/>
+
+            <lightning-input label="Select Salesforce Object to create Trigger Action"
+            value={ObjectLabel} type="search"                                
+            onchange={handleChange} placeholder="Search here..."
+            required>                                
+            </lightning-input> 
+
+
+            <template if:true={showSearchObjects}>
+                <div id="listbox-id-11" style="width:535px; height:250px; overflow:scroll;"
+                class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                role="listbox">
+                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                        <template for:each={searchObjectsList} for:item = "rec" for:index="index" >
+                            <div  key={rec.value} data-item={rec.value} 
+                            onclick={handleSearchOnClick}>
+                                <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small">
+                                    <span class="slds-media__body">
+                                        <span class="slds-truncate" title="All Objects">
+                                            <span>{rec.label}</span>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>    
+                        </template>
+                    </ul>
+                </div>
+            </template>
+            
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            
+
+            <p if:false={isLoaded}></p>
+            <div if:true={isLoaded} class="slds-align_absolute-center"> 
+                <lightning-spinner
+                    alternative-text="Loading..." variant="brand">
+                </lightning-spinner>
+            </div>                
+
+        </div>
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+    
+    </template>
+
+    <template if:true={showTriggerConditions}>
+        <div style="width:100%; margin:0 auto;padding-left:20px;padding-right:20px;">
+            <table>
+                <tr>                               
+                    <td>   
+                        <lightning-button label="Add Row" variant="brand" onclick={addTriggerConditionRow}></lightning-button> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <lightning-input data-field="filterConditionsFormula"
+                                label="Formula for Filter Conditions"
+                                type="text" 
+                                access-key={index} id={index}
+                                value={filterConditionsValue}
+                                onchange={handleFilterConditionsFormulaOnChange}
+                                style="width:100%"
+                                required></lightning-input>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Use left and right parenthesis appropriately in the formula when using more than 2 AND or OR conditions e.g. (1 AND (2 OR 3))</label>
+                    </td>
+                </tr>                                 
+                <tr style="height: 10px;"></tr>   
+            </table>         
+             
+            <div>
+                <label>Filter Conditions</label>
+                <lightning-helptext content="Please give null to check empty values"></lightning-helptext>
+                <br/>
+                <label>* Please give null to check empty values</label> <br/>
+                <label>* date format : mm/dd/yyyy</label> <br/>
+                <label>* for number types do not give non-numeric characters</label> <br/>
+                <label>* for lookup fields give Id only</label> <br/>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate">NO</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">FIELD NAME<label style="color:red;">*</label></div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">OPERATOR<label style="color:red;">*</label></div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">VALUE<label style="color:red;">*</label></div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" style="position:relative; left:100px;">ACTION</div>
+                            </th>                                                                                   
+                        </tr> 
+                    </thead>
+                </table>
+            </div>
+
+            
+            <div style="">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <tbody>            
+                        <template for:each={TriggerConditionsWrapper} for:item = "rec" for:index="index" >
+                            <tr key={triggerConditionIndex} class="slds-hint-parent">
+            
+                                <td>   
+                                    <label  style="position:relative;top:10px;">{rec.RowNumber} </label>
+                                </td>
+            
+                                <td style = "width:500px">                                                  
+                                    <lightning-combobox 
+                                    name="Field" 
+                                    access-key={index} id={index}
+                                    options={ObjectFieldsWrapper}
+                                    onchange={ConditionChangeHandler}
+                                    value={rec.field}
+                                    >
+                                    </lightning-combobox>                                           
+
+                                </td>
+                                <td style = "width:350px">                                                        
+                                    <lightning-combobox 
+                                    name="Operator" 
+                                    access-key={index} id={index}
+                                    options={OperatorOptions}
+                                    onchange={ConditionChangeHandler}
+                                    value={rec.Operator}
+                                    >
+                                    </lightning-combobox>                                           
+                                </td>
+                                <td style = "width:400px">
+                                    <div>   
+                                        
+                                        <div style="width:70%;float:left">
+
+                                            <template if:false={rec.isBoolean}>
+                                                <lightning-input name="FieldValue" type="text" 
+                                                access-key={index} id={index}
+                                                value={rec.fieldValue} onchange={ConditionChangeHandler} 
+                                                ></lightning-input>
+                                            </template>
+
+                                            <template if:true={rec.isBoolean}>
+                                                <lightning-combobox 
+                                                name="FieldValue" 
+                                                access-key={index} id={index}
+                                                options={booleanOptions}
+                                                onchange={ConditionChangeHandler}
+                                                value={rec.fieldValue}                                                                    
+                                                >
+                                                </lightning-combobox>  
+                                            </template>
+                                        </div>
+        
+
+                                        <div style="width:25%;cursor:pointer;float:right;margin-right:5px;position:relative;top:20px;">
+                                            <template if:true={rec.isPicklist}>
+                                                <lightning-icon icon-name="standard:search" 
+                                                name="searchPicklist"                                                                
+                                                access-key={index} id={index} 
+                                                onclick={handleSearchPicklistClick}
+                                                alternative-text="search" title="search"></lightning-icon>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td >
+                                    <lightning-button icon-name="utility:delete" 
+                                    style="position:relative;top:10px;" access-key={index} id={index} 
+                                    alternative-text="Delete Row" size="small" title="Delete Row"
+                                    onclick={removeTriggerConditionRow} >
+                                    </lightning-button> 
+                                </td>
+                            </tr>                                       
+
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+
+            <template if:true={openPicklistModal}>
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="width:25%;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closePicklistModal}>
+                                <lightning-icon icon-name="utility:close"
+                                    alternative-text="close"
+                                    variant="inverse"
+                                    size="small" ></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 id="modal-heading-03" class="slds-text-heading_medium slds-hyphenate">
+                                Select Values </h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" 
+                        id="modal-content-id-3" style="height:300px;">
+
+                            <lightning-checkbox-group name="Checkbox Group"
+                            label=''
+                            options={pickListValuesList}
+                            value={optionValues}
+                            onchange={handlePickListValueChange}></lightning-checkbox-group>
+                        
+
+
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Insert Values" variant="brand" onclick={onclickPicklistInsertValues}></lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>        
+
+           
+
+        </div>
+        <br>
+<br>
+<br>
+<br>
+    </template>
+
+    <template if:true={showTriggerAction}>
+        <div style="width:100%; margin:0 auto;padding-left:20px;padding-right:20px;">
+            <div class="slds-box">
+        <lightning-accordion class="example-accordion" active-section-name={activeSections}
+                                                                    onsectiontoggle={handleToggleSection}
+                                                                    allow-multiple-sections-open>
+                                    <lightning-accordion-section name="A" label="Select Email Addresses">
+                                        <c-junodoc-lwc-add-email-recipient 
+                                        email-recipients={addEmailRecipientsList}
+                                        object-name={SalesforceObject}
+                                        object-label={ObjectLabel}
+                                        onaddemailrecipientsave={hanldeAddEmailRecipientSave}
+                                        ></c-junodoc-lwc-add-email-recipient>
+                                    </lightning-accordion-section>
+                                </lightning-accordion>                         
+                              
+                                           
+                                            <lightning-accordion class="example-accordion" active-section-name={activeSections}
+                                                    onsectiontoggle={handleToggleSection}
+                                                    allow-multiple-sections-open>
+                                                <lightning-accordion-section name="B" label="Select From Email Address">
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width:180px;">
+                                                                    From Email Address:
+                                                                    <lightning-helptext content="Please Enter From Email Address [specify org wide email address only]"></lightning-helptext>
+                                                                </td>
+                                                                <td>                                                                    
+                                                                    <lightning-combobox 
+                                                                    name="FromEmailAddress" 
+                                                                    options={OrgwideEmailAddressList}
+                                                                    value={FromEmailAddress}
+                                                                    onchange={handleFromEmailAddressOnChange} 
+                                                                    >
+                                                                    </lightning-combobox>                                            
+                                                                </td>
+                                                            </tr> 
+                                                            <tr>
+                                                                <td style="width:180px;">
+                                                                     Set Reply To:
+                                                                     <lightning-helptext content="Please Enter Email Address to set as reply to"></lightning-helptext>
+                                                                </td>                                    
+                                                                <td>
+                                                                    <lightning-input 
+                                                                    data-field="SetReplyTo"
+                                                                    type="text" 
+                                                                    value={SetReplyTo}
+                                                                    onchange={handleSetReplyToOnChange}
+                                                                    ></lightning-input>                                            
+                                                                </td>
+                                                            </tr> 
+                                                        </tbody>
+                                                    </table>       
+                                                </lightning-accordion-section>
+                                            </lightning-accordion>  
+                                                                          
+                                    
+                                      
+                                        <lightning-accordion class="example-accordion" active-section-name={activeSections}
+                                            onsectiontoggle={handleToggleSection}
+                                            allow-multiple-sections-open>
+                                        <lightning-accordion-section name="C" label="Select Templates">
+                                            <table>
+                                                <tbody>
+                                                <tr style="height: 10px;"></tr>
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Available Doc Templates:
+                                                        <lightning-helptext content="Select Junodoc Template"></lightning-helptext>
+                                                    </td>
+                                                    <td>
+                                                        <lightning-combobox 
+                                                        name="AvailableDocTemplates" 
+                                                        options={AvailableDocTemplatesList}
+                                                        value={AvailableDocTemplate}
+                                                        onchange={handleEmailTemplateOnChange} 
+                                                        >
+                                                        </lightning-combobox>                                                             
+                                                    </td>
+                                                </tr>
+                                                <tr style="height: 10px;"></tr>
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Standard Email Template:
+                                                        <lightning-helptext content="Please Select Email Template"></lightning-helptext>
+                                                    </td>
+                                                    <td >
+                                                        <lightning-combobox 
+                                                        name="StandardEmailTemplates" 
+                                                        options={StandardEmailTemplatesList}
+                                                        value={StandardEmailTemplate}
+                                                        onchange={handleEmailTemplateOnChange}                                            
+                                                        >
+                                                        </lightning-combobox>                                                             
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Junodoc Email Template:
+                                                    </td>
+                                                    <td>
+                                                        <lightning-combobox 
+                                                        name="JunoDocEmailTemplates" 
+                                                        options={JunoDocEmailTemplatesList}
+                                                        value={JunoDocEmailTemplate}
+                                                        onchange={handleEmailTemplateOnChange}
+                                                        >
+                                                        </lightning-combobox>                                                             
+                                                    </td>
+                                                </tr>
+                                                <tr style="height: 10px;"></tr>
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Save as Activity:
+                                                    </td>
+                                                    <td>
+                                                        <lightning-input data-field="SaveAsActivity" 
+                                                        name="EmailSubject" 
+                                                        type="checkbox" 
+                                                        checked={SaveAsActivity} 
+                                                        onchange={handleSaveAsActivityOnChange}
+                                                        ></lightning-input>
+                                                    </td>
+                                                </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </lightning-accordion-section>
+                                 </lightning-accordion>
+                                 
+                            </div></div>
+
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+    
+    </template>
+
+    <template if:true={showPostTriggerActions}>
+        <div style="width:100%; margin:0 auto;padding-left:20px;padding-right:20px;">
+            <table>
+                <tr>                               
+                    <td>   
+                        <lightning-button label="Add Row" variant="brand" onclick={addPostTriggerActionRow}></lightning-button> 
+                    </td>
+                </tr>
+            </table>         
+            
+            <div>
+                <label>Set Post Trigger Action Values</label>
+                <lightning-helptext content="Please give null to check empty values"></lightning-helptext>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate">NO</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">FIELD NAME<label style="color:red;">*</label></div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">VALUE<label style="color:red;">*</label></div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">ACTION</div>
+                            </th>                                                                                   
+                        </tr> 
+                    </thead>
+                </table>
+            </div>
+
+             
+            <div style="height:200px;overflow-y: scroll;">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">                                                                            
+                    <tbody>
+                        <template for:each={PostTriggerActionsWrapper} for:item = "rec1" for:index="index" >
+                            <tr key={PostTriggerActionKeyIndex} class="slds-hint-parent">
+                                <td class="" style="width:100px">
+                                    {rec1.RowNumber}
+                                </td>
+                                <td class="" style="width:400px">
+                                    <div style="padding:5px">
+                                    <lightning-combobox 
+                                    name="PostTriggerActionField" 
+                                    access-key={index} id={index}
+                                    options={ObjectFieldsWrapper}
+                                    value={rec1.Field}
+                                    onchange={handlePostTriggerActionOnChange}
+                                    >
+                                    </lightning-combobox></br>
+                                   </div>                                         
+                                </td>                                          
+                                <td class="" style="width:400px">
+                                    <div style="padding:5px">
+                                        <template if:false={rec1.isPicklist}>
+                                            <lightning-input name="PostTriggerActionValue" type="text" 
+                                            access-key={index} id={index}
+                                            value={rec1.Value} onchange={handlePostTriggerActionOnChange} 
+                                            ></lightning-input><br>        
+                                        </template>
+
+                                        <template if:true={rec1.isPicklist}>
+                                        <div style="position:relative;top:-9px;">
+
+                                            <lightning-combobox 
+                                            name="PostTriggerActionValue" 
+                                            access-key={index} id={index}
+                                            options={rec1.picklistValues}
+                                            onchange={handlePostTriggerActionOnChange} 
+                                            value={rec1.Value}    
+                                            >
+                                            </lightning-combobox>  
+                                        </div>
+                                        </template>    
+
+                                    </div>
+                                </td>
+                                <td class="" style="width:400px;padding-left:40px;">
+                                    <div style="text-align:center">
+                                    <lightning-button icon-name="utility:delete"  access-key={index} id={index} 
+                                    alternative-text="Delete Row" size="small" title="Delete Row"
+                                    onclick={removePostTriggerActionRow} >
+                                    </lightning-button>  
+                                </div> 
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+    </template>
+            <!--<template if:true={createNewTriggerAction}>
+
+                <section aria-describedby="modal-content-id-1" aria-labelledby="modal-heading-01" aria-modal="true" class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleNewTriggerClose} title="Close">
+                                <lightning-icon icon-name="utility:close" size="medium" variant="inverse"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 class="slds-text-heading_medium slds-hyphenate" id="modal-heading-01">New Trigger</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <div style="width:50%; margin:0 auto; padding-top:30px;">
+
+                                <lightning-input 
+                                label = "Enter Trigger Name"
+                                data-field="triggerName"
+                                type="text" 
+                                value={triggerName}
+                                disabled={disableTriggerName}
+                                onchange={handleTriggerName}
+                                style="width:535px"
+                                required></lightning-input>
+
+                                <br/>
+
+                                <lightning-input label="Select Salesforce Object to create Trigger Action"
+                                value={ObjectLabel} type="search"                                
+                                onchange={handleChange} placeholder="Search here..."
+                                required>                                
+                                </lightning-input> 
+
+
+                                <template if:true={showSearchObjects}>
+                                    <div id="listbox-id-11" style="width:535px; height:250px; overflow:scroll;"
+                                    class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                    role="listbox">
+                                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                            <template for:each={searchObjectsList} for:item = "rec" for:index="index" >
+                                                <div  key={rec.value} data-item={rec.value} 
+                                                onclick={handleSearchOnClick}>
+                                                    <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small">
+                                                        <span class="slds-media__body">
+                                                            <span class="slds-truncate" title="All Objects">
+                                                                <span>{rec.label}</span>
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>    
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+                                
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+
+                                
+        
+                                <p if:false={isLoaded}></p>
+                                <div if:true={isLoaded} class="slds-align_absolute-center"> 
+                                    <lightning-spinner
+                                        alternative-text="Loading..." variant="brand">
+                                    </lightning-spinner>
+                                </div>                
+                
+                            </div>
+
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+    
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Cancel" onclick={handleNewTriggerClose} variant="neutral"></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <lightning-button label="Next" onclick={handleNewTriggerNext} variant="brand"></lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+
+            </template>-->
+
+
+
+            <!-- Trigger Conditions -->
+            <!--<template if:true={showTriggerConditions}>
+                <section aria-describedby="modal-content-id-1" aria-labelledby="modal-heading-01" aria-modal="true" class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={closeTriggerConditionsModal} title="Close">
+                                <lightning-icon icon-name="utility:close" size="medium" variant="inverse"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 class="slds-text-heading_medium slds-hyphenate" id="modal-heading-02">{ObjectLabel} : Trigger Filter Conditions</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                            <div style="width:100%;max-height:300px; margin:0 auto;">
+                                <table>
+                                    <tr>                               
+                                        <td>   
+                                            <lightning-button label="Add Row" variant="brand" onclick={addTriggerConditionRow}></lightning-button> 
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <lightning-input data-field="filterConditionsFormula"
+                                                    label="Formula for Filter Conditions"
+                                                    type="text" 
+                                                    access-key={index} id={index}
+                                                    value={filterConditionsValue}
+                                                    onchange={handleFilterConditionsFormulaOnChange}
+                                                    style="width:100%"
+                                                    required></lightning-input>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label>Use left and right parenthesis appropriately in the formula when using more than 2 AND or OR conditions e.g. (1 AND (2 OR 3))</label>
+                                        </td>
+                                    </tr>                                 
+                                    <tr style="height: 10px;"></tr>   
+                                </table>         
+                                 
+                                <div>
+                                    <label>Filter Conditions</label>
+                                    <lightning-helptext content="Please give null to check empty values"></lightning-helptext>
+                                    <br/>
+                                    <label>* Please give null to check empty values</label> <br/>
+                                    <label>* date format : mm/dd/yyyy</label> <br/>
+                                    <label>* for number types do not give non-numeric characters</label> <br/>
+                                    <label>* for lookup fields give Id only</label> <br/>
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                        <thead>
+                                            <tr class="slds-line-height_reset">
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">NO</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">FIELD NAME<label style="color:red;">*</label></div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">OPERATOR<label style="color:red;">*</label></div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">VALUE<label style="color:red;">*</label></div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" style="position:relative; left:100px;">ACTION</div>
+                                                </th>                                                                                   
+                                            </tr> 
+                                        </thead>
+                                    </table>
+                                </div>
+
+                                
+                                <div style="height:200px;overflow-y: scroll;">
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                        <tbody>            
+                                            <template for:each={TriggerConditionsWrapper} for:item = "rec" for:index="index" >
+                                                <tr key={triggerConditionIndex} class="slds-hint-parent">
+                                
+                                                    <td>   
+                                                        <label  style="position:relative;top:10px;">{rec.RowNumber} </label>
+                                                    </td>
+                                
+                                                    <td>                                                  
+                                                        <lightning-combobox 
+                                                        name="Field" 
+                                                        access-key={index} id={index}
+                                                        options={ObjectFieldsWrapper}
+                                                        onchange={ConditionChangeHandler}
+                                                        value={rec.field}
+                                                        >
+                                                        </lightning-combobox>                                           
+            
+                                                    </td>
+                                                    <td>                                                        
+                                                        <lightning-combobox 
+                                                        name="Operator" 
+                                                        access-key={index} id={index}
+                                                        options={OperatorOptions}
+                                                        onchange={ConditionChangeHandler}
+                                                        value={rec.Operator}
+                                                        >
+                                                        </lightning-combobox>                                           
+                                                    </td>
+                                                    <td>
+                                                        <div>   
+                                                            
+                                                            <div style="width:70%;float:left">
+            
+                                                                <template if:false={rec.isBoolean}>
+                                                                    <lightning-input name="FieldValue" type="text" 
+                                                                    access-key={index} id={index}
+                                                                    value={rec.fieldValue} onchange={ConditionChangeHandler} 
+                                                                    ></lightning-input>
+                                                                </template>
+            
+                                                                <template if:true={rec.isBoolean}>
+                                                                    <lightning-combobox 
+                                                                    name="FieldValue" 
+                                                                    access-key={index} id={index}
+                                                                    options={booleanOptions}
+                                                                    onchange={ConditionChangeHandler}
+                                                                    value={rec.fieldValue}                                                                    
+                                                                    >
+                                                                    </lightning-combobox>  
+                                                                </template>
+                                                            </div>
+                            
+            
+                                                            <div style="width:25%;cursor:pointer;float:right;margin-right:5px;position:relative;top:20px;">
+                                                                <template if:true={rec.isPicklist}>
+                                                                    <lightning-icon icon-name="standard:search" 
+                                                                    name="searchPicklist"                                                                
+                                                                    access-key={index} id={index} 
+                                                                    onclick={handleSearchPicklistClick}
+                                                                    alternative-text="search" title="search"></lightning-icon>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td >
+                                                        <lightning-button icon-name="utility:delete" 
+                                                        style="position:relative;top:10px;" access-key={index} id={index} 
+                                                        alternative-text="Delete Row" size="small" title="Delete Row"
+                                                        onclick={removeTriggerConditionRow} >
+                                                        </lightning-button> 
+                                                    </td>
+                                                </tr>                                       
+            
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+        
+                                <template if:true={openPicklistModal}>
+                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                        <div class="slds-modal__container" style="width:25%;">
+                                            <header class="slds-modal__header">
+                                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closePicklistModal}>
+                                                    <lightning-icon icon-name="utility:close"
+                                                        alternative-text="close"
+                                                        variant="inverse"
+                                                        size="small" ></lightning-icon>
+                                                    <span class="slds-assistive-text">Close</span>
+                                                </button>
+                                                <h2 id="modal-heading-03" class="slds-text-heading_medium slds-hyphenate">
+                                                    Select Values </h2>
+                                            </header>
+                                            <div class="slds-modal__content slds-p-around_medium" 
+                                            id="modal-content-id-3" style="height:300px;">
+        
+                                                <lightning-checkbox-group name="Checkbox Group"
+                                                label=''
+                                                options={pickListValuesList}
+                                                value={optionValues}
+                                                onchange={handlePickListValueChange}></lightning-checkbox-group>
+                                            
+        
+        
+                                            </div>
+                                            <footer class="slds-modal__footer">
+                                                <lightning-button label="Insert Values" variant="brand" onclick={onclickPicklistInsertValues}></lightning-button>
+                                            </footer>
+                                        </div>
+                                    </section>
+                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                </template>        
+
+                               
+
+                            </div>
+
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+    
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Back" onclick={handleTriggerConditionsBack} variant="neutral"></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <lightning-button label="Save & Next" onclick={handleTriggerConditionsSave} variant="brand"></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                           
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>-->
+            <!-- End Trigger Conditions -->
+
+            <!-- Trigger Actions -->
+            <!--<template if:true={showTriggerAction}>
+                <section aria-describedby="modal-content-id-1" aria-labelledby="modal-heading-01" aria-modal="true" class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={closeTriggerActionModal} title="Close">
+                                <lightning-icon icon-name="utility:close" size="medium" variant="inverse"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 class="slds-text-heading_medium slds-hyphenate" id="modal-heading-04">{ObjectLabel} : Trigger Action</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+                                <lightning-accordion class="example-accordion" active-section-name={activeSections}
+                                                                    onsectiontoggle={handleToggleSection}
+                                                                    allow-multiple-sections-open>
+                                    <lightning-accordion-section name="A" label="Select Email Addresses">
+                                        <c-junodoc-lwc-add-email-recipient 
+                                        email-recipients={addEmailRecipientsList}
+                                        object-name={SalesforceObject}
+                                        object-label={ObjectLabel}
+                                        onaddemailrecipientsave={hanldeAddEmailRecipientSave}
+                                        ></c-junodoc-lwc-add-email-recipient>
+                                    </lightning-accordion-section>
+                                </lightning-accordion>                         
+                              
+                                           
+                                            <lightning-accordion class="example-accordion" active-section-name={activeSections}
+                                                    onsectiontoggle={handleToggleSection}
+                                                    allow-multiple-sections-open>
+                                                <lightning-accordion-section name="B" label="Select From Email Address">
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width:180px;">
+                                                                    From Email Address:
+                                                                    <lightning-helptext content="Please Enter From Email Address [specify org wide email address only]"></lightning-helptext>
+                                                                </td>
+                                                                <td>                                                                    
+                                                                    <lightning-combobox 
+                                                                    name="FromEmailAddress" 
+                                                                    options={OrgwideEmailAddressList}
+                                                                    value={FromEmailAddress}
+                                                                    onchange={handleFromEmailAddressOnChange} 
+                                                                    >
+                                                                    </lightning-combobox>                                            
+                                                                </td>
+                                                            </tr> 
+                                                            <tr>
+                                                                <td style="width:180px;">
+                                                                     Set Reply To:
+                                                                     <lightning-helptext content="Please Enter Email Address to set as reply to"></lightning-helptext>
+                                                                </td>                                    
+                                                                <td>
+                                                                    <lightning-input 
+                                                                    data-field="SetReplyTo"
+                                                                    type="text" 
+                                                                    value={SetReplyTo}
+                                                                    onchange={handleSetReplyToOnChange}
+                                                                    ></lightning-input>                                            
+                                                                </td>
+                                                            </tr> 
+                                                        </tbody>
+                                                    </table>       
+                                                </lightning-accordion-section>
+                                            </lightning-accordion>  
+                                                                          
+                                    
+                                      
+                                        <lightning-accordion class="example-accordion" active-section-name={activeSections}
+                                            onsectiontoggle={handleToggleSection}
+                                            allow-multiple-sections-open>
+                                        <lightning-accordion-section name="C" label="Select Templates">
+                                            <table>
+                                                <tbody>
+                                                <tr style="height: 10px;"></tr>
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Available Doc Templates:
+                                                        <lightning-helptext content="Select Junodoc Template"></lightning-helptext>
+                                                    </td>
+                                                    <td>
+                                                        <lightning-combobox 
+                                                        name="AvailableDocTemplates" 
+                                                        options={AvailableDocTemplatesList}
+                                                        value={AvailableDocTemplate}
+                                                        onchange={handleEmailTemplateOnChange} 
+                                                        >
+                                                        </lightning-combobox>                                                             
+                                                    </td>
+                                                </tr>
+                                                <tr style="height: 10px;"></tr>
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Standard Email Template:
+                                                        <lightning-helptext content="Please Select Email Template"></lightning-helptext>
+                                                    </td>
+                                                    <td >
+                                                        <lightning-combobox 
+                                                        name="StandardEmailTemplates" 
+                                                        options={StandardEmailTemplatesList}
+                                                        value={StandardEmailTemplate}
+                                                        onchange={handleEmailTemplateOnChange}                                            
+                                                        >
+                                                        </lightning-combobox>                                                             
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Junodoc Email Template:
+                                                    </td>
+                                                    <td>
+                                                        <lightning-combobox 
+                                                        name="JunoDocEmailTemplates" 
+                                                        options={JunoDocEmailTemplatesList}
+                                                        value={JunoDocEmailTemplate}
+                                                        onchange={handleEmailTemplateOnChange}
+                                                        >
+                                                        </lightning-combobox>                                                             
+                                                    </td>
+                                                </tr>
+                                                <tr style="height: 10px;"></tr>
+                                                <tr>
+                                                    <td style="width:180px;">
+                                                        Save as Activity:
+                                                    </td>
+                                                    <td>
+                                                        <lightning-input data-field="SaveAsActivity" 
+                                                        name="EmailSubject" 
+                                                        type="checkbox" 
+                                                        checked={SaveAsActivity} 
+                                                        onchange={handleSaveAsActivityOnChange}
+                                                        ></lightning-input>
+                                                    </td>
+                                                </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </lightning-accordion-section>
+                                 </lightning-accordion>
+                                 
+                            
+
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+    
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Back" onclick={handleTriggerActionBack} variant="neutral"></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <lightning-button label="Save & Next" onclick={handleTriggerActionSave} variant="brand"></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>-->
+            
+
+            <!-- 
+            <template if:true={showPostTriggerActions}>
+                <section aria-describedby="modal-content-id-1" aria-labelledby="modal-heading-01" aria-modal="true" class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handlePostTriggerActionClose} title="Close">
+                                <lightning-icon icon-name="utility:close" size="medium" variant="inverse"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 class="slds-text-heading_medium slds-hyphenate" id="modal-heading-05">{ObjectLabel} : Post Trigger Action</h2>
+                        </header>
+
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-5">
+                            <div style="width:100%;max-height:300px; margin:0 auto;">
+                                <table>
+                                    <tr>                               
+                                        <td>   
+                                            <lightning-button label="Add Row" variant="brand" onclick={addPostTriggerActionRow}></lightning-button> 
+                                        </td>
+                                    </tr>
+                                </table>         
+                                
+                                <div>
+                                    <label>Set Post Trigger Action Values</label>
+                                    <lightning-helptext content="Please give null to check empty values"></lightning-helptext>
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                        <thead>
+                                            <tr class="slds-line-height_reset">
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">NO</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">FIELD NAME<label style="color:red;">*</label></div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">VALUE<label style="color:red;">*</label></div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate">ACTION</div>
+                                                </th>                                                                                   
+                                            </tr> 
+                                        </thead>
+                                    </table>
+                                </div>
+
+                                 
+                                <div style="height:200px;overflow-y: scroll;">
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">                                                                            
+                                        <tbody>
+                                            <template for:each={PostTriggerActionsWrapper} for:item = "rec1" for:index="index" >
+                                                <tr key={PostTriggerActionKeyIndex} class="slds-hint-parent">
+                                                    <td >
+                                                        {rec1.RowNumber}
+                                                    </td>
+                                                    <td class="slds-size_2-of-10">
+                                                        <div>
+                                                        <lightning-combobox 
+                                                        name="PostTriggerActionField" 
+                                                        access-key={index} id={index}
+                                                        options={ObjectFieldsWrapper}
+                                                        value={rec1.Field}
+                                                        onchange={handlePostTriggerActionOnChange}
+                                                        >
+                                                        </lightning-combobox></br>
+                                                       </div>                                         
+                                                    </td>                                          
+                                                    <td class="slds-size_2-of-10">
+                                                        <div>
+                                                            <template if:false={rec1.isPicklist}>
+                                                                <lightning-input name="PostTriggerActionValue" type="text" 
+                                                                access-key={index} id={index}
+                                                                value={rec1.Value} onchange={handlePostTriggerActionOnChange} 
+                                                                ></lightning-input><br>        
+                                                            </template>
+
+                                                            <template if:true={rec1.isPicklist}>
+                                                            <div style="position:relative;top:-9px;">
+
+                                                                <lightning-combobox 
+                                                                name="PostTriggerActionValue" 
+                                                                access-key={index} id={index}
+                                                                options={rec1.picklistValues}
+                                                                onchange={handlePostTriggerActionOnChange} 
+                                                                value={rec1.Value}    
+                                                                >
+                                                                </lightning-combobox>  
+                                                            </div>
+                                                            </template>    
+
+                                                        </div>
+                                                    </td>
+                                                    <td class="slds-size_1-of-10">
+                                                        <div>
+                                                        <lightning-button icon-name="utility:delete"  access-key={index} id={index} 
+                                                        alternative-text="Delete Row" size="small" title="Delete Row"
+                                                        onclick={removePostTriggerActionRow} >
+                                                        </lightning-button>  
+                                                    </div> 
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+                            <br>
+                            <br>
+                            <br>
+                            <br>
+    
+                        </div>
+ 
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Back" onclick={handlePostTriggerActionBack} variant="neutral"></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <lightning-button label="Save" onclick={handlePostTriggerActionSave} variant="brand"></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <lightning-button label="Close" onclick={handlePostTriggerActionClose} variant="brand"></lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>
+             -->
+
+
+
+
+        </template></div>
+    </lightning-card>
+        
+</template>

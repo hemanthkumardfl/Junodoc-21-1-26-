@@ -1,0 +1,86 @@
+<aura:component controller="JunoSignRemindersController" implements="force:hasRecordId,flexipage:availableForRecordHome"> 
+     <aura:attribute name="ObjectAPIName" type="String" required="true"/>
+    
+     <aura:attribute name="rows" type="List" />
+    <aura:attribute name="reminderData" type="List" default="[]" />
+    <aura:attribute name="expirationDays" type="Integer" default="30" />
+    <aura:method name="saveData" action="{!c.saveData}" access="public"/>
+    <aura:attribute name="existingReminders" type="List" />
+    <aura:handler name="change" value="{!v.existingReminders}" action="{!c.processExistingReminders}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <div class="slds-card slds-m-around_medium">
+        <!-- Section Header -->
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <span class="slds-text-heading_small slds-truncate">JunoSign Object Reminders</span>
+                    </h2>
+                </div>
+            </header>
+        </div>
+
+        <div class="slds-card__body slds-p-around_medium">
+                    <div class="slds-grid slds-wrap">
+                        <aura:iteration items="{!v.reminderData}" var="rec" indexVar="i">
+                            <!-- Custom Schedule -->
+                            <div class="slds-col slds-size_1-of-1 slds-m-bottom_medium">
+                                <lightning:input type="checkbox" label="Custom Schedule"
+                                                 checked="{!rec.selectedBeforeDays}" value="{!i}"
+                                                 onchange="{!c.handleRecurrenceBeforeDayChange}" />
+                                <div class="slds-grid slds-wrap slds-m-top_small slds-align_absolute-left" style="margin-left: 2rem;">
+                                    <div class="slds-col slds-size_1-of-12 slds-m-right_small">
+                                        <lightning:input aura:id="customDayInput" value="{!rec.customDay}" type="number"
+                                                         disabled="{!not(rec.selectedBeforeDays)}"
+                                                         min="1" max="{!v.expirationDays}"/>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12 slds-m-top_large">
+                                        <lightning:button label="Add" disabled="{!not(rec.selectedBeforeDays)}"
+                                                          value="{!i}" onclick="{!c.handleAddDay}" />
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12 slds-m-top_large">
+                                        <aura:iteration items="{!rec.selectedDays}" var="day">
+                                            <span class="slds-badge slds-m-right_xx-small slds-p-around_xx-small slds-badge_lightest">
+                                                Before {!day} day(s)
+                                                <lightning:buttonIcon iconName="utility:close" variant="bare" size="x-small"
+                                                                      alternativeText="Remove" value="{!day}" name="{!i}"
+                                                                      onclick="{!c.removeDay}" class="slds-m-left_x-small" />
+                                            </span>
+                                        </aura:iteration>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recurring -->
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:input type="checkbox" label="Recurring"
+                                                 checked="{!rec.selectedRecurringDay}" value="{!i}"
+                                                 onchange="{!c.handleRecurrenceRecurringDaysChange}" />
+                                <div class="slds-grid slds-wrap slds-m-top_small slds-align_absolute-left" style="margin-left: 2rem;">
+                                    <div class="slds-col slds-size_1-of-12 slds-m-right_small">
+                                        <lightning:input aura:id="RecurringDayInput" value="{!rec.customRecurringDay}" type="number"
+                                                         disabled="{!not(rec.selectedRecurringDay)}"
+                                                         min="1" max="{!v.expirationDays}"/>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12 slds-m-top_large">
+                                        <lightning:button label="Add" disabled="{!not(rec.selectedRecurringDay)}"
+                                                          value="{!i}" onclick="{!c.handleRecurringAddDays}" />
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12 slds-m-top_large">
+                                        <aura:iteration items="{!rec.selectedRecurringDays}" var="day">
+                                            <span class="slds-badge slds-m-right_xx-small slds-p-around_xx-small slds-badge_lightest">
+                                                Every {!day} day(s)
+                                                <lightning:buttonIcon iconName="utility:close" variant="bare" size="x-small"
+                                                                      alternativeText="Remove" value="{!day}" name="{!i}"
+                                                                      onclick="{!c.removeRecurringDays}" class="slds-m-left_x-small" />
+                                            </span>
+                                        </aura:iteration>
+                                    </div>
+                                </div>
+                            </div>
+                        </aura:iteration>
+                    </div>
+             </div>
+       </div>
+</aura:component>

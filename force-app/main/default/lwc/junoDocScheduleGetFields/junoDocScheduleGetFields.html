@@ -1,0 +1,31 @@
+<template >
+    
+    
+    <lightning-input name="Field" 
+                            access-key={indexValue} id={indexValue}
+                            value={fieldLabel}                                
+                            onchange={handleChangeFields} placeholder="Search here..."
+                            >                                
+                            </lightning-input> 
+                        
+<template if:true={ShowFields}>
+<div id="listbox-id-13" style="width:535px; max-height:250px; overflow:scroll;"
+class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+role="listbox">
+    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+        <template for:each={searchFieldsList} for:item = "rec" for:index="index" >
+            <div  key={rec.value} data-item={rec.value} 
+            onclick={handleOnClickFields}>
+                <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small">
+                    <span class="slds-media__body">
+                        <span class="slds-truncate" title="All Objects">
+                            <span>{rec.label}</span>
+                        </span>
+                    </span>
+                </div>
+            </div>    
+        </template>
+    </ul>
+</div>
+</template>
+</template>

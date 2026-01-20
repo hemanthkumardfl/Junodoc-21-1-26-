@@ -1,0 +1,18 @@
+<apex:page sidebar="False">
+    <apex:includeLightning />
+   
+    <div id="LcDisplayId"></div> 
+    <script>
+        
+        $Lightning.use("JunoDoc:Audit_Trail_App", function() {
+        $Lightning.createComponent("JunoDoc:Audit_Trail",
+        { 
+           	recordId : "{!$CurrentPage.parameters.id}",
+            VFPage : "true"
+        },
+       "LcDisplayId",
+        function(component) {
+        });
+     });
+    </script>
+</apex:page>

@@ -1,0 +1,13 @@
+<apex:component selfClosing="true">
+    <apex:attribute name="helpText" description="Help Text." type="String" />
+    <apex:attribute name="link" description="url link." type="String" />
+    <div class="mouseOverInfoOuter" id="searchInvoiceHelper" onfocus="addMouseOver(this)" onmouseover="addMouseOver(this)" tabindex="0">
+        <img src="/s.gif" alt="" class="infoIcon" title="" />
+        <div class="mouseOverInfo" id="searchInvoiceHelperText" style="display: none; opacity: -0.19999999999999996; left: 16px;">
+            <div class="body">
+                <apex:outputtext escape="false" value="{!HTMLENCODE(helpText)}"></apex:outputtext>
+                <apex:outputLink value="{!link}" id="theLink" target="_blank">{!link}</apex:outputLink>
+            </div>
+        </div>
+    </div>
+</apex:component>

@@ -1,0 +1,18 @@
+<apex:page standardController="Account" recordSetvar="objects" extensions="DynamicListView_AC">   
+    <apex:includeLightning />
+   
+    <div id="LcDisplayId"></div> 
+    <script>
+    var objects = JSON.stringify('{!RecIds}');
+        $Lightning.use("JunoDoc:LGT_DynamicListSendPDFApp", function() {
+        $Lightning.createComponent("JunoDoc:LGT_DynamicListSendPDF",
+        { 
+            objectName : "Account",
+            records : objects
+        },
+       "LcDisplayId",
+        function(component) {
+        });
+     });
+    </script>
+</apex:page>

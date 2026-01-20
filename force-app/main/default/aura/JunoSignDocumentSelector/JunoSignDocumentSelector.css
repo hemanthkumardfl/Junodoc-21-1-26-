@@ -1,0 +1,31 @@
+.THIS .slds-box_link-selected {
+    border: 2px solid #1589ee;
+    background-color: #f3f9ff;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10);
+}
+
+.THIS .slds-box_link:hover {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.10);
+    cursor: pointer;
+}
+
+.THIS .upload-area {
+    transition: all 0.2s ease-in-out;
+}
+
+.THIS .upload-area:hover {
+    border-color: #1589ee;
+    background-color: #f3f9ff;
+}
+
+.THIS .slds-tabs__content {
+    min-height: 400px;
+}
+
+.THIS .document-item {
+    transition: all 0.2s ease-in-out;
+}
+
+.THIS .document-item:hover {
+    transform: translateY(-1px);
+}

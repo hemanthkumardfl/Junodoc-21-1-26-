@@ -1,0 +1,50 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:attribute name="Spinner" type="Boolean" default="true" />
+    <aura:html tag="style">
+        .slds-modal__container{
+        	width: 80% !important;
+        	max-width: 80rem !important;
+        }
+        .modal-body.scrollable.slds-modal__content.slds-p-around--medium{
+        	height: 80vh !important;
+        	max-height: 80vh !important;
+        } 
+        .slds-scope .slds-modal__container {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            height: 100% !important;
+        	padding: 5px !important;
+        }
+    </aura:html>
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container" style="width:100%">
+            <!-- Modal/Popup Box Header Starts here-->
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.Cancel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Dashboard</h2>
+            </header>
+            <!--Modal/Popup Box Body Starts here-->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <c:AddTasks/>
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick="{!c.Cancel}" aria-label="Cancel and close">Cancel</button>
+                <!--  <button class="slds-button slds-button_brand">Save</button> -->
+            </footer>
+        </div>
+        
+        <!--   <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner-brand  slds-spinner slds-spinner-large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div> -->
+    </section>
+</aura:component>

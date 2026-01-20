@@ -1,0 +1,59 @@
+<apex:page controller="OpportunityClass">
+    <apex:slds />
+    <style>
+    table,tr{
+        border:1px solid black
+        }
+        
+    </style>
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped" aria-label="Example table of Opportunities with striped rows">
+        <thead>
+            <tr class="slds-line-height_reset">
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Opportunity Name">Opportunity Name</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Close Date">Close Date</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="StageName">StageName</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Close_Fiscal_Quarter">Close_Fiscal_Quarter</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Portfolio_Technology">Portfolio_Technology</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Opportunity Owner">Opportunity Owner</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Amount">Amount</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Annual">Annual</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Notes">Notes</div>
+                </th>
+            </tr>   
+        </thead>
+        <tbody>
+            <apex:repeat value="{!opportunityList}" var="a">
+                <tr>
+                    <td>{!a.Name}</td> 
+                    <td>{!a.CloseDate}</td> 
+                    <td>{!a.StageName}</td>
+                    <td>{!a.Close_Fiscal_Quarter__c}</td>
+                    <td>{!a.Portfolio_Technology__c}</td>
+                    <td>{!a.Owner.name}</td>
+                    <td>{!a.Amount}</td>
+                    <td>{!a.Annual__c}</td>
+                    <td style = "width:700px;height:auto;">{!a.Notes__c}
+                    </td>
+                </tr>
+            </apex:repeat>
+        </tbody>
+        
+    </table>
+</apex:page>

@@ -1,0 +1,606 @@
+<apex:page standardController="Junodoc_Parent_Configuration__c" extensions="JunoSFDC2SFDC">
+    <html>
+        <head>
+            <apex:stylesheet value="{!URLFOR($Resource.SLDSv0122, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+            <apex:stylesheet value="{!URLFOR($Resource.SLDS090, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />  
+            <style>
+                .slds .slds-truncate{
+                    font-weight:400  !important;
+                    font-size: 1.25rem !important;
+                }
+                .ui-helper-hidden-accessible{
+                    display:none;
+                }
+            </style>
+        </head>
+        <apex:form id="frm">
+            
+            <script>
+                function metadataReview(){
+                    callMetadataReview() ;
+                }
+            </script>
+            
+            <apex:actionFunction action="{!gotoMetadataReview}" name="callMetadataReview" rerender="dummy"/>
+            
+            <!--<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+            <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>-->
+            <apex:includeScript value="{!URLFOR($Resource.customresources, 'js/jquery.min.latest.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.customresources, 'js/jquery-ui.min.latest.js')}"/> 
+            <script>$j = jQuery.noConflict();</script>
+            <script>
+                function openpopupforSchema(){
+                    document.getElementById("tstpopup1").className = document.getElementById("tstpopup1").className.replace( /(?:^|\s)slds-fade-in-closed(?!\S)/g , ' slds-fade-in-open' )
+                    return true;
+                }
+                function openpopupforSavetemplate(){
+                    document.getElementById("tstpopup2").className = document.getElementById("tstpopup2").className.replace( /(?:^|\s)slds-fade-in-closed(?!\S)/g , ' slds-fade-in-open' )
+                    showBackDrop();
+                    return true;
+                }
+                function closePopupForSavetemplate(){
+                    document.getElementById("tstpopup2").className = document.getElementById("tstpopup2").className.replace( /(?:^|\s)slds-fade-in-open(?!\S)/g , ' slds-fade-in-closed' )               
+                    hideBackDrop();
+                    return true;
+                }
+                $('#tstpopup2').dialog({
+                    autoOpen: false,
+                    modal: false
+                });
+                function checkLimit(limitField, limitCount, limitNum){ 
+                    if (limitField.value.length > limitNum) {
+                        limitField.value = limitField.value.substring(0, limitNum);
+                    } 
+                    else {
+                        limitCount.value = limitNum - limitField.value.length;
+                    }
+                }
+                function hideBackDrop(){    
+                    document.getElementById("backdropDiv").className =document.getElementById("backdropDiv").className.replace
+                    ( /(?:^|\s)slds-modal-backdrop--open(?!\S)/g , ' slds-modal-backdrop--closed' )
+                    return false;
+                }
+                // show the transparent overlayer on message popup
+                function showBackDrop(){    
+                    document.getElementById("backdropDiv").className =document.getElementById("backdropDiv").className.replace
+                    ( /(?:^|\s)slds-modal-backdrop--closed(?!\S)/g , ' slds-modal-backdrop--open' )
+                    return false;
+                }                
+            </script>
+            <script>
+            function CancelAction(){
+                let domain = window.location.hostname;
+                let url = 'https://'+domain+'/lightning/o/JunoDoc__Doc_Template__c/list?filterName=Recent';
+                window.open(url,'_parent');
+                
+                }
+            
+                function showSpinner(){
+                    document.getElementById('opaque').style.display = 'block';
+                    var popUp = document.getElementById('spinner');
+                    popUp.style.display = 'block';
+                } 
+                function hideSpinner(){
+                    document.getElementById('opaque').style.display = 'none';
+                    var popUp = document.getElementById('spinner');
+                    popUp.style.display = 'none';
+                }  
+            </script>
+            <script>
+                (function( $ ) {
+                    $.widget( 'slds.autocomplete', $.ui.autocomplete, {
+                        _create: function() {
+                            this._super();
+                            this.sldsMenu = $('<div>')
+                                                .addClass('slds-lookup__menu slds-hide')
+                                                .attr('role', 'listbox')
+        
+                            this.element.parentsUntil('.slds-lookup').append( this.sldsMenu );
+        
+                            $('.ui-helper-hidden, .ui-helper-hidden-accessible').addClass('slds-hide');
+                        },
+                        _renderMenu: function( ul, items ) {
+                            var self = this;
+                            ul.addClass('slds-lookup__list').attr('role', 'presentation');
+                            ul.appendTo( this.sldsMenu );
+                            this.sldsMenu.addClass('slds-show').removeClass('slds-hide');
+                            $.each( items, function( index, item ) {
+                                self._renderItemData( ul, item );
+                            });
+                        },
+                        _renderItem: function( ul, item ) {
+                            return $('<li>')
+                                .addClass('slds-lookup__item')
+                                .append( '<a href="#" role="option">' + item.label + '</a>' )
+                                .appendTo( ul );
+                        },
+                        _close: function( event ) {
+                            this._super( event );
+                            this.sldsMenu.addClass('slds-hide').removeClass('slds-show');
+                        }
+        
+                    });
+                })( jQuery );
+        
+                $j(function() {
+                    var categories = [];
+                    <apex:repeat value="{!Categories}" var="arrayItem">
+                    categories.push('{!arrayItem}');
+                    </apex:repeat>
+                    $j('[id$=lookup-input]').autocomplete({
+                        source: categories
+                    });
+                });
+            </script>
+            <style>
+                .outer td.oRight {
+                    padding: 0px 10px 20px 10px !important;
+                }
+                #spinner {
+                    display: none;
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    text-align:center;
+                    z-index:1000;
+                }
+                #opaque {
+                    position: fixed;
+                    top: 0px;
+                    left: 0px;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1000;
+                    display: none;
+                    background-color: gray;
+                    filter: alpha(opacity=30);
+                    opacity: 0.3;
+                    -moz-opacity:0.3;
+                    -khtml-opacity:0.3
+                }
+                *html #opaque {
+                    position: absolute;
+                }  
+                .logo-cldly{
+                    width: 40px !important;
+                    height: 35px !important;    
+                 }
+                .slds .slds-page-header {
+                    padding: 14px 16px !important;
+                    background: #ef7c16 !important;
+                    color: black !important;
+                }
+                .slds .slds-media__figure {
+                    background: #fff !important;
+                } 
+                .slds .slds-text-heading--medium{
+                    line-height: inherit !important;
+                    font-size:22px;
+                }
+                .slds .slds-lookup__list{
+                    background-color:whitesmoke;
+                }
+                .slds .slds-lookup__menu{
+                    border:none;
+                    padding: 0px 0;
+                    height: 0px;
+                }
+            </style>
+            
+            
+            <!----------------------------------------------displaySchemaPopUp---------------------------------- -->
+            <div id="opaque"/>
+            <apex:outputPanel rendered="{!displaySchemaPopUp}"> 
+                <div class="slds"> 
+                    <div aria-hidden="true" role="dialog" class="slds-modal slds-modal--large slds-fade-in-closed slds-modal-backdrop slds-modal-backdrop--closed " style="z-index:100" id="tstpopup1" >
+                        <div class="slds-modal__container ">
+                            <div class="slds-modal__content" style="border-top-right-radius:4px;border-top-left-radius:4px;position:absolute;left:300px;top:175px;">
+                                <div style="text-align: justify;text-justify: inter-word;">
+                                    <br/>
+                                    For the following objects there are no object schema mapping<br/>  
+                                    <center> {!missingSchemaMapObjects} </center>
+                                    You cannot proceed further until you create object schema mapping for above objects
+                                    <br/>
+                                </div>
+                                <div class="slds-modal__footer">
+                                    <div class="slds-x-small-buttons--horizontal"> 
+                                        <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--brand"  oncomplete="hideSpinner()" onclick="window.open('/apex/mapObjectSchema','_blank');showSpinner()" action="{!redirectToSchemaMappingPage}" value="Create Object Schema Mapping" rerender="frm" status="status" />
+                                        <apex:commandButton styleClass="slds-button slds-button--neutral"  value="close" onclick="showSpinner()" oncomplete="hideSpinner()" action="{!closeSchemaPopUp}" immediate="true" html-formnovalidate="formnovalidate" rerender="frm" status="status" /> 
+                                    </div>  
+                                </div>     
+                            </div>
+                        </div>
+                    </div>  
+                </div>
+            </apex:outputPanel>
+            <!----------------------------------------------END---displaySchemaPopUp---------------------------------- -->
+            <!----------------------------------------------openpopupforSavetemplate---------------------------------- -->
+            <div class="slds-scope">
+            </div>
+            <!----------------------------------------------END---openpopupforSavetemplate---------------------------------- -->
+            <div class="slds">
+                <div class="slds-grid slds-wrap slds-grid--pull-padded" style="margin:0px;margin-bottom:0px">
+                    <div class="slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1" style="padding-right: 0px;padding-left: 0px;">
+                        <div id="spinner">
+                            <div class="slds-spinner_container" style="text-align:center">
+                                <div class="slds-spinner--inverse slds-spinner slds-spinner--medium" aria-hidden="false" role="alert">
+                                    <img src="{!URLFOR($Resource.Spinnerforstatus)}"/> 
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <apex:outputPanel rendered="{!!showParentFields}" id="templatePanel">
+                <div class="slds" style="border:1px solid #d8dde6;margin-bottom:5px;"> 
+                 <!--   <div class="slds-page-header">
+                        <div class="slds-grid">
+                           <div class="slds-col slds-has-flexi-truncate">
+                                <div class="slds-media slds-no-space slds-grow" style="float:left">
+                                    <div class="slds-media__figure" style="border-radius:50%;">
+                                      <img src="{!URLFOR($Resource.cldlylogo)}" class="logo-cldly"/> 
+                                    </div> 
+                                    <div class="slds-media__body">
+                                        <p class="slds-text-title--caps slds-line-height--reset"></p>
+                                        <h1 class="slds-text-heading--medium">Welcome to Data Migration WorkBench</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                 <!--   <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1 slds-p-bottom--large" style="padding-bottom: 0px;">
+                        <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                            <div class="slds-form-element" >
+                                <apex:outputLabel >  
+                                    CloudSync migrates data from source org to destination org; The org which you plan to execute  query will be source org, system will push data to any destination org based on the entered query<br/>
+                                    This will be main screen of entry to either pick an existing migration template or write a new query to migrate data to destination Org.<br/>
+                                    If you need any help for preparing templates, feel free to <apex:commandLink value="Contact Us" action="{!redirectToContactUs}" target="_blank" ></apex:commandLink>
+                                </apex:outputLabel>
+                            </div>
+                        </div>
+                    </div> -->
+                    <apex:pageMessages ></apex:pageMessages>
+                    <apex:outputPanel rendered="{!showResponseDetails}">
+                        <div class="slds" style="border:1px solid #d8dde6;margin-bottom: 10px;"> 
+                            <div class="slds-grid">    
+                                <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2 slds-p-bottom--large" style="padding-bottom: 0px;">
+                                    <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                        <div class="slds-form-element" >
+                                            <apex:outputPanel rendered="{!showResultsDetails}">
+                                                <script>
+                                                var hostname = window.location.hostname;
+                                                var objectApiName = 'JunoDoc__Doc_Template__c';      
+                                                var url = 'https://' + hostname + '/lightning/o/' + objectApiName + '/list?filterName=Recent';
+                                                window.open(url, '_self');
+                                                </script>
+                                                <apex:outputLabel value="Records are Migrating to destination org. Please "> 
+                                                    <apex:commandLink action="{!redirectToResultsPage}" value="Click here To See the Results" id="theCommandLink" target="_blank" styleclass="slds-button slds-button--brand" style="background-color:green"/>
+                                                </apex:outputLabel>
+                                            </apex:outputPanel>
+                                            <apex:outputPanel rendered="{!showTemplateScheduleMessage}">  
+                                                <apex:outputLabel value="Template is sent for Schedule Process. Please check the status ">
+                                                    <apex:commandLink action="{!redirectToTemplateSchedule}" value="here" target="_blank" styleclass="slds-button slds-button--brand" style="background-color:green"/> 
+                                                </apex:outputLabel>
+                                            </apex:outputPanel>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                    <div class="slds-page-header" style="background:rgba(29,52,97,1) !important;">
+                        <div class="slds-grid">
+                            <div class="slds-col slds-has-flexi-truncate">
+                                <div class="slds-media slds-no-space slds-grow" style="float:left">
+                                    <div class="slds-media__figure">
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <p class="slds-text-title--caps slds-line-height--reset" style="color:white;font-weight:bold;padding-top:10px;font-size:18px;">Create New Migration Templete</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <apex:outputPanel rendered="{!if(showParentFields == false,true,false)}" >
+                                <div class="slds-media slds-no-space slds-grow" style="float:right">
+                                    <apex:commandButton onclick="showSpinner()" oncomplete="hideSpinner()" value="Push" action="{!m_IsJunction}" styleclass="slds-button slds-button--neutral" rerender="frm" status="status" ></apex:commandButton>
+                                    <apex:commandButton onclick="CancelAction()"  value="Cancel" styleclass="slds-button slds-button--neutral" immediate="true" ></apex:commandButton>
+                                <!--    <apex:commandButton onclick="showSpinner()" value="Save Template" action="{!m_SaveConfig}" status="status" oncomplete="openpopupforSavetemplate();hideSpinner()"  rerender="frm" styleclass="slds-button slds-button--brand" ></apex:commandButton>
+                                    <apex:commandButton value="Save As New Template" action="{!m_SaveAsConfig}" status="status"  onclick="showSpinner()"  oncomplete="openpopupforSavetemplate();hideSpinner()"  rerender="frm" styleclass="slds-button slds-button--brand" ></apex:commandButton>   -->
+                                </div>
+                            </apex:outputPanel>
+                        <!--    <div class="slds-col slds-no-flex slds-align-middle">
+                                <a  href="http://www.cloudsyncapp.com" target="_blank">
+                                    <img style= "width:20px;height:20px;" src="{!URLFOR($Resource.HelpText_Img)}"/>  
+                                </a>
+                            </div> -->
+                        </div>
+                    </div>   
+                  <!--  <div class="slds-grid slds-wrap">
+                        <div class="slds-col--padded slds-size--1-of-4 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Select Category</label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-select_container">
+                                            <apex:selectList value="{!selectedCategory}" size="1" multiselect="false" styleclass="slds-select">
+                                                <apex:selectOptions value="{!ListOfCategories}" /> 
+                                                <apex:actionSupport event="onchange"  rerender="frm" status="status" onsubmit="showSpinner()" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                        <div class="slds-col--padded slds-size--1-of-4 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Select Template</label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-select_container">
+                                            <apex:selectList value="{!selectedConfiguration}" size="1" multiselect="false"  styleclass="slds-select">
+                                                <apex:selectOptions value="{!ListOfConfigurations}" /> 
+                                                <apex:actionSupport event="onchange" action="{!ConfigData}" rerender="frm" status="status" onsubmit="showSpinner()" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div>
+                    </div>     -->
+                    <div class="slds-grid slds-wrap">
+                      <!--  <div class="slds-col--padded slds-size--1-of-4 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Select Migration Type<span style="color:red;">*</span>
+                                        <c:helpTextComponent helpText="Insert - Is recommended for first time insert.<br/>Upsert - Is recommended for upsert operation(updates existing records in destination)"/>
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-select_container">
+                                            <apex:selectList value="{!selectedType}" size="1" multiselect="false" styleclass="slds-select" disabled="true">
+                                                <apex:selectOptions value="{!typeOptions}" />
+                                                <apex:actionSupport event="onchange" action="{!getCloudSyncBatchSize}" rerender="frm" status="status" onsubmit="showSpinner()" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </div>        
+                            </div>
+                        </div>  -->
+                        <div class="slds-col--padded slds-size--1-of-4 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Select Destination<span style="color:red;">*</span></label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-select_container">
+                                            <apex:selectList value="{!selectedDestination}" size="1" multiselect="false" styleclass="slds-select">
+                                                <apex:selectOptions value="{!ListOfDestinations}" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </div>       
+                            </div>
+                        </div> 
+                      <!--  <div class="slds-col--padded slds-size--1-of-4 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-p-top--large" style="padding-top: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Batch Size<span style="color:red;">* </span></label>
+                                    <div class="slds-form-element__control">
+                                        <apex:inputText value="{!CloudSyncBatchSize}" styleclass="slds-input" ></apex:inputText>
+                                    </div>
+                                </div>      
+                            </div>
+                        </div> -->
+                    </div>
+                 <!--   <div class="slds-grid slds-wrap">
+                        <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-2 slds-medium-size--1-of-2 slds-p-bottom--medium" style="padding-bottom: 0px;">
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <div class="slds-form-element slds-p-top_x-large">
+                                    <label class="slds-form-element__label" style="font-size:13px; color:black !important;">Parent Query
+                                        <span style="color:red;">* (Please Use Following Keywords in Uppercase : SELECT,FROM,WHERE,LIMIT)</span>
+                                        <c:helpTextComponent helpText="Type in SOQL query to migrate the data from the parent object to destination Org<br/>
+                                                                        Follow below hints while you write the Query<br/>
+                                                                        a) use ALL to select all fields<br/>
+                                                                        b) Do not use spaces after each field"/> &nbsp; &nbsp; &nbsp; &nbsp;
+                                        <apex:commandLink value="Check Syntax" action="{!checkParentSyntax}" onclick="showSpinner()" oncomplete="hideSpinner()" rerender="frm" status="status"></apex:commandLink>
+                                        &nbsp; &nbsp; 
+                                        <apex:commandLink value="Record Count" action="{!parentRecordCount}" onclick="showSpinner()" oncomplete="hideSpinner()" rerender="frm" status="status"></apex:commandLink>
+                                        &nbsp; &nbsp;
+                                        <apex:commandLink value="Compare Metadata" action="{!checkParentMetadata}" onclick="showSpinner()" oncomplete="hideSpinner();metadataReview();" rerender="frm" status="status"></apex:commandLink>
+                                    </label>
+                                    <div class="slds-form-element__control">
+                                            <div class="requiredBlock"></div>
+                                            <apex:inputTextArea style="font-size:12px;" value="{!Junodoc_Parent_Configuration__c.Junodoc_SOQL_Query__c}" cols="90" rows="2" styleclass="slds-input"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" style="border:none;background:none">
+                                <apex:commandButton value="Add Child" action="{!addChild}" onclick="showSpinner()" oncomplete="hideSpinner()" rerender="frm" styleclass="slds-button slds-button--brand" status="status"></apex:commandButton> 
+                            </div> 
+                        </div>
+                    </div> -->
+             <!--       <apex:outputpanel id="PB1" rendered="{!if(myChildRecords.size>0, true, false)}">
+                        <apex:pageMessages ></apex:pageMessages>
+                        <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal" >
+                            <thead style="background:#f4f6f9">
+                                <tr>
+                                    <th class="slds-text-heading--label slds-size--2-of-4" scope="col" >Child Query
+                                        <c:helpTextComponent helpText="Type in SOQL query to migrate the data from the child object to destination Org<br/>
+                                                                        Follow below hints while you write the Query<br/>
+                                                                          a) use ALL to select all fields<br/>
+                                                                          b) Do not use spaces after each field"></c:helpTextComponent>
+                                    </th>
+                                    <th class="slds-text-heading--label slds-size--1-of-4" scope="col" >Parent Field API In Child
+                                        <c:helpTextComponent helpText="Type Name which links child to parent object"></c:helpTextComponent>
+                                    </th>
+                                    <th class="slds-text-heading--label slds-size--1-of-4" scope="col">Action</th>
+                                </tr> 
+                            </thead>
+                            <tbody>
+                                <apex:repeat value="{!myChildRecords}" var="childQuery">
+                                    <tr class="slds-hint-parent">
+                                        <td scope="row" style="background:none; width:40%;">
+                                            <div class="slds-truncate" style="max-width:550px;">
+                                                <span style="cursor:pointer">
+                                                    <div class="requiredInput">
+                                                        <div class="requiredBlock"></div>
+                                                        <apex:inputTextArea style="font-size:12px;" value="{!childQuery.childQuery.Junodoc_SOQL_Query__c}" cols="90" rows="2" styleclass="slds-input"/>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td scope="row" style="background:none;width:40%;" >
+                                            <div class="slds-truncate">
+                                                <span style="cursor:pointer">
+                                                    <div class="requiredInput">
+                                                        <div class="requiredBlock"></div>
+                                                        <apex:inputText style="font-size:12px;" value="{!childQuery.parentField}" styleclass="slds-input"/>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                        </td> 
+                                        <td scope="row" style="background:none;width:20%;" >
+                                            <div>
+                                                <span style="cursor:pointer">
+                                                    <apex:commandLink style="font-size:13px;" value="Delete" action="{!m_RemoveChildRow}"  onclick="showSpinner()" oncomplete="hideSpinner()" rerender="frm" status="status">  
+                                                        <apex:param assignTo="{!rowid}" value="{!childQuery.rowCount}" name="assignvalue"/> 
+                                                    </apex:commandLink>
+                                                    &nbsp;
+                                                    <apex:commandLink style="font-size:13px;" value="Check Syntax" action="{!checkChildSyntax}"  onclick="showSpinner()" oncomplete="hideSpinner()" rerender="frm" status="status">  
+                                                        <apex:param assignTo="{!rowid}" value="{!childQuery.rowCount}" name="assignvalue"/> 
+                                                    </apex:commandLink>
+                                                    &nbsp;
+                                                    <apex:commandLink style="font-size:13px;" value="Record Count" action="{!childRecordCount}"  onclick="showSpinner()" oncomplete="hideSpinner()" rerender="frm" status="status">  
+                                                        <apex:param assignTo="{!rowid}" value="{!childQuery.rowCount}" name="assignvalue"/> 
+                                                    </apex:commandLink>
+                                                    &nbsp;
+                                                    <apex:commandLink style="font-size:13px;" value="Compare Metadata" action="{!childRecordCount}"  onclick="showSpinner()" oncomplete="hideSpinner()" rerender="frm" status="status">  
+                                                        <apex:param assignTo="{!rowid}" value="{!childQuery.rowCount}" name="assignvalue"/> 
+                                                    </apex:commandLink>
+                                                </span>
+                                            </div>
+                                        </td>  
+                                    </tr>
+                                </apex:repeat>
+                            </tbody>
+                        </table>  
+                    </apex:outputpanel> -->
+                </div>
+            </apex:outputPanel>
+            <!--  -----------------------------------excute button fucntcion-------------------------------------- -->  
+            <center>
+                <apex:outputPanel rendered="{!showParentFields}">
+                    <apex:pageMessages ></apex:pageMessages>
+                    <div class="slds" style="border:1px solid #d8dde6;margin-bottom: 10px;">
+                        <div class="slds-page-header">
+                            <div class="slds-grid">
+                                <div class="slds-col slds-has-flexi-truncate">
+                                    <div class="slds-media slds-no-space slds-grow" style="float:left">
+                                        <div class="slds-media__figure" style="border-radius:50%;">
+                                         <!--   <img src="{!URLFOR($Resource.cldlylogo)}" class="logo-cldly"/> -->
+                                        </div> 
+                                        <div class="slds-media__body">
+                                            <h class="slds-text-title--caps slds-line-height--reset"></h>
+                                            <h1 class="slds-text-heading--medium">Select the Lookups</h1> 
+                                        </div>
+                                    </div>  
+                                    <div class="slds-media slds-no-space slds-grow" style="float:right">
+                                        <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--brand" action="{!verifyObjectSchema}" value="Execute" onclick="showSpinner()" oncomplete="openpopupforSchema();hideSpinner()" rerender="frm" status="status" />
+                                        <apex:commandButton styleClass="slds-button slds-button--neutral " value="Cancel" action="{!m_backToMainScreen}" onclick="showSpinner()" oncomplete="hideSpinner()" status="status"  rerender="frm"  />  
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-grid">
+                            <div class="slds-col--padded slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2 slds-p-bottom--large" >
+                                <div class="slds-box slds-box--small slds-theme--shade slds-text-align--left" >
+                                    <div class="slds-form-element" >
+                                        <table class="slds-table slds-table--bordered slds-max-small-table--stacked-horizontal" > 
+                                            <thead>
+                                                <tr>
+                                                    <th class="slds-text-heading--label slds-size--1-of-12 ClassTh" scope="col" >Select</th>
+                                                    <th class="slds-text-heading--label slds-size--1-of-12 ClassTh" scope="col" >Object</th>
+                                                    <th class="slds-text-heading--label slds-size--2-of-12" scope="col"  >Field Name</th>
+                                                    <th class="slds-text-heading--label slds-size--2-of-12" scope="col" >Reference To</th>
+                                                </tr> 
+                                                <tbody id="mytable4">
+                                                    <apex:repeat value="{!getparentLFields}" var="lookup">  
+                                                        <tr>
+                                                            <td width = "25%" > 
+                                                                <apex:inputCheckbox styleClass="slds-output" value="{!lookup.referenceSelected}" disabled="{!lookup.referenceFieldRequired}"></apex:inputCheckbox>
+                                                            </td>
+                                                            <td width = "25%" > 
+                                                                <apex:outputText styleClass="slds-output" value="{!lookup.referenceObjectName}" ></apex:outputText>
+                                                            </td> 
+                                                            <td width= "25%">
+                                                                <apex:outputText styleClass="slds-output" value="{!lookup.referenceObjectFieldName}" ></apex:outputText>
+                                                            </td>
+                                                            <td width = "25%" > 
+                                                                <apex:outputText styleClass="slds-output" value="{!lookup.objectName}" ></apex:outputText>
+                                                            </td>
+                                                        </tr>
+                                                    </apex:repeat>
+                                                </tbody>
+                                            </thead> 
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>   
+                        </div>
+                    </div>
+                </apex:outputPanel>
+            </center>
+            <!-- Excute function end -------------------------- -->
+            <div class="slds">
+                <apex:outputPanel rendered="{!displayPopUp}" id="temp2">
+                    <div aria-hidden="true" role="dialog" class="slds-modal slds-modal--large slds-fade-in-closed" id="tstpopup2" >
+                        <div class="slds-modal__container">
+                            <div class="slds-modal__content">
+                                <div style="background-color: #f4f6f9;padding: 8px;margin-bottom: 10px;border-radius: 3px;"><span>Template Details</span></div>
+                                <div class="slds-grid">
+                                    <div class="slds-col slds-size--1-of-2">
+                                        <div class="slds-lookup" data-select="single" data-scope="single" data-typeahead="true">
+                                            <apex:outputPanel id="popup2">
+                                                <apex:pageMessages ></apex:pageMessages><br/>
+                                                <apex:outputPanel rendered="{!callClosePopup}" >
+                                                    <script type="text/javascript">
+                                                        closePopupForSavetemplate();
+                                                    </script>   
+                                                </apex:outputPanel>
+                                                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-grid--align-center slds-text-align--right - col-form-label">Category</div>
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--2-of-4 slds-grid--align-center slds-p-bottom--medium">
+                                                        <apex:inputText id="lookup-input" value="{!categoriName}" Styleclass="slds-input slds-show"  />   
+                                                    </div>
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-grid--align-center"></div>
+                                                </div>                                   
+                                                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-grid--align-center slds-text-align--right - col-form-label">Template Name</div>
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--2-of-4 slds-grid--align-center slds-p-bottom--medium">
+                                                        <apex:inputText value="{!configName}" Styleclass="slds-input"  onkeydown="checkLimit(this,this.form.countdown,80);" onkeyup="checkLimit(this,this.form.countdown,80);"/>  
+                                                    </div>
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-grid--align-center"></div>
+                                                </div> 
+                                                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-grid--align-center slds-text-align--right ">Description</div>
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--2-of-4 slds-grid--align-center">
+                                                        <apex:inputTextArea value="{!templateDescription}"  styleClass="slds-textarea" id="Comments2" cols="80" rows="3"   />
+                                                    </div>
+                                                    <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--1-of-1 slds-large-size--1-of-4 slds-grid--align-center"></div>
+                                                </div>
+                                            </apex:outputPanel>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-modal__footer">
+                                <div class="slds-x-small-buttons--horizontal">
+                                    <apex:commandButton styleClass="slds-button slds-button--neutral slds-button--brand" action="{!saveNewConfigData}" onclick="showSpinner()" oncomplete="hideSpinner()" value="Save" rerender="frm" status="status" />
+                                    <apex:commandButton styleClass="slds-button slds-button--neutral" onclick="showSpinner()" oncomplete="closePopupForSavetemplate();hideSpinner()" value="close" action="{!closePopup}" rerender="frm,temp" status="status" immediate="true"/>  
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+                    <div id="backdropDiv" class="slds-modal-backdrop slds-modal-backdrop--closed"></div> 
+                </apex:outputPanel>
+            </div>
+        </apex:form>
+    </html>
+</apex:page>

@@ -1,0 +1,15 @@
+<apex:page controller="EmailTemplateFullpage_AC">
+    <style>
+    	.showFullPage{
+        	height:100%
+        }
+    </style>
+    <html> 
+     	<body> 
+            <div class="showFullPage">
+               <apex:outputtext value="{!Body}" escape="false" />               
+            </div>
+    		
+  		</body>
+    </html>   
+</apex:page>

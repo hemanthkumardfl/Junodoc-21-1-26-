@@ -1,0 +1,55 @@
+<aura:component controller="AddTasksController" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global">
+    <aura:attribute name="Spinner" type="Boolean" default="false" />
+    <aura:attribute name="isUrl" type="Boolean" default="false" />
+    <aura:attribute name="isCanvas" type="Boolean" default="true" />
+    <aura:attribute name="Url" type="string" default="" />
+    <aura:attribute name="ready" type="Boolean" default="false"/>
+    
+    <aura:html tag="style">
+        .slds-modal__container{
+        	width: 80% !important;
+        	max-width: 80rem !important;
+        }
+        .modal-body.scrollable.slds-modal__content.slds-p-around--medium{
+        	height: 80vh !important;
+        	max-height: 80vh !important;
+        } 
+        .slds-scope .slds-modal__container {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            height: 100% !important;
+        	padding: 5px !important;
+        }
+    </aura:html>
+  
+    <aura:if isTrue="{!v.isCanvas}">
+        <ltng:require
+                      scripts="/resource/JunoDoc__Charts"
+                      afterScriptsLoaded="{!c.afterScriptsLoaded}"/>
+        
+        <a id="download" href="javasript:void(0);" onclick="{!c.downloadChart}">
+            <div class="mauto download float-r" >
+                <span class="glyphicon glyphicon-download-alt" ></span> Generate PDF
+            </div>
+        </a>
+        <div class="slds-grid"> 
+            <canvas id="chart" aura:id="chart" style="height: 400px;width: 400px;"></canvas>
+        </div> 
+    </aura:if>
+    <aura:if isTrue="{!v.isUrl}">
+        <iframe width="100%" height="600" style="border: 1px solid" src="{!v.Url}" />
+    </aura:if>
+    <aura:if isTrue="{!v.Spinner}">
+    <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner-brand  slds-spinner slds-spinner-large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+              
+    
+</aura:component>

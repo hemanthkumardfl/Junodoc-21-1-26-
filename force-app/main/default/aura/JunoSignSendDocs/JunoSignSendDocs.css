@@ -1,0 +1,109 @@
+.THIS .custom-loading-text {
+    transform: rotate(-90deg);
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    white-space: nowrap;
+    font-size: 20px;
+}
+
+.THIS .slds-form-element__icon {
+    z-index: 0 !important;
+     margin-top: -2px;
+}
+
+.THIS .slds-datepicker.slds-dropdown {
+   z-index: 9002;
+    position: relative;
+    overflow: initial;  
+}
+
+.THIS .schedule-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.THIS .schedule-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.THIS .month-input {
+    width: 50px;
+}
+
+/*.THIS .customDocsTable {
+padding-bottom:100%;
+} */
+/*.THIS .customDocsTable {
+border: 1px solid rgb(221, 219, 218)
+}
+
+.THIS .custom-left-layout {
+border: 1px solid rgb(221, 219, 218)
+}
+
+.THIS .custom-right-layout {
+border: 1px solid rgb(221, 219, 218)
+}
+*/
+
+.THIS .modal__container {
+    width: 80% !important;
+    max-width: 80% !important;
+}
+
+
+.THIS .PickStyle{
+    width: 25% !important;
+}
+
+.THIS .dark {
+    color: #000;
+}
+
+.THIS .hideLabelCustomCss .slds-form-element label.slds-form-element__label{
+    display: none;
+}
+
+
+
+.THIS .Layoutitems{
+    padding-top:0px;
+}
+
+.THIS .slds-button_icon-borders{
+    margin-top:20px
+}
+.THIS .padding{
+    padding: 5px;
+}
+.THIS .padding2{
+    margin-top: 0px;
+}
+.THIS .recipienttype{
+    position: relative;
+    right: 72px;
+}
+.THIS .name{
+    position: relative;
+    right: 56px;
+}
+.THIS .Email{
+    position: relative;
+    right: 43px;
+}
+.THIS .blueButton {
+    background-color: #0070d2 !important; /* Salesforce blue color */
+    border: none !important;
+    color: white !important;
+}
+.THIS .custom-button-icon {
+    margin-top: 1.5rem;
+}
+
+.THIS .slds-accordion__summary {
+    width: 9rem;
+}

@@ -1,0 +1,19 @@
+<apex:page sidebar="False">
+    <apex:includeLightning />
+   
+    <div id="LcDisplayId"></div> 
+    <script>
+        
+        $Lightning.use("JunoDoc:JunodocLaunchBatchApp", function() {
+        $Lightning.createComponent("JunoDoc:JunodocLaunchBatch",
+        { 
+           
+            recordId : "{!$CurrentPage.parameters.id}",
+            VFPage : "true"
+        },
+       "LcDisplayId",
+        function(component) {
+        });
+     });
+    </script>
+</apex:page>

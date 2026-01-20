@@ -1,0 +1,28 @@
+.THIS .Layoutitems{
+    padding-top:0px;
+}
+
+.THIS .slds-button_icon-borders{
+    margin-top:20px
+}
+.THIS .padding{
+        padding: 5px;
+}
+.THIS .padding2{
+margin-top: 0px;
+}
+.THIS .recipienttype{
+    position: relative;
+    left: 15px;
+    font-weight:bold;
+}
+.THIS .name{
+    position: relative;
+    left: 28px;
+    font-weight:bold;
+}
+.THIS .Email{
+    position: relative;
+    left: 45px;
+    font-weight:bold;
+}

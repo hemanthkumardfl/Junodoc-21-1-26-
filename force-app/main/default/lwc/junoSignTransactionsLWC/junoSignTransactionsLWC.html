@@ -1,0 +1,124 @@
+<template>
+    <lightning-card>
+        <div class="slds-box slds-theme_default">  
+            <h2 class="slds-theme_shade slds-text-heading_medium slds-align_left">  Juno Sign Transactions</h2><br/><br/>
+            <div class="slds-scrollable" style="height:18rem;">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                <thead>
+                <tr class="slds-theme_shade slds-line-height_reset slds-text-title_caps">
+                    <th  class="" scope="col">S.No</th>
+                    <th  class="" scope="col">Name</th>
+                    <th  class="" scope="col"></th>
+                    <th  class="" scope="col">Status</th>
+                    <th  class="" scope="col">Sender Name</th>
+                    <th  class="" scope="col">Sender Email</th>
+                    <th  class="" scope="col">Original Document Id</th>
+                    <th  class="" scope="col">Final Document Link</th>
+                </tr>
+            </thead>
+                <tbody>
+    <template for:each={TransactionsList} for:item="item" for:index="index">
+        <tr key={item.Id}>
+            <td class="slds-truncate">{item.rowNumber}</td>
+            <td class="slds-truncate"> <div style="cursor: pointer;" title="Click here to Expand/Collapse"
+                onclick={handleChild1InfoOnclick}>
+                <a href={item.recordLink}>{item.transactionRecord.Name} </a>
+                <template if:false={item.isOpen}>
+                    <lightning-icon size="x-small" data-id={item.Id} access-key={index} icon-name="utility:chevronright" alternative-text="Up arrow" onclick={handleChild1InfoOnclick}></lightning-icon>
+                </template>
+                <template if:true={item.isOpen}>
+                    <lightning-icon size="x-small" data-id={item.Id} access-key={index} icon-name="utility:chevrondown" alternative-text="Up arrow" onclick={handleChild1InfoOnclick}></lightning-icon>
+                </template>
+                          
+                              
+                            </div>
+            </td>
+            <td class="slds-truncate"></td>
+           
+           
+                <td class="slds-truncate">
+                    <div>
+                    {item.transactionRecord.JunoDoc__Status__c}
+                    </div>
+               </td>
+               <td class="slds-truncate">
+                <div>
+                {item.transactionRecord.JunoDoc__Sender_Name__c}
+                </div>
+           </td>
+           <td class="slds-truncate">
+            <div>
+            {item.transactionRecord.JunoDoc__Sender_Email__c}
+            </div>
+       </td>
+       <td class="slds-truncate">
+        <div>
+            <a href={item.originalLink}> {item.transactionRecord.JunoDoc__Original_File_Id__c}</a>
+        </div>
+   </td>
+       <td class="slds-truncate">
+        <div>
+            <a href={item.FinalLink}> {item.transactionRecord.JunoDoc__Final_Document_Id__c}</a>
+        </div>
+       </td>
+     
+         </tr>
+        
+            
+             <tr key={item.Id}>
+                <template if:true={item.isOpen}>
+                    <td colspan="8">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                            <thead>
+                            <tr class="slds-theme_shade slds-line-height_reset slds-text-title_caps">
+                                <th  class="" scope="col">S.No</th>
+                                <th  class="" scope="col">Name</th>
+                                <th  class="" scope="col">Status</th>
+                                <th  class="" scope="col">Recipient Name</th>
+                                <th  class="" scope="col">Recipient Email</th>
+                                <th  class="" scope="col">Signed File Id Link</th>
+                            </tr>
+                                </thead>
+                            <tbody>
+                        <template for:each={item.recipientList} for:item="rec">
+                        <tr key={rec.Id}>
+                            <td class="slds-truncate">
+                                <div>
+                                    {rec.RowNumber}
+                                </div>
+                                </td>
+                            <td class="slds-truncate">
+                                <div>
+                                    <a href={rec.link}>{rec.Name}</a>
+                                </div>
+                                </td>
+                                <td class="slds-truncate">
+                                    <div>
+                                    {rec.JunoDoc__Status__c}
+                                    </div>
+                                </td>
+                                <td class="slds-truncate">
+                                    <div>{rec.JunoDoc__Recipient_Name__c}</div>
+                                </td>
+                                <td class="slds-truncate">
+                                    <div>{rec.JunoDoc__Recipient_Email__c}</div>
+                                </td> 
+                                <td class="slds-truncate">
+                                    <div><a href={rec.Signlink}>{rec.JunoDoc__Signed_File_Id__c}</a></div>
+                                </td> 
+                            </tr>
+                        
+                        </template>
+                           
+                            </tbody>
+                        </table>
+                    </td>
+                </template>
+             </tr>
+    </template>
+    </tbody>
+    </table>             
+   </div>
+    </div>
+</lightning-card>
+</template>

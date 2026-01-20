@@ -1,0 +1,106 @@
+<template>
+	<lightning-card>
+		<lightning-tabset>
+			<lightning-tab label="General Settings">
+				<lightning-card>
+					<div style="display:inline-flex;padding:15px;">
+						<lightning-input type="toggle" label="Junodoc Triggers" checked={isScheduleActive}
+							onchange={handleToggleChange} style="padding:2%;">
+						</lightning-input> &nbsp;&nbsp;&nbsp;&nbsp;
+						<lightning-input type="toggle" label="Junodoc Schedule" checked={isScheduleActive2}
+							onchange={handleToggleChange2}>
+						</lightning-input>
+					</div>
+
+					<lightning-input type="checkbox" style="padding:2%;" label="Send BCC Email To Sender"
+						value={EnableSenderBCC} checked={EnableSenderBCC} onchange={changeSenderBCCHandler}>
+					</lightning-input>
+					<!--  <lightning-input type="checkbox" style="padding:2%;" label="Disable Email Template Body" value={disableEmailBody} checked={disableEmailBody} onchange={changeDisableHandler}> </lightning-input>-->
+					<lightning-button style="padding:2%;" variant="brand" type="submit" name="submit" label="Save"
+						onclick={handleClicksave}> </lightning-button>
+					 <div class="slds-p-around_medium">
+						<div class="slds-section slds-is-open">
+							<h3 class="slds-section__title">
+								<div class="slds-section__title-action">
+									<span class="slds-truncate" title="Section Title">Sample Document Creation</span>
+								</div>
+							</h3>
+						</div>
+						<div class="slds-p-around_small">
+							<lightning-button variant="brand" label="Quote" title="Quote" onclick={CreateQuoteSetting}
+								class="slds-m-left_x-small" disabled={isQuoteDisable}></lightning-button>
+							<lightning-button variant="brand" label="Opportunity" title="Opportunity"
+								onclick={CreateOpportunitySetting} class="slds-m-left_x-small"
+								disabled={isOpportunityDisable}>
+							</lightning-button>
+							<!--<lightning-button variant="brand" label="JunoSign EmailTemplates" title="Opportunity"
+								onclick={CreateOpportunitySetting} class="slds-m-left_x-small"
+								disabled={isOpportunityDisable}> </lightning-button>-->
+							 <lightning-button variant="brand" label="JunoSign EmailTemplate" onclick={ctrateJunosinTemplate} class="slds-m-left_x-small" disabled={iscreatemailtemplateDisable}></lightning-button>
+						</div>
+						<div class="slds-section slds-is-open">
+							<h3 class="slds-section__title">
+								<div class="slds-section__title-action">
+									<span class="slds-truncate" title="Section Title">Sample Ascent Document Creation</span>
+								</div>
+							</h3>
+						</div>
+						<div class="slds-p-around_small">
+						<lightning-button variant="brand" label="Ascent Quote" title="Ascent Quote" onclick={CreateAscentSetting}
+								class="slds-m-left_x-small" disabled={iscreateAcentDisable}>
+						</lightning-button>
+						</div>
+					</div>
+				</lightning-card>
+			</lightning-tab>
+			<lightning-tab label="Junodoc Settings">
+				<lightning-card>
+					<div class="slds-p-bottom_large slds-p-left_large" style="width:500px">
+						<!-- <lightning-input label="Signature Sucess Message" type="text" value={success} onchange={changeSuccessHandler}> 
+        </lightning-input>
+        <lightning-input label="Signature Cancel Message" type="text" value={cancel} onchange={changeerrorHandler}>
+        </lightning-input>
+        <lightning-input label="Site URL" type="text" value={url} onchange={changeurlHandler}> 
+        </lightning-input>  -->
+
+						<lightning-input label="Community URL" type="text" value={communityurl}
+							onchange={changecommunityurlHandler}>
+						</lightning-input>
+
+						<lightning-input label="Org URL" type="text" value={Orgurl} onchange={changeOrgurlHandler}>
+						</lightning-input>
+
+						<!--  <lightning-combobox
+            name="signFormat"
+            label="Signature Format"
+            value={selectedSignValue}
+            placeholder="Select Format"
+            options={options}
+            onchange={handleChange} ></lightning-combobox>
+
+        <lightning-combobox
+            name="defaultFromAddress"
+            label="JunoSign From Email Address"
+            value={selectedDefaultFromEmail}
+            placeholder="Select Email"
+            options={fromEmailOptions}
+            onchange={handleEmailChange} ></lightning-combobox>
+
+        <lightning-input type="checkbox" label="Enable Juno Sign" value={Enablejunosign} checked={Enablejunosign} onchange={changejunosignHandler}> </lightning-input>
+
+        <lightning-input type="checkbox" label="Enable Attachment List View" value={EnableattachmentList} checked={EnableattachmentList} onchange={changeEnableattachmentListHandler}> </lightning-input> -->
+
+						<div class="slds-align_absolute-left" style="height:5rem;padding-top:15px;">
+
+
+
+							<lightning-button variant="brand" type="submit" name="submit" label="Save"
+								onclick={handleClick}>
+							</lightning-button>
+						</div>
+					</div>
+				</lightning-card>
+			</lightning-tab>
+		</lightning-tabset>
+	</lightning-card>
+</template>

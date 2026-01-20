@@ -1,0 +1,372 @@
+<template>
+    <lightning-card>
+        <div class="slds-card slds-m-around_small">
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <div class="slds-media__body" >
+                        <h2 class="slds-card__header-title" >
+                            <span class="slds-text-heading_small slds-truncate" >
+                                Recipients Mappings
+                            </span>
+                        </h2>
+                    </div>
+                    <div class="slds-media__body" >
+
+                    </div>
+                    <div class="slds-no-flex" >
+                        <div class="slds-button-group" role="group" >
+                            <lightning-button variant="brand-outline" label="Add Email Recipient" title="Add Email Recipient" onclick={handleAddEmailRecipientClick} class="slds-m-left_x-small"></lightning-button>
+                        </div>
+                    </div>
+                </header>
+            </div>
+            <template if:true={showSaveValues}>
+                <div class="slds-card__body">
+                    <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer">
+                        <template if:false={removeHead}>
+                            <thead>
+                                <tr class="slds-text-title_caps" >
+                                    <th scope="col" >
+                                        <div class="slds-truncate" title="To,CC,BCC" >S.No</div>
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="To,CC,BCC" >To,CC,BCC</div>
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th scope="col" >
+                                        <div class="slds-truncate" title="Reference Type" >Reference Type</div>
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th scope="col" >
+                                        <div class="sld s-truncate" title="Email Value" >Email Value</div>
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Action" >Action</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                        </template>
+                        <tbody >
+                            <template for:each={finalList2} for:item="rowVal" for:index="index">
+                                <tr  key={rowVal.key} id={rowVal.key} >
+                                    <td>{rowVal.indx}</td> 
+                                    <td></td>
+                                    <td></td>     
+                                    <td >
+                                        <p access-key={index}  class="slds-truncate" title="To">{rowVal.ToCCBCC}</p>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td >
+                                        <p access-key={index} class="slds-truncate" title="Reference" >{rowVal.ReferenceType}</p>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td >
+                                        <p access-key={index}  >{rowVal.EmailValue}</p>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td >
+                                        <div >
+                                            <lightning-button-icon access-key={index} icon-name="utility:delete" size="small" onclick={removeRow2}></lightning-button-icon>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </div>
+        <template if:true={isAddEmailClick}>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-align_absolute-center">
+                    <p if:false={isLoaded}></p>
+                    <div if:true={isLoaded} class="slds-align_absolute-center"> 
+                        <lightning-spinner
+                            alternative-text="Loading..." variant="brand">
+                        </lightning-spinner>
+                    </div>
+                </div>
+                <div class="slds-modal__container" style="max-width: 80rem;width:80%;">
+                    <!-- Modal/Popup Box LWC header here -->
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                            <lightning-icon icon-name="utility:close"
+                                alternative-text="close"
+                                variant="inverse"
+                                size="small" ></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Add Email Recipient</h2>
+                    </header>
+                    <!-- Modal/Popup Box LWC body starts here -->
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div class="slds-modal__content slds-p-around_large">
+                            <div class="slds-form slds-form_compound" >
+                                <div class="slds-show">
+                                    <div class="slds-text-body_small" >Recipient</div>
+                                    <div class="slds-box slds-m-bottom_medium" >
+                                        <div class="slds-grid slds-m-bottom_x-small" >
+                                            <div class="slds-col slds-size_1-of-4 slds-m-right_x-small" >
+                                                <div class="slds-form-element" >
+                                                    <label class="slds-form-element__label" >
+                                                        <span class="" >To,CC,BCC</span>
+                                                    </label>
+                                                    <div class="slds-form-element__control slds-grow" >
+                                                        <lightning-combobox name="ToCCBCC" value={ToValue}
+                                                             options={ToCCBCCoptions} onchange={handleChange} style="width:260px">
+                                                        </lightning-combobox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-4 slds-m-right_x-small">
+                                                <div class="slds-form-element">
+                                                    <label class="slds-form-element__label" >
+                                                        <span class="" >Reference Type</span>
+                                                    </label>
+                                                    <div class="slds-form-element__control slds-grow" >
+                                                        <lightning-combobox name="ReferenceType" value={ReferenceTypeValue}
+                                                             options={ReferenceTypeOptions} onchange={handleChange} style="width:260px">
+                                                        </lightning-combobox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <template if:true={isContactOrUser}>
+                                                <div class="slds-col slds-size_4-of-10 slds-m-right_x-small" >
+                                                    <div class="slds-form-element__control slds-grow" >
+                                                        <div class="slds-form-element__control" >
+                                                            <label class="slds-form-element__label" >
+                                                                Select {ReferenceTypeValue}
+                                                            </label>
+                                                            <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open"
+                                                                 aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                                                                
+                                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                                                    <div class="inputBox" data-title={ReferenceTypeValue} style="margin-top:1.2rem;">
+                                                                        <input type="text"
+                                                                               class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+                                                                               id="mySearchInput" aria-autocomplete="no" aria-controls="listbox-id-11"
+                                                                               autocomplete="no" onkeyup={searchHandler} role="textbox" onclick={searchAllHandler}  placeholder="Please Select"
+                                                                               value={selectedConOrUser} style="width:300px"/>
+                                                                    </div>
+                                                                </div>
+                                                                <template if:true={showdropdown}>
+                                                                    <div id="listbox-id-11" class="dropDownClass slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                                                         role="listbox">
+                                                                        <ul id="mySearchUL" class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                            <template for:each={conorUserListInOrg} for:item="innerresult" >
+                                                                                <li key={innerresult.Id} role="presentation" class="slds-listbox__item"  data-name={innerresult.Name}
+                                                                                    data-value={innerresult.Email}  data-title={innerresult.Name} data-id={innerresult.Id} onclick={optionClickHandler}>
+                                                                                    <div
+                                                                                         class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                                                         role="option">
+                                                                                        <span class="slds-media__body">
+                                                                                            <span class="slds-truncate" title="All Oobjects">
+                                                                                                <span>{innerresult.Name}</span>
+                                                                                            </span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </template>
+                                                                        </ul>
+                                                                    </div>
+                                                                </template>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <template if:true={isVisibleEmail}>
+                                                <div class="slds-col slds-size_1-of-4 slds-m-right_x-small" >
+                                                    <div class="slds-form-element">
+                                                        <label class="slds-form-element__label" >
+                                                            <span class="" style="color:red">*</span><span >Email Address</span>
+                                                        </label>
+                                                        <div class="slds-form-element__control slds-grow" >
+                                                            <lightning-input class="slds-m-right_medium" type="email" name="email"  value={manualEmailAddress} onchange ={handleChange} style="width:260px"></lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <template if:false={isVisibleEmail}>
+                                    <lightning-breadcrumbs>
+                                        <template for:each={breadCrumbSet} for:item="crumbs">
+                                            <lightning-breadcrumb key={crumbs.id}
+                                            label={crumbs.label}
+                                            name={crumbs.name} onclick={handleNavigateTo}> 
+                                            </lightning-breadcrumb>
+                                        </template>
+                                    </lightning-breadcrumbs>
+                                    
+                                        <template if:true={ShowLevel1}>
+                                            <div class="slds-grid slds-m-bottom_x-small" >
+                                                <div class="slds-col slds-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                                    <div class="slds-form-element" >
+                                                        <label class="slds-form-element__label">
+                                                            <span class="" >Select Field</span>
+                                                        </label>
+                                                        <div class="slds-form-element__control slds-grow" >
+                                                        <!-- <template for:each={FieldsList} for:item="Field1">-->
+                                                                <lightning-combobox name="fields" value={level1Value}
+                                                                options={FieldsList1} onchange={handleShowLevel1ObjectFields} >
+                                                                </lightning-combobox>
+                                                        <!-- </template>-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template if:true={ShowLevel2}>
+                                            <div class="slds-grid slds-m-bottom_x-small" >
+                                                <div class="slds-col slds-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                                    <div class="slds-form-element" >
+                                                        <label class="slds-form-element__label">
+                                                            <span class="" >Select Field</span>
+                                                        </label>
+                                                        <div class="slds-form-element__control slds-grow" >
+                                                        <!-- <template for:each={FieldsList} for:item="Field1">-->
+                                                                <lightning-combobox name="fields2" value={level2Value}
+                                                                options={FieldsList2} onchange={handleShowLevel2ObjectFields} >
+                                                                </lightning-combobox>
+                                                        <!-- </template>-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template if:true={ShowLevel3}>
+                                            <div class="slds-grid slds-m-bottom_x-small" >
+                                                <div class="slds-col slds-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                                    <div class="slds-form-element" >
+                                                        <label class="slds-form-element__label">
+                                                            <span class="" >Select Field</span>
+                                                        </label>
+                                                        <div class="slds-form-element__control slds-grow" >
+                                                        <!-- <template for:each={FieldsList} for:item="Field1">-->
+                                                                <lightning-combobox name="fields3" value={level3Value}
+                                                                options={FieldsList3} onchange={handleShowLevel3ObjectFields} >
+                                                                </lightning-combobox>
+                                                        <!-- </template>-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template if:true={ShowLevel4}>
+                                            <div class="slds-grid slds-m-bottom_x-small" >
+                                                <div class="slds-col slds-size_1-of-2 slds-m-right_x-small slds-m-top_xx-small">
+                                                    <div class="slds-form-element" >
+                                                        <label class="slds-form-element__label">
+                                                            <span class="" >Select Field</span>
+                                                        </label>
+                                                        <div class="slds-form-element__control slds-grow" >
+                                                        <!-- <template for:each={FieldsList} for:item="Field1">-->
+                                                                <lightning-combobox name="fields4" value={level4Value}
+                                                                options={FieldsList4} onchange={handleShowLevel4ObjectFields} >
+                                                                </lightning-combobox>
+                                                        <!-- </template>-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template if:false={isAddRowDisable}>
+                                        <br> <lightning-button variant="brand" label="Add Row"  onclick={handleAddRow} class="slds-m-left_x-small"></lightning-button>
+                                        <div class="slds-card__body">
+                                            <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer">
+                                               <template if:false={removeHead}>
+                                                    <thead>
+                                                        <tr class="slds-text-title_caps" >
+                                                            <th scope="col" >
+                                                                <div class="slds-truncate" title="To,CC,BCC" >S.No</div>
+                                                            </th>
+                                                            <th></th>
+                                    <th></th>
+                                                            <th scope="col" >
+                                                                <div class="slds-truncate" title="To,CC,BCC" >To,CC,BCC</div>
+                                                            </th>
+                                                            <th></th>
+                                    <th></th>
+                                                            <th scope="col">
+                                                                <div class="slds-truncate" title="Reference Type" >Reference Type</div>
+                                                            </th>
+                                                            <th></th>
+                                    <th></th>
+                                                            <th scope="col">
+                                                                <div title="Email Value" >Email Value</div>
+                                                            </th>
+                                                            <th></th>
+                                    <th></th>
+                                                            <th scope="col">
+                                                                <div class="slds-truncate" title="Action" >Action</div>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                </template>
+                                                <tbody>
+                                                    <template for:each={finalList} for:item="rowVal" for:index="index">
+                                                        <tr  key={rowVal.key} id={rowVal.key} >
+                                                            <td>{rowVal.indx}</td> 
+                                                            <td></td>
+                                    <td></td>                
+                                                           <td >
+                                                                <p access-key={index} class="slds-truncate" title="To">{rowVal.ToCCBCC}</p>
+                                                            </td>
+                                                            <td></td>
+                                    <td></td>
+                                                            <td >
+                                                                <p access-key={index} class="slds-truncate" title="Reference" >{rowVal.ReferenceType}</p>
+                                                            </td>
+                                                            <td></td>
+                                    <td></td>
+                                                            <td  >
+                                                                <p access-key={index} class="slds-truncate" >{rowVal.EmailValue}</p>
+                                                            </td>
+                                                            <td></td>
+                                    <td></td>
+                                                            <td >
+                                                                <div >
+                                                                    <lightning-button-icon access-key={index} icon-name="utility:delete" size="small" onclick={removeRow}></lightning-button-icon>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <div class="slds-align_absolute-center" >
+                                        <lightning-button onclick={closeModal} label="Cancel" variant="neutral"></lightning-button>
+                                        <template if:true={isSaveDisable}>
+                                            <lightning-button title="Primary action" disabled class="slds-m-left_medium" label="Save"></lightning-button>
+                                        </template>
+                                        <template if:false={isSaveDisable}>
+                                             <lightning-button  class="slds-m-left_medium" onclick={handleSave} label="Save" variant="brand"></lightning-button>
+                                        </template>
+                                    </div>
+                                    </template>
+                                    <template if:true={isAddRowDisable}>
+                                       <br> <lightning-button variant="brand" label="Add Row"  title="Primary action" disabled class="slds-m-left_x-small"></lightning-button>
+                                    </template>
+                                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </lightning-card>
+</template>

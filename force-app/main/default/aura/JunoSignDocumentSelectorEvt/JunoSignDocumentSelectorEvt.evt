@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="Event fired when a document is selected">
+    <aura:attribute name="selectedDocument" type="Object" description="The selected document object"/>
+    
+    <aura:attribute name="selectedTemplateId" type="String"/>
+</aura:event>

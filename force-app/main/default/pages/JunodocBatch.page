@@ -1,0 +1,16 @@
+<apex:page sidebar="false">    
+    <apex:includeLightning />
+   
+    <div id="LcDisplayId"></div> 
+    <script>
+        $Lightning.use("JunoDoc:junodocBatchApp", function() {
+        $Lightning.createComponent("JunoDoc:junodocBatch",
+        { 
+            visualpage : true
+        },
+        "LcDisplayId",
+        function(component) {
+        });
+     });
+    </script>
+</apex:page>

@@ -1,0 +1,86 @@
+<apex:page controller="JunoSignTemplatePreviewCntrl" action="{!generatePdfAndReturnBase64Clone}">
+    
+    <apex:includeScript value="{!$Resource.prepareandsend_PdfJs}" />
+    
+    <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <style>
+            canvas { display: block; margin: 10px auto; border: 1px solid #ccc; }
+        </style>
+        </head>
+        
+        
+        
+        <body style="margin:0; padding:0;">
+            <!-- iframe src="data:application/pdf;base64,{!pdfBase64}" width="100%" height="100%" style="border:none;"></iframe -->
+            <div id="pdf-container"></div>
+        </body>
+        <script>
+        
+        	/*function sendHeightToParent() {
+              var height = document.body.scrollHeight;
+              parent.postMessage({ height: height }, '*');
+            }
+            window.onload = sendHeightToParent;
+            window.onresize = sendHeightToParent;*/
+
+        
+            window.pdfjsLib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '{!URLFOR($Resource.Juno_pdfjsWorkerJS)}';
+            
+        	//var pdfjsLib = window['pdfjs-dist/build/pdf'];
+            // The workerSrc property shall be specified.
+        	//pdfjsLib.GlobalWorkerOptions.workerSrc = '/resource/JunoDoc__Juno_pdfjsWorkerJS'
+    
+            let base64Data = '{!pdfBase64}';
+        //const pdfData = atob(base64Data);
+        
+        base64Data = base64Data.replace(/\s/g, '');
+        const pdfData = atob(base64Data);
+        
+        	const urlParams = new URLSearchParams(window.location.search);
+    		const parentOrigin = urlParams.get('parentOrigin') || '*';
+    
+            const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+        	let pageImages = {};
+            loadingTask.promise.then(function(pdf) {
+                //window.parent.postMessage({ pageCount: pdf.numPages, fromaction: 'junodoc' }, '*');
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    pdf.getPage(pageNum).then(function(page) {
+                        const scale = 1.5;//Number('{!scale}');// 1.5;
+                        const viewport = page.getViewport({ scale: scale });
+    
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+    
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        
+                        page.render(renderContext).promise.then(function () {
+                            let imgData = canvas.toDataURL();
+                            pageImages[pageNum-1] = imgData;
+                            //pageImages.push(imgData);
+                
+                            // When all images are ready, send to LWC
+                            if (Object.keys(pageImages).length === pdf.numPages) {
+                                window.parent.postMessage({
+                                    actionfrom: 'junodoc',
+                                    pageCount: pdf.numPages,
+                                    pageImages: pageImages
+                                }, "*"); //parentOrigin
+                            }
+                        })
+    
+                        document.getElementById('pdf-container').appendChild(canvas);
+                    });
+                }
+            });
+        </script>
+    </html>
+    
+</apex:page>

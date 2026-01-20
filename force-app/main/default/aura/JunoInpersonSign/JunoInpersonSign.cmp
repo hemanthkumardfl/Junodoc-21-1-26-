@@ -1,0 +1,11 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    <aura:attribute name="VFPage" type="Boolean" default="false" />
+    <aura:attribute name="isInPerson" type="Boolean" default="false" />
+    <div>
+        <aura:if isTrue="{!v.VFPage}">
+        	<!-- JunoDoc:JunoSignSendDocs recordId="{!v.recordId}" isInPerson="{!v.isInPerson}" VFPage="{!v.VFPage}"/ -->
+            <c:JunoSignSendDocs recordId="{!v.recordId}" isInPerson="{!v.isInPerson}" VFPage="{!v.VFPage}"/>
+        </aura:if>
+    </div>
+</aura:component>

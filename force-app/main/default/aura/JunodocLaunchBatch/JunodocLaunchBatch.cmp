@@ -1,0 +1,72 @@
+<aura:component controller="JunodocLaunchBatch" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionwithoutheader" access="global" >
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />   
+    <aura:attribute name="sobjectrecords" type="List" default="[]"/>    
+    <aura:attribute name="childrecords" type="String" default=""/>   
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="DocTemplateId" type="String" /> 
+    <aura:attribute name="selectedrecordIds" type="list" /> 
+    <aura:attribute name="enablebuttons" type="boolean" default="true" /> 
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="sessionId" type="String" default="" />
+    <aura:attribute name="ConsoleCount" type="integer" default="" />
+    <aura:attribute name="showConsolidated" type="boolean" default="false" />
+    
+    <aura:attribute name="totalRecords" type="integer" default="" />
+    <aura:attribute name="progress" type="Decimal" default="0" />
+    <aura:attribute name="output" type="string" default="" />
+    <aura:attribute name="limitRec" type="integer" default="" />
+    
+    <div>
+        <!--loading spinner start-->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+        <div class="slds-page-header">
+              <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                  <div class="slds-media">    
+                    <div class="slds-media__body">
+                      <div class="slds-page-header__name">
+                        <div class="slds-page-header__name-title">
+                          <h1>
+                            <span class="slds-page-header__title slds-truncate" title="Junodoc Batch">Junodoc Batch</span>
+                          </h1>
+                        </div>
+                      </div>  
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> 
+        <aura:if isTrue="{!!v.showConsolidated}">
+        <div style="text-align:center;padding-top: 20px;">
+    		<lightning:button variant="brand" label="Individual Documents" title="Individual Documents" onclick="{! c.SinglePDFsDownload }" disabled="{!v.enablebuttons}"/>
+        	<lightning:button variant="brand" label="Consolidated Documents" title="Consolidated Documents" onclick="{! c.MultiplePDFsDownload }" disabled="{!v.enablebuttons}"/>
+		</div> 
+        </aura:if>
+        <aura:if isTrue="{!v.showConsolidated}">
+            <div style="margin-top:10px">
+                <!-- Add a progress bar to visually represent the progress -->
+                <lightning:progressBar value="{!v.progress}" size="medium" />
+                 <p>Processed Records: {!v.ConsoleCount} out of {!v.totalRecords}</p>
+            </div>
+        </aura:if>
+        
+    </div>
+  <!--  <div>
+    	        <lightning:datatable
+                keyField="Id"
+                data="{! v.sobjectrecords }"
+                columns="{! v.columns }"
+                onrowselection="{! c.updateSelectedText }"
+                />
+
+    </div> -->
+    
+</aura:component>

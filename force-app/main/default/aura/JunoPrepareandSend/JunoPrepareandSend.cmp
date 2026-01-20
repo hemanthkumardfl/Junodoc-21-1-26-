@@ -1,0 +1,41 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" controller="JunoPrepareandSend" >
+    
+    <aura:attribute name="setReplyTo" type="String"/>
+    <aura:attribute name="responseData" type="Object"/>
+    <aura:attribute name="selectedDocumentsForsend" type="List" />
+    <aura:attribute name="receiver" type="List" />
+    <aura:attribute name="recordId" type="string" />
+    <aura:attribute name="isInPerson" type="Boolean" />
+    <aura:attribute name="UploadedFiles" type="List"/>
+    <aura:attribute name="receiverstring" type="string" />
+    <aura:attribute name="url" type="string" />
+    <aura:attribute name="selectedDocumentsForsendItem" type="string" />
+    <aura:attribute name="jQueryUI13Loaded" type="Boolean" default="false" />
+    <aura:attribute name="pdfJsLoaded" type="Boolean" default="false" />
+    <aura:attribute name="jQuery12Loaded" type="Boolean" default="false" />
+    <aura:attribute name="loadedJs" type="Boolean" default="false" />
+    <aura:attribute name="showAttachmentSetting" type="Boolean" default="false"/>
+    <aura:attribute name="insertedIds" type="List" default = "[]"/>
+    
+    
+    
+    <aura:handler name="change" value="{!v.loadedJs}" action="{!c.handleAfterLoad}" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <div styles ="postion:sticky;">
+        <iframe aura:id='vfFrame' src="{!v.url}" style="width: 100%;height: 97rem;"></iframe>
+    </div>
+    
+    
+    <div aura:id="spinnerId" class="slds-spinner_container"  style="position:fixed;"> <!-- style="position:fixed;" -->
+        <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+            <span class="slds-assistive-text">Loading</span>
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+            <div class="custom-loading-text">
+                <b>Processing, Please stay on this page...</b>
+            </div>
+        </div>
+    </div>
+</aura:component>

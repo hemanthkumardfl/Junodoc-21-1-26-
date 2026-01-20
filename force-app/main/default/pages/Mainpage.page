@@ -1,0 +1,22 @@
+<apex:page id="MainPage"    
+           showHeader="false" 
+           controller="MainPage_AC">
+
+    <!-- Here comes another page with a content to be converted to PDF -->
+    <script>
+    		alert('Hiii');  
+    		var JunodocUrl = '{!JunodocUrl}';
+    		var QuoteId = '{!QuoteId}';
+    		var DocTemplateId = '{!DocTemplateId}';
+    		var Title = '{!Title}';
+    
+    		alert(JunodocUrl + 'JunodocUrl' + QuoteId + ' ' + DocTemplateId + ' ' +  Title);
+    		var link = document.createElement('a');
+            link.href = JunodocUrl+'/JunoDoc__JunodocPDF?id='+QuoteId+'&amp;DocTemplateId='+DocTemplateId;
+            link.download = Title + ".pdf";
+            link.click();
+            link.remove()
+    
+    </script>
+     
+</apex:page>

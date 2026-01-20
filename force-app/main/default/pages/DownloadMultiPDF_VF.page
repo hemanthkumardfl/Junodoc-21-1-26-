@@ -1,0 +1,55 @@
+<apex:page language="te" title="Testpage" Controller="DownloadMultiPDF_AC" applyBodyTag="false" showHeader="false" sidebar="false" applyHtmlTag="false">
+	<html>
+        <head>
+             <title>Case</title>
+               
+            <script>
+            alert('In')
+        function getQuoteDetails() {
+            alert('In')
+            var quoteIds = {!QuotelistIds}; // Replace with your quoteIds
+            var docId = '{!DocTemplate}';
+            var k=0;
+            alert(docId + '***' + JSON.stringify(quoteIds));
+            for(var i=0;i<quoteIds.length;i++){
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.DownloadMultiPDF_AC.getQuoteDetails}',
+                    quoteIds[i],docId
+                    function(result, event) {
+                        if (event.status) {
+                            // Process the result returned from Apex
+                            console.log('Quote Details:', result);
+                            if(k != 0){
+                                document.getElementById('DocTempId').innerHTML = document.getElementById('DocTempId').innerHTML + '<p style="page-break-after: always;"/>' + result;
+                            }
+                            else{
+                                document.getElementById('DocTempId').innerHTML = result
+                            }
+                            k = k+1;
+                            // Handle the result data here
+                        } else if (event.type === 'exception') {
+                            console.error(event.message);
+                        } else {
+                            console.error('Unknown error occurred.');
+                        }
+                    },
+                    { escape: true }
+                );
+        	}
+        }
+        
+        // Call the remote action when the page loads or based on an event
+        window.onload = function() {
+            alert('In')
+            getQuoteDetails();
+        };
+    </script>
+        </head>  
+        <body>     
+				<div id="DocTempId">
+                    
+            	</div>            
+                  
+        </body>
+    </html>   
+</apex:page>

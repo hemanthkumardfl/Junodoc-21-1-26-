@@ -1,0 +1,322 @@
+<apex:page controller="GeneratePDF_Controller" sidebar="false" showHeader="false" standardStyleSheets="true" applyBodyTag="false" readOnly="false" >
+    <apex:form id="frm">
+        <apex:slds />
+    <apex:pageMessages />
+
+        <apex:stylesheet value="{!URLFOR($Resource.Doc_css, '/css/3.3.5-bootstrap.min.css')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.Doc_js, '/js/3.3.5-bootstrap.min.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.Doc_js, '/js/jquery-1.8.2.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.Doc_js, '/js/1.9.0-jquery-ui.js')}"/>
+        <apex:stylesheet value="{!URLFOR($Resource.Doc_css, '/css/1.9.1-themes-base-jquery-ui.css')}"/>        
+        
+        
+        <link href="{!$Resource.EmailTagStyle}" rel="stylesheet" type="text/css"/>
+        <script src="{!$Resource.EmailTagJS}" type="text/javascript" charset="utf-8"></script>
+        <style>
+        P.goright {text-align: right}
+        .row{
+        margin-bottom:10px;
+        }
+        .lookupInput a{
+        display:block;
+        position:absolute;
+        top:30px;
+        }
+        .lookupInput img{
+        float:right;
+        margin-right: -0.2em;
+        }
+        span .lookupInput {
+        position:relative;
+        display:inherit;
+        }
+        .lookupInput a,.lookupInput a
+        {
+        border:none !important;
+        background:none !important;
+        box-shadow:none !important;
+        }
+        
+        .zen .zen-tabMenu a {
+            font-size: 13px;
+            }
+            #userNavLabel {
+            font-size: 11px;
+            }
+            #tsidButton{
+            font-size: 14px;
+            }
+            .headerSearchLeftRoundedCorner #phSearchInput {
+            font-size: 12px;
+            }
+            .navLinks .linkElements>a {
+            font-size: 11px;
+            }
+            #tsidButton {
+            min-width: 120px;
+            }
+            
+            .ui-dialog .ui-dialog-titlebar {
+                padding: .0em 0em;
+                position: relative;
+            }
+            .ui-widget-header {
+                border: 1px solid white;
+                background: white;
+                color: #eaf5f7;
+                font-weight: bold;
+            }
+			.slds-page-header{
+                	padding: 1rem;
+                	border-bottom: 1px solid #dddbda;
+                    border-radius: .25rem;
+                	background: #f3f2f2;
+                    background-clip: padding-box;
+                	box-shadow: 0 2px 2px 0 rgba(0,0,0,.1);
+                	border: 1px solid #dddbda;
+                    height:50px;
+                	margin-bottom:10px;
+            }
+        .slds-button--brand:active, .slds-button_brand:active {
+    background-color: #005fb2;
+    border-color: #005fb2;
+}
+.slds-button--brand:focus, .slds-button--brand:hover, .slds-button_brand:focus, .slds-button_brand:hover {
+    background-color: #005fb2;
+    border-color: #005fb2;
+    color: #fff;
+}
+.slds-button--brand, .slds-button_brand {
+    padding: 6px 5px !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    text-align: center !important;
+    vertical-align: middle;
+    justify-content: center;
+    border: 1px solid #dddbda !important;
+    transition: border .15s linear;
+    background: none !important;
+    background-color: #005fb2 !important;
+    border-color: #005fb2 !important;
+    color: #fff !important;
+    /* background: none !important; */
+    border-radius: 3px !important;
+    font-size: 1em;
+}
+        
+   .slds-button_neutral {
+    padding: 6px 5px !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    text-align: center !important;
+    vertical-align: middle;
+    justify-content: center;
+    border: 1px solid #dddbda !important;
+    transition: border .15s linear;
+    background: none !important;
+    background-color: white !important;
+    border-color: #005fb2 !important;
+    color: #005fb2 !important;
+    /* background: none !important; */
+    border-radius: 5px !important;
+    font-size: 1em;
+    font-weight: 500 !important;
+}
+        </style>
+        
+        
+        <script>
+
+        </script>
+        <script> 
+         function navigateTo(sObjectId) {
+          if ((typeof sforce != 'undefined') && sforce && (!!sforce.one)){
+              if(sObjectId != ''){
+                sforce.one.navigateToSObject(sObjectId, 'detail');
+              }
+            } 
+            else {
+                 var url = location.href;
+                 var baseURL = url.substring(0, url.indexOf('/', 14));
+                 if(sObjectId != ''){
+                    window.top.location.href = baseURL+ '/'+sObjectId;
+                 }
+                 
+            }         
+         }   
+        function myFunction() {
+            paraFunction(document.getElementById("mySingleField").value);
+        }
+        </script>
+        
+                <style>
+            @media (min-width: 768px) { .container { max-width: 750px; } }
+        .user_name{
+        font-size:14px;
+        font-weight: bold;
+        }
+        .comments-list .media{
+        border-bottom: 1px dotted #ccc;
+        }
+ul.tagit {
+max-height:100px;
+overflow:auto;
+}
+.form-control{
+font-size:15px;
+}
+.myClass{
+color:white !important;
+background:#4c93b1 !important;
+border: 1px solid #36a0fe !important;
+border-bottom-color: #6e9dc7 !important;
+margin: 4px !important;
+}
+.inputButton{
+    color:white !important;
+    background:#4c93b1 !important;
+    border: 1px solid #36a0fe !important;
+    border-bottom-color: #6e9dc7 !important;
+    margin: 4px !important;
+    font-weight: bold;
+    font-size: .9em;
+    border-radius: 3px;
+    padding: 4px 3px;
+}
+    
+        </style>
+
+
+        <div class="">
+            <div class="slds-page-header" style="border-radius: 5px;background: #e7e7e7;padding: 10px;">
+  <div class="slds-page-header__row">
+    <div class="slds-page-header__col-title">
+      <div class="slds-media">
+        <div class="slds-media__figure">
+          <span class="slds-icon_container slds-icon-standard-opportunity" title="Dynamic">
+           
+          </span>
+        </div>
+        <div class="slds-media__body">
+          <div class="slds-page-header__name">
+            <div class="slds-page-header__name-title">
+                <div class="col-sm-6" style="text-align: left;">
+               		<h1 style="font-size:30px">
+                		<span class="slds-page-header__title slds-truncate" title="">Preview PDF</span>
+              		</h1>
+                </div>
+                <div class="col-sm-6" style="text-align: right;">
+                         <apex:commandButton styleclass="slds-button slds-button_brand" id="createPDF" action="{!CreatePDF}" rerender="frm,redirectPanel" value="Create PDF" />
+                         <input class="slds-button slds-button_neutral" type="button" value="Cancel" onclick="navigateTo('{!id}')"/> 
+                   
+                </div>
+              
+              
+                   
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        <apex:outputPanel rendered="{!if(id != null && selectedid != null,true,false)}">
+            <div class="">
+                   <div class="row" style="border:2px solid silver;">   
+                        <apex:iframe src="apex/PreviewPDF?id={!id}" height="400px" scrolling="true" id="theIframe"/>
+                   </div>
+          <apex:outputPanel id="opp2">      
+        <div class="row">
+       
+                <script type="text/javascript">
+                  var j$ = jQuery.noConflict();
+                 
+                    var names =[];
+             		var connames =[];
+                     <apex:repeat value="{!QTlist}" var="a">
+                           names.push('{!JSENCODE(HTMLENCODE(a.name))}');
+                    </apex:repeat>
+                    <apex:repeat value="{!contactlist}" var="c">
+                           connames.push('{!JSENCODE(HTMLENCODE(c.name))}');
+                    </apex:repeat>
+                    j$(document).ready(function(){
+                        j$("[id$=mydata]").autocomplete({
+                            source : names
+                        }); 
+                        j$("[id$=mydatas]").autocomplete({
+                            source : connames
+                        }); 
+                    });
+                    
+               j$(function(){
+                 
+                j$("[id$=singleFieldTags]").tagit({
+                    
+                    singleField: true,
+                    singleFieldNode: j$("[id$=mySingleField]")
+                });            
+            });
+            
+            
+            j$(document).ready(function(){
+            j$(".ui-widget-content").attr("placeholder","Enter Email Address");
+            });
+              function sendMail() {
+                paraFunction(document.getElementById("mySingleField").value);
+              }
+              function userMails(){
+                paraFunction1(document.getElementById("mySingleField").value); 
+              }
+            
+              function paraFunction2(){
+                  paraFunction2(document.getElementById("mySingleField").value);
+              }
+            
+               </script>
+               <apex:actionFunction name="paraFunction" action="{!SendPDF}" rerender="frm,redirectPanel">
+                   <apex:param assignTo="{!sendCC}" name="interviewDate" value="" />
+               </apex:actionFunction> 
+               <apex:actionFunction name="paraFunction1" action="{!userValue}" reRender="opp2">
+                   <apex:param assignTo="{!sendCC}" name="interviewDate" value="" />
+               </apex:actionFunction> 
+            
+              <apex:actionFunction name="paraFunction2" action="{!contactValue}" reRender="opp2">
+                   <apex:param assignTo="{!sendCC}" name="interviewDate" value="" />
+               </apex:actionFunction> 
+                
+              
+               </div>
+
+				</apex:outputPanel>
+           
+
+                   <div class="row">
+                       
+                       <apex:outputPanel id="redirectPanel" >
+                                <apex:outputText rendered="{!shouldRedirect}">
+                                    <script type="text/javascript">
+                                    
+                                        window.top.location.href = '{!JSENCODE(redirectUrl)}';
+                                    </script>
+                                </apex:outputText>
+                       </apex:outputPanel>
+                 </div>
+                
+                
+            </div>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!if(id != null && selectedid != null,false,true)}">
+                <div class="row col">
+                    <div class="alert alert-warning">
+                        Please select the default Template to view the PDF.
+                    </div>
+                    <div class="col-sm-12" style="text-align: right;">
+                    <input Class="inputButton" type="button" value="Cancel" onclick="navigateTo('{!id}')"/>
+                    </div>
+                </div>
+            </apex:outputPanel>
+            
+        </div>
+        
+     </apex:form>
+</apex:page>

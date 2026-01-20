@@ -1,0 +1,17 @@
+<apex:page sidebar="False">
+    <apex:includeLightning />
+   
+    <div id="LcDisplayId"></div> 
+    <script>
+        
+        $Lightning.use("JunoDoc:JunosignObjectSettingsApp", function() {
+        $Lightning.createComponent("JunoDoc:JunosignObjectSettings",
+        { 
+            VFPage : "true"
+        },
+       "LcDisplayId",
+        function(component) {
+        });
+     });
+    </script>
+</apex:page>

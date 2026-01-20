@@ -1,0 +1,397 @@
+<aura:component controller="MasterObjectSelector_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <aura:attribute name="options" type="List" />
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="results" type="List" />
+    <aura:attribute name="openDropDown" type="Boolean" default="false" />
+    <aura:attribute name="selectedOption" type="String" />
+    <aura:attribute name="inputValue" type="String" />
+    <aura:attribute name="DocTemplates" type="String" />
+    <aura:attribute name="SingleRefresh" type="Boolean" default="false" />
+    
+    <aura:attribute name="inputSearchFunction" type="Object" />
+    <aura:attribute name="showButton" type="Boolean" />
+    <aura:attribute name="selectedFormat" type="string" default=""/>
+    <aura:attribute name="sObjName" type="string" default="Quote"/>
+    <aura:attribute name="variable1" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name = "accList" type ="list"></aura:attribute>
+    
+    
+    <aura:attribute name="Spinner" type="Boolean" />
+    <aura:attribute name="AvailableDocTemplatesList" type="List" default="[]"/>    
+    <aura:attribute name="DocTemplateId" type="String" />
+    <aura:attribute name="ObjectAPIName" type="String" />
+    <aura:attribute name="OrgwideEmailAddressList" type="List" default="[]"/>    
+    <aura:attribute name="AvailableDocTemplateSelectedValue" type="String" default=""/>    
+    <aura:attribute name="isDocTemplate" type="boolean" default="false"/>
+    <aura:attribute name="DocTemplatesWraplist" type="list" />
+    
+    <aura:attribute name="isSendPDF" type="boolean" default="false"/>
+    <aura:attribute name="toUserEmailsList" type="list" />
+    <aura:attribute name="toContactEmailsList" type="list" />
+    <aura:attribute name="toEmails" type="String" />  
+    <aura:attribute name="SetReplyTo" type="String" /> 
+    <aura:attribute name="SetSenderDisplayName" type="String" />            
+    <aura:attribute name="subject" type="String" />
+    <aura:attribute name="emailbody" type="String" />   
+    <aura:attribute name="SaveAsActivity" type="Boolean" default="true" />
+    <aura:attribute name="StandardEmailTemplatesList" type="List" default="[]"/>    
+    <aura:attribute name="StandardEmailTemplateSelectedValue" type="String"/>  
+    <aura:attribute name="JunoDocEmailTemplateSelectedValue" type="String"/>  
+    <aura:attribute name="JunoDocEmailTemplatesList" type="List" default="[]"/>
+    <aura:attribute name="test1" type="String" default="" />    
+    <aura:attribute name="JunoDocPDFTemplatesList" type="List" default="[]"/> 
+    <aura:attribute name="selectedValues" type="String" />
+    <aura:attribute name="isDocWordTemplate" type="boolean" default="false"/>
+    <aura:attribute name="isDocExcelTemplate" type="boolean" default="false"/>
+    <aura:attribute name="activeSections" type="List" default="['A','B','C']" />    
+    <!--<aura:handler action="{!c.handleNotification}" event="c:sendEmailList" name="emailList" />-->
+    <aura:attribute name="ToTextEmailsList" type="list" />
+    <aura:attribute name="ToEmailMergeFieldsList" type="list" />    
+    <aura:attribute name="CCTextEmailsList" type="list" />
+    <aura:attribute name="CCEmailMergeFieldsList" type="list" />        
+    <aura:attribute name="BCCTextEmailsList" type="list" />
+    <aura:attribute name="BCCEmailMergeFieldsList" type="list" />
+    <aura:attribute name="FromEmailAddress" type="String" />
+    <aura:attribute name="JunodocUrl" type="String" default="apex"/>    
+    <aura:attribute name="VFPage" type="boolean" default="false"/>   
+    <aura:attribute name="globalActivityParentId" type="String" />
+    
+    <aura:attribute name="parentObjectName" type="String" />
+    <aura:attribute name="childObjectName" type="String" />
+    <aura:attribute name="childObjectFieldName" type="String" />
+    <aura:attribute name="parentObjectFieldName" type="String" />
+    <aura:attribute name="childObjectReplaceFieldName" type="String" />
+    
+    <aura:attribute name="attachAsPdf" type="String"/>
+    <aura:attribute name="attachAsPdfParent" type="String"/>
+    <aura:attribute name="attachAsPdfOptionsList" type="list" default="[]"/>
+    
+    <aura:attribute name="hideAttachAsPDF" type="boolean" default="false"/>
+    <aura:attribute name="hideSaveAsActivity" type="boolean" default="false"/>
+    
+    <aura:attribute name="parentObjectOptions" type="List" default="[]"/>
+    <aura:attribute name="parentValues" type="List" default="[]"/>
+    <aura:attribute name="selectedParentObjects" type="String" />
+    
+    
+    
+    <aura:html tag="style">
+        .slds-brand-band {
+        background : white;
+        background-color: white;
+        padding:0px;
+        }
+    </aura:html>
+    <div style="background:white">
+        <div style="Background:white;width:100%;">
+            <div class="slds-page-header slds-page-header_record-home" style="background-color: #6290c6!important;  height: 50px;">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure" style="max-width: 190px;position: relative;bottom: 8px;">
+                                <span class="slds-icon_container">
+                                    <img src="{!$Resource.JunoDoc}" class="imageClass slds-m-top_xxx-small" title="Juno DOc Logo"/>       
+                                </span>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span class="slds-text-heading_small"></span>	
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gridClas slds-grid slds-gutters slds-p-around_large">
+            <div class="slds-col slds-size_12-of-12">
+                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                    <div class="slds-col slds-size_1-of-12 slds-var-m-left_x-large" style="position: relative;top: 20px;">
+                    </div>
+                    <div class="slds-col slds-size_3-of-12">
+                        
+                    </div>  
+                    <div class="slds-col slds-size_6-of-12" >
+                        <div class="slds-form-element" >
+                            <label class="slds-form-element__label slds-m-left_xx-large" for="myInput" style="font-weight: bold;font-size: 14px;position:relative;right:86px;">Select Primary Object</label>
+                            <div class="slds-form-element__control" style="position:relative;right: 40px; width: 600px;">
+                                <div class="slds-combobox_container">
+                                    <div class="{! v.openDropDown ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}"
+                                         aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right slds-m-left_xx-large" role="none" style="margin-left: 0px;position=relative;">
+                                            <div class="inputBox">
+                                                <!--    <input type="text"
+                                                       class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+                                                       id="myInput1" aria-autocomplete="list" aria-controls="listbox-id-11"
+                                                       autocomplete="no" onkeyup="{!c.searchHandler}" role="textbox" onclick="{!c.searchAll}" placeholder="Please Select"
+                                                       value="{!v.inputValue}"/> -->
+                                                <input type="text"
+                                                       class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+                                                       id="myInput" aria-autocomplete="list" aria-controls="listbox-id-11"
+                                                       autocomplete="no" onkeyup="{!c.searchHandler}" role="textbox" onclick="{!c.searchAll}" placeholder="Please Select"
+                                                       value="{!v.inputValue}"/> 
+                                                <!--      <lightning:input name="input1" label="" type="text" aura:id="myInput1" value="{!v.inputValue}" onkeyup="{!c.searchHandler}" placeholder="Please Select" onclick="{!c.searchAll}"/> -->
+                                                
+                                            </div>
+                                        </div>
+                                        <div id="listbox-id-11" class="dropDownClass slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                             role="listbox">
+                                            <ul id="myUL" class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <aura:iteration items="{!v.results}" var="result">
+                                                    <li role="presentation" class="slds-listbox__item"
+                                                        data-value="{!result.value}" onclick="{!c.optionClickHandler}">
+                                                        <div
+                                                             class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                             role="option">
+                                                            <span class="slds-media__body">
+                                                                <span class="slds-truncate" title="All Oobjects">
+                                                                    <span>{!result.label}</span>
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </aura:iteration>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>     
+                    </div>
+                    <div class="slds-col slds-size_3-of-12">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>  
+        
+        
+        <aura:if isTrue="{!v.variable1}">
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem size="2"></lightning:layoutItem>
+                <lightning:layoutItem size="8" padding="around-small">
+                    <c:AddEmailReceipient ObjectAPIName="{!v.inputValue}" accList="{!v.accList}" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>From Email Address:</label>
+                    <lightning:helptext content="Please enter from Email Addresses [specify org wide email address only]" class="customIcon" onclick="{!c.goToUrl}" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6">
+                    <lightning:select aura:id="InputSelectSingle" value="{!v.FromEmailAddress}">
+                        <option value="">choose one...</option>
+                        <aura:iteration items="{!v.OrgwideEmailAddressList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}" selected="{!EmailTemplate.value == v.FromEmailAddress}">{!EmailTemplate.label}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Set Reply To:</label>
+                    <lightning:helptext content="Please enter email address to set as reply to" class="customIcon" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6">
+                    <lightning:input name="input1" value="{!v.SetReplyTo}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Standard Email Templates:</label>
+                    <lightning:helptext content="Select Email Template to auto fill Subject and Body. You can create new Email Template from Setup" class="customIcon" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:select aura:id="InputSelectSingle" value="{!v.StandardEmailTemplateSelectedValue}" onchange="{!c.changejunoEmail}">
+                        <option value="">choose one...</option>
+                        <aura:iteration items="{!v.StandardEmailTemplatesList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}" selected="{!EmailTemplate.value == v.StandardEmailTemplateSelectedValue}">{!EmailTemplate.label}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Junodoc Email Templates:</label>
+                    <lightning:helptext content="Select JunoDoc Email Template to auto fill Subject and Body." class="customIcon" style="bottom:2px" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:select aura:id="InputSelectSingle1" value="{!v.test1}" onchange="{!c.changestandardEmail}">
+                        <option value="">choose one...</option>
+                        <aura:iteration items="{!v.JunoDocEmailTemplatesList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}" selected="{!EmailTemplate.value == v.test1}">{!EmailTemplate.label}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Junodoc Doc Templates:</label>
+                    <lightning:helptext content="Select JunoDoc Email Template to auto fill Subject and Body." class="customIcon" style="bottom:2px" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:select aura:id="InputSelectSingle1" value="{!v.DocTemplates}">
+                        <option value="">choose one...</option>
+                        <aura:iteration items="{!v.JunoDocPDFTemplatesList}" var="EmailTemplate">
+                            <option value="{!EmailTemplate.value}" selected="{!EmailTemplate.value == v.DocTemplates}">{!EmailTemplate.label}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Global Activity Parent Record ID:</label>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:input name="globalActivity" value="{!v.globalActivityParentId}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Parent Object Name:</label>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:input name="globalActivity" value="{!v.parentObjectName}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Child Object Name:</label>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:input name="globalActivity" value="{!v.childObjectName}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Child Object field Name:</label>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:input name="globalActivity" value="{!v.childObjectFieldName}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Parent Object field Name:</label>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:input name="globalActivity" value="{!v.parentObjectFieldName}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Child Object Replace Field Name:</label>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:input name="globalActivity" value="{!v.childObjectReplaceFieldName}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <!-- Added By Sainath on 22-Aug-2025 Start 
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Attach as PDF:</label>
+                    <lightning:helptext content="Select whether the file should attach to this object, its parent, or both." class="customIcon" style="bottom:2px" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:select aura:id="InputSelectAttachAsPdfOpt1" value="{!v.attachAsPdf}">
+                        <option value="">choose one...</option>
+                        <aura:iteration items="{!v.attachAsPdfOptionsList}" var="option">
+                            <option value="{!option.value}" selected="{!option.value == v.attachAsPdf}">{!option.label}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Attach as PDF Parent:</label>
+                    <lightning:helptext content="API name of the parent object when choosing Parent or Self and Parent in 'Attach as PDF'." class="customIcon" style="bottom:2px" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" >
+                    <lightning:input name="globalActivity" value="{!v.attachAsPdfParent}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem> -->
+                <!-- Added By Sainath on 22-Aug-2025 End -->
+                
+                <!-- Added By Sainath on 09-Sep-2025 Start -->
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Hide Attach as PDF:</label>
+                    <lightning:helptext content="Check this if you to hide 'Attach as PDF' button." class="customIcon" style="bottom:2px" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" padding="around-medium">
+                    <lightning:input type="checkbox" name="globalActivity" checked="{!v.hideAttachAsPDF}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Hide Save as Activity:</label>
+                    <lightning:helptext content="Check this if you to hide 'Save as Activity' option in 'Send as PDF'." class="customIcon" style="bottom:2px" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" padding="around-medium">
+                    <lightning:input type="checkbox" name="globalActivity" checked="{!v.hideSaveAsActivity}" label="" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <!-- Added By Sainath on 09-Sep-2025 End -->
+                
+                <lightning:layoutItem size="2" padding="around-small"></lightning:layoutItem>
+                <lightning:layoutItem size="2" padding="around-medium">
+                    <label>Parent Objects:</label>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6">
+                    
+                    
+                    <lightning:dualListbox name="multipleOptions"  
+                                           label= "" 
+                                           sourceLabel="Available" 
+                                           selectedLabel="Selected" 
+                                           options="{!v.parentObjectOptions}" 
+                                           value="{!v.parentValues}" 
+                                           onchange="{! c.handleChange }"/>
+                    
+                </lightning:layoutItem>
+                
+                
+            </lightning:layout>
+            <br/>
+            <div style="text-align:center;background-color: white;margin-bottom:20px">
+                <!-- <lightning:button  label="Submit" onclick="{!c.record}" variant="brand"/> -->
+                <!-- To revert back to original Code please comment the below line and un-comment the above -->
+                <lightning:button  label="Submit" onclick="{!c.saveSetting}" variant="brand"/>
+            </div>
+        </aura:if>  
+    </div>
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+                <div class="custom-loading-text">
+                    <b>Processing, Please Wait</b>
+                </div>
+            </div>
+        </div>
+        
+    </aura:if>
+</aura:component>

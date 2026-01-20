@@ -1,0 +1,6 @@
+<apex:page controller="PDFControllerVF" showHeader="false" sidebar="false" >    
+	<div id="text-container" class="text-center text-container">
+    	<!--<img src="/servlet/servlet.FileDownload?file={!attId}" style="width: 100%;margin-top: 50px;" height="400" />-->
+        Testing
+    </div>    
+</apex:page>

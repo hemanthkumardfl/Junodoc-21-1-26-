@@ -1,0 +1,26 @@
+<apex:page standardStylesheets="false" applyBodyTag="false" sidebar="false" showHeader="false" >
+    <apex:includeLightning />
+    <style>
+        html, body {
+        margin: 0;
+        padding: 0;
+        }
+        #lightningComponent {width: 100%;}
+    </style>
+
+    <div id="content">
+        <div id="lightningComponent" />
+    </div>
+    <script>
+    var myUserContext = "{!$User.UITheme}";
+    $Lightning.use("JunoDoc:AddTasksApp", function() {
+             $Lightning.createComponent("JunoDoc:AddTasks", {},
+              "lightningComponent",
+              function(cmp) {
+                console.log("LWC component was created");
+                // do some stuff
+              }
+          );
+        });
+    </script>
+</apex:page>

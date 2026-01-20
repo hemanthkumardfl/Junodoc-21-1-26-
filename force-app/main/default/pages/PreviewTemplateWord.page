@@ -1,0 +1,171 @@
+<apex:page id="pageId" action="{!methodtwo}" Controller="PreviewTemplatePDF_AC" applyBodyTag="false" showHeader="false" sidebar="false" applyHtmlTag="false" readOnly="true">
+    <div id="word-page-content">
+        <html>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/vfs_fonts.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+            <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+            <head>
+                <script>
+                    function loadwordScrip1t() {
+                        console.log('Loading word script...');
+
+                        // Hide and remove specific elements based on data attributes
+                        let hideDivs = document.querySelectorAll('[data-renderdiv="hideDiv"]');
+                        hideDivs.forEach(div => div.parentElement.offsetParent.offsetParent.parentElement.parentElement.remove());
+
+                        let removeElements = document.querySelectorAll('[data-renderele="removeItem"]');
+                        removeElements.forEach(el => el.remove());
+
+                        let styleEle = document.querySelectorAll('[data-forstyle="checkbox"]');
+                        styleEle.forEach(el => {
+                            el.style.width = "12px";
+                            el.style.height = "12px";
+                            el.style.margin = "5px";
+                        });
+
+                        ExportToDoc('htmlContentToWord', '{!worddocName}','No');
+
+                        // Ensure the content is fully rendered before capturing it
+                        setTimeout(function() {
+                            console.log('Starting export to PDF...');
+                            // exportToPdfAndDisplay('htmlContentToWord', '{!worddocName}');
+                            displayPdfDocument('');
+                        }, 100); // Adjust the delay as needed
+                    }
+
+                    function ExportToDoc(element, filename = '',isDownload) {
+                            // Get the target element's HTML content
+                        var targetElement = document.getElementById(element);
+                        
+                            // Create a temporary container to manipulate the HTML
+                            var tempContainer = document.createElement('div');
+                            tempContainer.innerHTML = targetElement.innerHTML;
+                        
+                            // Remove all elements with the class 'table-setting-box'
+                            var elementsToRemove = tempContainer.querySelectorAll('.table-setting-box');
+                            elementsToRemove.forEach(function(el) {
+                                el.parentNode.removeChild(el);
+                            });
+                        var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>";
+                        header += '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1"/> <meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/> ';
+                        header += '<title></title> <style>v\\:* {behavior: url(#default#VML);} o\\:* { behavior: url(#default#VML);} w\\:* {behavior: url(#default#VML);} .shape { behavior: url(#default#VML);} </style>';
+                        header += ' <style> @page main-section {size: 8.43in 12in;  margin: .0cm .0cm .0cm .0cm;mso-header-margin: .0in;mso-footer-margin: .0in;mso-paper-source: 0;height:12in';
+                        header += 'mso-header: h1;mso-footer: f1;}div.main-section {page: main-section;} .Tableorder table,tr, td{font-family:sans-serif} div{height:auto} td{height:auto} p{height:auto}';
+                        header += ' img{width: 15px !important;height: 15px !important; }p.MsoFooter,li.MsoFooter,div.MsoFooter {margin: 0in;margin-bottom: .0001pt;mso-pagination: widow-orphan;tab-stops: center 0in right 0in;} div[data-renderdiv="showDiv"]{display: block; }div[data-renderdiv="hideDiv"]{display: none; }</style><body>';
+                         
+                            var footer = "</body></html>";
+                        var html = header + tempContainer.innerHTML + footer;
+
+						console.log(tempContainer.innerHTML)
+                        var blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+                        var reader = new FileReader();
+                        reader.readAsDataURL(blob);
+
+                        reader.onloadend = function() {
+                            var base64data = reader.result.split(',')[1];
+                            console.log('Base64 string:', base64data);
+
+                            var datas = JSON.stringify({ message: base64data });
+                            window.parent.postMessage(datas, '*');
+                        };
+
+                        var url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+                        filename = filename ? filename + '.doc' : 'document.doc';
+                        if(isDownload == 'Yes'){
+                            var downloadLink = document.createElement("a");
+                            document.body.appendChild(downloadLink);
+    
+                            if (navigator.msSaveOrOpenBlob) {
+                                navigator.msSaveOrOpenBlob(blob, filename);
+                            } else {
+                                downloadLink.href = url;
+                                downloadLink.download = filename;
+                                downloadLink.click(html);
+                            }
+                         }
+                        document.getElementById(element).style.display='none';
+                        document.body.removeChild(downloadLink);
+                    }
+
+                    function exportToPdfAndDisplay(elementId, filename = '') {
+                        var element = document.getElementById(elementId);
+                        console.log('Capturing element:', element);
+
+                        html2canvas(element).then(function(canvas) {
+                            var imgData = canvas.toDataURL('image/png');
+                            console.log('Canvas image data:', imgData);
+
+                            // Here, convert the HTML content to a format compatible with pdfMake
+                            var docDefinition = {
+                                content: [
+                                    { text: 'Your Title', style: 'header' },
+                                    {
+                                        text: element.innerHTML,
+                                        width: canvas.width * 0.75, // Adjust as needed
+                                        height: canvas.height * 0.75 // Adjust as needed
+                                    }
+                                ],
+                                footer: {
+                                    columns: [
+                                        'Left part of footer',
+                                        { text: 'Right part of footer', alignment: 'right' }
+                                    ]
+                                },
+                                header: {
+                                    columns: [
+                                        'Left part of header',
+                                        { text: 'Right part of header', alignment: 'right' }
+                                    ]
+                                },
+                                pageMargins: [40, 60, 40, 60], // [left, top, right, bottom] margins
+                                styles: {
+                                    header: {
+                                        fontSize: 18,
+                                        bold: true,
+                                        margin: [0, 0, 0, 10]
+                                    }
+                                }
+                            };
+
+                            pdfMake.createPdf(docDefinition).getBlob(function(blob) {
+                                var url = URL.createObjectURL(blob);
+                                displayPdfDocument(url);
+                            });
+
+                        }).catch(function(error) {
+                            console.error('Error capturing the canvas:', error);
+                        });
+                    }
+
+                    function displayPdfDocument(url) {
+                        console.log('Displaying PDF document at URL:', url);
+                        var iframe = document.getElementById('pdfIframe');
+                        // iframe.src = url;
+                        iframe.style.visibility = 'visible';
+                    }
+                </script>
+            </head>
+
+            <body>
+                <div id="htmlContentToWord" style="visibility:visible;">
+                    <apex:outputtext value="{!output}" escape="false" />
+                </div>
+                <div id="previewContent">
+                    <button onclick="ExportToDoc('htmlContentToWord', '{!worddocName}','Yes')" style="margin-top: 0px; padding: 10px; background: #354673 !important; color: white; border: none; cursor: pointer;">
+                        <i class="fas fa-download"></i> Download Word
+                    </button>
+                    <iframe id="pdfIframe" src="{!('/apex/JunoDoc__JunodocPDFMobile?id='+recordId+'&DocTemplateId='+DocId)}#toolbar=0" style="width:100%; height:445px;"></iframe>
+                </div>
+                <apex:outputtext value="{!loadstring}" escape="false" />
+
+                <!-- Download Button -->
+                
+            </body>
+        </html>
+    </div>
+</apex:page>

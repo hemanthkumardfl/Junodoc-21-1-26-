@@ -1,0 +1,23 @@
+<!-- <apex:page standardController="Account" recordSetvar="objects" extensions="DynamicListView_AC"> -->
+<apex:page controller="DynamicListView_AC" sidebar="false" showHeader="false">    
+    <apex:includeLightning />
+   
+    <div id="LcDisplayId"></div> 
+    <script>
+    //var objects = JSON.stringify('{!RecIds}');
+        $Lightning.use("JunoDoc:LGT_JunodocBatchDynamicListSendPDFApp", function() {
+        $Lightning.createComponent("JunoDoc:LGT_JunodocBatchDynamicListSendPDF",
+        { 
+            objectName : "{!ObjectName}",
+            records : "{!recId}",
+            batchId : "{!batchId}",
+            visualpage : {!Isvisual}
+            /*postActionWrapper : "{!postActionWrapper}",
+            TemplateId : "{!TemplateId}"*/
+        },
+       "LcDisplayId",
+        function(component) {
+        });
+     });
+    </script>
+</apex:page>

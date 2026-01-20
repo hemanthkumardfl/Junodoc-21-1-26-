@@ -1,0 +1,195 @@
+<apex:page standardController="Quote" >
+    <html>
+        <head>
+            <title>Three Sections Page</title>
+            <style>
+                /* Basic styling for the layout */
+                .container {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100vh; /* Full viewport height */
+                }
+
+                .section {
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid #ddd;
+                    margin: 5px 0;
+                }
+
+                .header, .footer {
+                    background-color: #f2f2f2;
+                    padding: 10px;
+                    text-align: center;
+                }
+
+                .body {
+                    flex: 1; /* Take up remaining space */
+                    overflow-y: auto; /* Enable vertical scrollbar */
+                    padding: 10px;
+                    box-sizing: border-box;
+                }
+
+                .content {
+                    height: 200px; /* Fixed height for demonstration */
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <!-- Section 1 -->
+                <div class="section">
+                    <div class="header">
+                        <h1>Header 1</h1>
+                    </div>
+                    <div class="body content">
+                        <h2>Body Content 1</h2>
+                        <p>Breakthrough in Renewable Energy: New Solar Technology Promises Unprecedented Efficiency
+
+In a groundbreaking development for the renewable energy sector, researchers at the Global Energy Research Institute (GERI) have unveiled a new solar technology that could dramatically enhance energy efficiency and reduce costs. The innovative technology, dubbed "SolarMax," utilizes a novel type of photovoltaic material that promises to revolutionize the way solar energy is harnessed.
+
+Revolutionary Material
+
+The SolarMax technology is based on a new class of perovskite materials, which are known for their exceptional light-absorbing properties. Unlike traditional silicon-based solar cells, the perovskite cells are not only more efficient but also cheaper to produce. The GERI team, led by Dr. Elena Martinez, has reported that these new cells can achieve an energy conversion efficiency of 30%, a significant increase from the 20% typically seen in conventional solar panels.
+
+Economic Impact
+
+This leap in efficiency could lead to a substantial decrease in the cost of solar energy. According to Dr. Martinez, "With the lower production costs and higher efficiency, SolarMax has the potential to make solar energy more accessible and affordable than ever before." The technology could also accelerate the transition to renewable energy sources, as the reduced cost might make solar power competitive with fossil fuels even in regions with traditionally low solar irradiance.
+
+Testing and Implementation
+
+The SolarMax panels have undergone rigorous testing in various environmental conditions, from arid deserts to humid coastal regions. Initial results have been promising, with the panels demonstrating consistent performance across diverse climates. The next phase of development will focus on scaling up production and integrating the technology into existing energy infrastructure.
+
+Industry Reactions
+
+The news has generated excitement across the renewable energy sector. Industry leaders have hailed the breakthrough as a game-changer. Dr. Raj Patel, CEO of GreenFuture Energy, commented, "The SolarMax technology represents a major advancement in solar energy. Its potential to drive down costs and increase efficiency aligns perfectly with our goals of sustainable energy development."
+
+Global Implications
+
+The impact of SolarMax extends beyond economics. The technology could play a critical role in global efforts to combat climate change. By making solar power more viable and widespread, it could help reduce reliance on fossil fuels and decrease greenhouse gas emissions. The international community has been quick to recognize the significance of this development, with several countries already expressing interest in adopting SolarMax technology.
+
+Future Prospects
+
+Looking ahead, the GERI team plans to collaborate with various stakeholders, including governments, energy companies, and research institutions, to further refine the technology and explore its applications in different sectors. There are also ongoing discussions about potential partnerships to facilitate the global distribution of SolarMax panels.
+
+Community and Policy Impact
+
+On the policy front, the breakthrough has sparked a renewed debate about renewable energy incentives and regulations. Governments worldwide are considering adjustments to their energy policies to accommodate the new technology. In many regions, this could mean enhanced subsidies for solar installations and revised building codes to promote the use of high-efficiency panels.
+
+Conclusion
+
+As the world grapples with the challenges of climate change and energy sustainability, the SolarMax technology emerges as a beacon of hope. Its potential to transform the renewable energy landscape and drive significant environmental and economic benefits underscores the importance of continued investment in research and innovation. As this exciting development unfolds, it will undoubtedly be a focal point for policymakers, industry leaders, and environmental advocates alike.
+
+Stay tuned for further updates on this transformative technology and its implications for the future of energy.</p>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur suscipit turpis, nec auctor lectus tincidunt id. Fusce fermentum gravida lacus, in pellentesque odio. Phasellus a ex eu purus suscipit blandit a sit amet purus. Nulla facilisi.</p>
+                    </div>
+                    <div class="footer">
+                        <p>Footer 1</p>
+                    </div>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="section">
+                    <div class="header">
+                        <h1>Header 2</h1>
+                    </div>
+                    <div class="body content">
+                        <h2>Body Content 2</h2>
+                        <p>Breakthrough in Renewable Energy: New Solar Technology Promises Unprecedented Efficiency
+
+In a groundbreaking development for the renewable energy sector, researchers at the Global Energy Research Institute (GERI) have unveiled a new solar technology that could dramatically enhance energy efficiency and reduce costs. The innovative technology, dubbed "SolarMax," utilizes a novel type of photovoltaic material that promises to revolutionize the way solar energy is harnessed.
+
+Revolutionary Material
+
+The SolarMax technology is based on a new class of perovskite materials, which are known for their exceptional light-absorbing properties. Unlike traditional silicon-based solar cells, the perovskite cells are not only more efficient but also cheaper to produce. The GERI team, led by Dr. Elena Martinez, has reported that these new cells can achieve an energy conversion efficiency of 30%, a significant increase from the 20% typically seen in conventional solar panels.
+
+Economic Impact
+
+This leap in efficiency could lead to a substantial decrease in the cost of solar energy. According to Dr. Martinez, "With the lower production costs and higher efficiency, SolarMax has the potential to make solar energy more accessible and affordable than ever before." The technology could also accelerate the transition to renewable energy sources, as the reduced cost might make solar power competitive with fossil fuels even in regions with traditionally low solar irradiance.
+
+Testing and Implementation
+
+The SolarMax panels have undergone rigorous testing in various environmental conditions, from arid deserts to humid coastal regions. Initial results have been promising, with the panels demonstrating consistent performance across diverse climates. The next phase of development will focus on scaling up production and integrating the technology into existing energy infrastructure.
+
+Industry Reactions
+
+The news has generated excitement across the renewable energy sector. Industry leaders have hailed the breakthrough as a game-changer. Dr. Raj Patel, CEO of GreenFuture Energy, commented, "The SolarMax technology represents a major advancement in solar energy. Its potential to drive down costs and increase efficiency aligns perfectly with our goals of sustainable energy development."
+
+Global Implications
+
+The impact of SolarMax extends beyond economics. The technology could play a critical role in global efforts to combat climate change. By making solar power more viable and widespread, it could help reduce reliance on fossil fuels and decrease greenhouse gas emissions. The international community has been quick to recognize the significance of this development, with several countries already expressing interest in adopting SolarMax technology.
+
+Future Prospects
+
+Looking ahead, the GERI team plans to collaborate with various stakeholders, including governments, energy companies, and research institutions, to further refine the technology and explore its applications in different sectors. There are also ongoing discussions about potential partnerships to facilitate the global distribution of SolarMax panels.
+
+Community and Policy Impact
+
+On the policy front, the breakthrough has sparked a renewed debate about renewable energy incentives and regulations. Governments worldwide are considering adjustments to their energy policies to accommodate the new technology. In many regions, this could mean enhanced subsidies for solar installations and revised building codes to promote the use of high-efficiency panels.
+
+Conclusion
+
+As the world grapples with the challenges of climate change and energy sustainability, the SolarMax technology emerges as a beacon of hope. Its potential to transform the renewable energy landscape and drive significant environmental and economic benefits underscores the importance of continued investment in research and innovation. As this exciting development unfolds, it will undoubtedly be a focal point for policymakers, industry leaders, and environmental advocates alike.
+
+Stay tuned for further updates on this transformative technology and its implications for the future of energy.</p>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur suscipit turpis, nec auctor lectus tincidunt id. Fusce fermentum gravida lacus, in pellentesque odio. Phasellus a ex eu purus suscipit blandit a sit amet purus. Nulla facilisi.</p>
+                    </div>
+                    <div class="footer">
+                        <p>Footer 2</p>
+                    </div>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="section">
+                    <div class="header">
+                        <h1>Header 3</h1>
+                    </div>
+                    <div class="body content">
+                        <h2>Body Content 3</h2>
+                        <p>Breakthrough in Renewable Energy: New Solar Technology Promises Unprecedented Efficiency
+
+In a groundbreaking development for the renewable energy sector, researchers at the Global Energy Research Institute (GERI) have unveiled a new solar technology that could dramatically enhance energy efficiency and reduce costs. The innovative technology, dubbed "SolarMax," utilizes a novel type of photovoltaic material that promises to revolutionize the way solar energy is harnessed.
+
+Revolutionary Material
+
+The SolarMax technology is based on a new class of perovskite materials, which are known for their exceptional light-absorbing properties. Unlike traditional silicon-based solar cells, the perovskite cells are not only more efficient but also cheaper to produce. The GERI team, led by Dr. Elena Martinez, has reported that these new cells can achieve an energy conversion efficiency of 30%, a significant increase from the 20% typically seen in conventional solar panels.
+
+Economic Impact
+
+This leap in efficiency could lead to a substantial decrease in the cost of solar energy. According to Dr. Martinez, "With the lower production costs and higher efficiency, SolarMax has the potential to make solar energy more accessible and affordable than ever before." The technology could also accelerate the transition to renewable energy sources, as the reduced cost might make solar power competitive with fossil fuels even in regions with traditionally low solar irradiance.
+
+Testing and Implementation
+
+The SolarMax panels have undergone rigorous testing in various environmental conditions, from arid deserts to humid coastal regions. Initial results have been promising, with the panels demonstrating consistent performance across diverse climates. The next phase of development will focus on scaling up production and integrating the technology into existing energy infrastructure.
+
+Industry Reactions
+
+The news has generated excitement across the renewable energy sector. Industry leaders have hailed the breakthrough as a game-changer. Dr. Raj Patel, CEO of GreenFuture Energy, commented, "The SolarMax technology represents a major advancement in solar energy. Its potential to drive down costs and increase efficiency aligns perfectly with our goals of sustainable energy development."
+
+Global Implications
+
+The impact of SolarMax extends beyond economics. The technology could play a critical role in global efforts to combat climate change. By making solar power more viable and widespread, it could help reduce reliance on fossil fuels and decrease greenhouse gas emissions. The international community has been quick to recognize the significance of this development, with several countries already expressing interest in adopting SolarMax technology.
+
+Future Prospects
+
+Looking ahead, the GERI team plans to collaborate with various stakeholders, including governments, energy companies, and research institutions, to further refine the technology and explore its applications in different sectors. There are also ongoing discussions about potential partnerships to facilitate the global distribution of SolarMax panels.
+
+Community and Policy Impact
+
+On the policy front, the breakthrough has sparked a renewed debate about renewable energy incentives and regulations. Governments worldwide are considering adjustments to their energy policies to accommodate the new technology. In many regions, this could mean enhanced subsidies for solar installations and revised building codes to promote the use of high-efficiency panels.
+
+Conclusion
+
+As the world grapples with the challenges of climate change and energy sustainability, the SolarMax technology emerges as a beacon of hope. Its potential to transform the renewable energy landscape and drive significant environmental and economic benefits underscores the importance of continued investment in research and innovation. As this exciting development unfolds, it will undoubtedly be a focal point for policymakers, industry leaders, and environmental advocates alike.
+
+Stay tuned for further updates on this transformative technology and its implications for the future of energy.</p>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur suscipit turpis, nec auctor lectus tincidunt id. Fusce fermentum gravida lacus, in pellentesque odio. Phasellus a ex eu purus suscipit blandit a sit amet purus. Nulla facilisi.</p>
+                    </div>
+                    <div class="footer">
+                        <p>Footer 3</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </html>
+</apex:page>

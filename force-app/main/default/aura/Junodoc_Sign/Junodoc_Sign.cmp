@@ -1,0 +1,341 @@
+<aura:component controller="signature_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionwithoutHeader" access="global" >
+    <aura:attribute name="accountList" type="Juno_Sign_Recipient__c[]"/>
+    <aura:attribute name="indexval" type="Integer" default="0"/>
+    <aura:attribute name="FileList" type="List" default="[]"/>
+    <aura:attribute name="Selectedfile" type="String" default=""/>
+    <aura:attribute name="Selectedfiles" type="String" default=""/>
+    
+    <aura:attribute name="selectedDate" type="date" />
+    <aura:attribute name="emailsubject" type="String" />
+    <aura:attribute name="emailbody" type="string" />
+    <aura:attribute name="Addrow" type="boolean" default="true"/>
+    <aura:attribute name="removerow" type="boolean" default="true"/>
+    <aura:attribute name="isVFpage" type="boolean" default="false"/>
+ 
+    
+    <aura:attribute name="selectedValue" type="String" default="Email"/>
+    <aura:attribute name="showButton" type="Boolean" />
+    <aura:attribute name="results" type="List" />
+    <aura:attribute name="openDropDown" type="Boolean" default="false" />
+    <aura:attribute name="isContact" type="Boolean" default="false" />
+    <aura:attribute name="isUser" type="Boolean" default="false" />
+    <aura:attribute name="isEmail" type="Boolean" default="true" />
+    <aura:attribute name="inputValue" type="string" />
+    <aura:attribute name="isContactSelected" type="Boolean" default="false" />
+    
+    <aura:attribute name="isParallel" type="Boolean" default="true" />
+     <aura:attribute name="isSequential" type="Boolean" default="true" />
+     <aura:attribute name="Selectedprocess" type="string" />
+    <aura:attribute name="isError" type="Boolean" access="global"/>
+<aura:attribute name="message" type="String" access="global"/>
+    
+    <aura:attribute name="values"
+                    type="String[]"
+                    access="private" />
+    <aura:attribute name="data"
+                    type="String[]"
+                    access="private" />
+    <aura:attribute name="dragid"
+                    type="Integer"
+                    access="private" />
+    
+   <!-- <ltng:require  scripts="{!$Resource.drag}"/>-->
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:html tag="style">
+        .slds-brand-band {
+        background : white;
+       
+        }
+         .JunoDocJunodoc_Sign .slds-button_icon-borders {
+    		margin-top: 0px;
+		}
+        .slds-modal__container {
+            margin: 0 auto;
+            width: 100% !important;
+            min-width: 20rem !important;
+        }
+        
+        .slds-size_4-of-12{
+        	padding:5px;
+        	display:inline-flex
+        }
+        
+        .slds-size_3-of-12{
+        	padding:5px;
+        	display:inline-flex
+        }
+        .slds-size_2-of-12{
+        	padding:5px;
+			display:inline-flex
+        }
+        .slds-size_1-of-12{
+        	padding:5px;
+        	display:inline-flex
+        }
+        
+        .slds-form-element{
+        	width: 100%;
+        }
+        .uiInputSelect{
+        	width:100%
+        }
+        .cJunodoc_Sign .slds-button_icon-borders {
+    		margin-top: -1px;
+		}
+        
+    </aura:html>
+     <aura:if isTrue="{!v.isError}">
+                        <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                            <span class="slds-assistive-text">error</span>
+                            <h2>
+                                {!v.message}
+                            </h2>
+                            <div class="slds-notify__close">
+                                
+                            </div>
+                        </div>
+                    </aura:if>
+    <div style="background:white;padding:10px">
+        <div class="slds-page-header" style="padding:10px">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-standard-opportunity" title="opportunity">
+                                
+                                <span class="slds-assistive-text">opportunity</span>
+                            </span>
+                        </div>
+                        <div class="slds-media__body" style="text-align: center; ">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h2>
+                                        <span class="slds-page-header__title slds-truncate" style="text-align: center;font-size: 20px;"><b>JunoSign</b></span>
+                                    </h2>
+                                </div>
+                            </div>
+                            <p class="slds-page-header__name-meta"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+    
+     <div class="slds-scrollable_y" style="height:60vh;">
+                 <div class="slds-text-longform">
+    <div style="background:white;padding:10px">
+        <lightning:layout >
+            <lightning:layoutItem padding="around-small" size="4" class="Layoutitems">
+                <!-- <label class="slds-form-element__label =" for="myInput" style="font-weight: bold;font-size: 14px;">Select File</label>-->
+               
+                 <ui:inputSelect class="slds-select" aura:id="InputSelectSingle" value="{!v.Selectedfile}" label="Select File" >
+                        <ui:inputSelectOption text="" label="choose one" /> 
+                        <aura:iteration items="{!v.FileList}" var="a">
+                            <ui:inputSelectOption text="{!a.fileid}" label="{!a.tit}" value="{!a.fileid == v.Selectedfile ? 'true' : 'false'}"/>	
+                        </aura:iteration>
+                    </ui:inputSelect> 
+                
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-small" size="4" class="Layoutitems" >
+                
+                    <lightning:input type="date" name="input1" value="{!v.selectedDate}" onchange ="{!c.OnDateChange}" label="Expiration date" style="margin-top:-5px" />
+             
+            </lightning:layoutItem>
+            
+          <lightning:layoutItem padding="around-small" size="4" class="Layoutitems">
+                <ui:inputSelect class="slds-select" aura:id="InputSelectSingle" value="{!v.Selectedprocess}" label="Signature Type" change="{!c.test}" >
+              		<ui:inputSelectOption text="" label="choose one" /> 
+               		<ui:inputSelectOption text="Parallel" label="Parallel" /> 
+                	<ui:inputSelectOption text="Sequential" label="Sequential" /> 
+            	</ui:inputSelect> 
+	
+            </lightning:layoutItem>
+            
+        </lightning:layout>
+        
+        <div class="" style="margin-top:10px;margin-bottom:10px" >
+            <label class="slds-form-element__label " for="myInput" style="font-weight: bold;font-size: 14px;">Add Signees</label>
+            
+            <div class="slds-float_right slds-p-bottom_small">
+                <h1 class="slds-page-header__title" style="font-size:13px;">Add Row 
+                    <lightning:buttonIcon iconName="utility:add"  size="medium " variant="bare" alternativeText="Add" onclick="{!c.addRow}" disabled="{v.Addrow}"/>
+                </h1>
+            </div>
+           
+            <div class="container-fluid">
+                <div  style="border: 1px solid lightgrey" >
+                  <lightning:layout  horizontalAlign="left" multipleRows="true" >
+                      <lightning:layoutItem padding="around-small"  size="1">
+                          S.NO
+                      </lightning:layoutItem>
+                       <lightning:layoutItem padding="around-small"  size="2" class="recipienttype">
+                           Recipient Type
+                      </lightning:layoutItem>
+                       <lightning:layoutItem padding="around-small"  size="4" class="name">
+                           Name
+                      </lightning:layoutItem>
+                       <lightning:layoutItem padding="around-small"  size="4" class="Email">
+                           Email
+                      </lightning:layoutItem>
+                    </lightning:layout>
+                       
+                        <aura:iteration items="{!v.results}" var="result" indexVar="index" >
+                             <div  class="droparea" style="width:100%" ondragover="{!c.allowdrop}" ondrop="{!c.drop}" id="sortTrue">
+                            <lightning:layout  horizontalAlign="center" multipleRows="true" class="padding"> 
+                                 <lightning:layoutItem padding="around-small"  size="1" class="padding2">
+                                     {!index + 1}
+                                 </lightning:layoutItem>
+
+                                 <lightning:layoutItem padding="around-small"  size="2" >
+                                     <div  class="row" draggable="true" ondragstart="{!c.dragstart}" data-drag-id="{!index}" style="width:100%">
+                                        <ui:inputSelect value="{!result.Selectedvalue}" change="{!c.onselect}">
+                                            <ui:inputSelectOption text="Email"  label="Email" value="{!'Email' == result.Selectedvalue ? 'true' : 'false'}">Email</ui:inputSelectOption>
+                                            <ui:inputSelectOption text="User"  label="User" value="{!'User' == result.Selectedvalue ? 'true' : 'false'}">User</ui:inputSelectOption>
+                                           <ui:inputSelectOption text="Contact"  label="Contact" value="{!'Contact' == result.Selectedvalue ? 'true' : 'false'}">Contact</ui:inputSelectOption>
+                                        </ui:inputSelect>
+                                   </div>
+                                </lightning:layoutItem>
+                                
+                               <lightning:layoutItem padding="around-small"  size="4">
+                                  	<div  class="row" draggable="true" ondragstart="{!c.dragstart}" data-drag-id="{!index}" style="width:100%;margin-top:-20px">
+                                  		<lightning:input name="Recipient Name" type="Text"  value="{!result.Name}" />
+                                	</div>
+                             	</lightning:layoutItem>
+                                       <lightning:layoutItem padding="around-small"  size="4">
+                                            <div  class="row" style="width:100%;margin-top:-20px">
+                                                <aura:if isTrue="{!result.showContact}">
+                                            <div class="slds-col slds-size_12-of-12" >
+                                                <div class="slds-form-element" >
+                                                    <label class="slds-form-element__label slds-m-left_xx-large" for="myInput" style="font-weight: bold;font-size: 14px;position:relative;right:75px;"></label>
+                                                    <div class="slds-form-element__control" >
+                                                        <div class="slds-combobox_container">
+                                                            
+                                                            <div class="{!result.showEmaildrop ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}"
+                                                                 aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right slds-m-left_xx-large" role="none" style="margin-left: 0px;position=relative;">
+                                                                    <div class="inputBox" data-title="{!index}" style="">
+                                                                        <input type="text"
+                                                                               class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+                                                                               id="myInput" aria-autocomplete="list" aria-controls="listbox-id-11"
+                                                                               autocomplete="no" onkeyup="{!c.searchHandler}" role="textbox" onclick="{!c.searchAll}" placeholder="Please Select"
+                                                                               value="{!result.Email}"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="listbox-id-11" class="dropDownClass slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                                                     role="listbox">
+                                                                    <ul id="myUL" class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                      
+                                                                            <aura:iteration items="{!result.ContactList}" var="innerresult" >
+                                                                                <li role="presentation" class="slds-listbox__item" data-name="{!innerresult.Name}"
+                                                                                    data-value="{!innerresult.Email}" data-title="{!index}" data-Id="Contact" onclick="{!c.optionClickHandler}">
+                                                                                    <div
+                                                                                         class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                                                         role="option">
+                                                                                        <span class="slds-media__body">
+                                                                                            <span class="slds-truncate" title="All Oobjects">
+                                                                                                <span>{!innerresult.Name}</span>
+                                                                                            </span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </li>
+                                                                            
+                                                                        </aura:iteration>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>     
+                                            </div>
+                                        </aura:if>
+                                                <aura:if isTrue="{!result.showUser}">
+                                            <div class="slds-col slds-size_12-of-12" >
+                                                <div class="slds-form-element" >
+                                                    <label class="slds-form-element__label slds-m-left_xx-large" for="myInput" style="font-weight: bold;font-size: 14px;position:relative;"></label>
+                                                    <div class="slds-form-element__control" >
+                                                        <div class="slds-combobox_container">
+                                                            
+                                                            <div class="{! result.showUserdrop ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}"
+                                                                 aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right slds-m-left_xx-large" role="none" style="margin-left: 0px;position=relative;">
+                                                                    <div class="inputBox" data-title="{!index}">
+                                                                        <input type="text"
+                                                                               class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+                                                                               id="myInput" aria-autocomplete="list" aria-controls="listbox-id-11"
+                                                                               autocomplete="no" onkeyup="{!c.searchHandler}" role="textbox" onclick="{!c.searchAll}"  placeholder="Please Select"
+                                                                               value="{!result.Email}"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="listbox-id-11" class="dropDownClass slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                                                     role="listbox">
+                                                                    <ul id="myUL" class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                                            <aura:iteration items="{!result.UserList}" var="innerresult">
+                                                                                <li role="presentation" class="slds-listbox__item"  data-name="{!innerresult.Name}"
+                                                                                    data-value="{!innerresult.Email}"  data-title="{!index}" data-Id="User" onclick="{!c.optionClickHandler}">
+                                                                                    <div
+                                                                                         class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                                                         role="option">
+                                                                                        <span class="slds-media__body">
+                                                                                            <span class="slds-truncate" title="All Oobjects">
+                                                                                                <span>{!innerresult.Name}</span>
+                                                                                            </span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </li>
+                                                                            </aura:iteration>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>     
+                                            </div>
+                                        </aura:if>
+                                                <aura:if isTrue="{!result.showEmail}">
+                                            <lightning:input name="Recipient Email" type="Email" value="{!result.Email}" />
+                                        </aura:if>
+                                            </div>
+                                		</lightning:layoutItem>
+                                        <lightning:layoutItem padding="around-small"  size="1">
+                                            <a onclick="{!c.removeRow}" data-record="{!index}" >
+                                                <lightning:buttonIcon iconName="utility:delete" size="medium" alternativeText="Delete" disabled="{!v.removerow}" class="slds-button_icon-borders"/>
+                                                <span class="slds-assistive-text">Delete</span>
+                                            </a>
+                                        </lightning:layoutItem>
+                                 </lightning:layout>
+                            </div>
+                        </aura:iteration>
+                    
+                </div>
+            
+        
+            
+            </div>
+       
+        </div>
+        
+        <div class="slds-sriram" style="width=706px">
+            <!--<label class="slds-form-element__label " for="myInput" style="font-weight: bold;font-size: 14px;">Enter Email Body</label>-->
+            <lightning:input name="input1" label="Email Subject" value="{!v.emailsubject}"/>
+            
+        </div>
+        <div style="width: 100%;">
+           <label class="slds-form-element__label " for="myInput" style="font-weight: bold;font-size: 14px;">[NOTE : Must include the following tag to get the URL to the mail - {URL}]	</label>
+            
+                       <lightning:inputRichText value="{!v.emailbody}" label="Email Body" labelVisible='true'/>
+        </div>
+                
+          </div>
+        <div style="position: relative;text-align:center;padding-bottom:30px;background:white">
+            <lightning:button  label="Submit" onclick="{!c.create}" variant="brand"/>
+            <lightning:button  label="Cancel" onclick="{!c.cancel}" variant="brand"/>
+        </div>
+   
+    </div>
+             </div>
+    
+</aura:component>

@@ -1,0 +1,32 @@
+.THIS .dropdown-wrapper {
+            position: relative;
+            overflow: visible !important;
+        }
+        .THIS .slds-table {
+            position: relative;
+            overflow: visible !important;
+        }
+        .THIS .slds-table td {
+            position: relative;
+            overflow: visible !important;
+        }
+        .THIS .slds-box,
+        .THIS .slds-accordion,
+        .THIS .slds-accordion__section {
+            overflow: visible !important;
+        }
+        .THIS select {
+            width: 100%;
+            min-width: 150px;
+            padding: 0.5rem;
+            border: 1px solid #d8dde6;
+            border-radius: 0.25rem;
+            background-color: white;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        .THIS select:focus {
+            outline: none;
+            border-color: #1589ee;
+            box-shadow: 0 0 3px #0070d2;
+        }

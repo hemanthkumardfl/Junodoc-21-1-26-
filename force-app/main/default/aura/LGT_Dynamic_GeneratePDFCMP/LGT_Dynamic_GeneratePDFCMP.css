@@ -1,0 +1,99 @@
+@media (min-width: 48em){
+    .THIS .slds-modal__container {
+        width: 97% !important;
+        max-width: 50rem !important;
+        min-width: 60rem !important;
+    }
+}
+
+.THIS .buttonMobile{
+                    padding: 0.25rem 0.5rem !important;
+                    font-size: 0.70rem !important;
+                    white-space: nowrap;
+                }
+            
+               .THIS .button-bar {
+                    gap: 2px;
+                }
+
+/*.THIS iframe{
+    overflow:hidden;
+}  */
+
+.THIS .Picklist{
+    margin-top:5px
+}
+ .THIS .slds-modal__container {
+   
+    border:none;
+}
+
+/*.THIS .slds-rich-text-editor__textarea:last-child .slds-rich-text-area__content
+{
+    height:400px !important;
+}*/
+
+.THIS .slds-rich-text-editor__textarea .slds-rich-text-area__content
+{
+    height:240px !important;
+    position: relative ;
+}
+
+
+/*adjusting help text position*/
+.THIS .customIcon div{
+    vertical-align: top !important;
+}
+ 
+.THIS.customIcon div{
+    vertical-align: top !important;
+}
+
+.THIS .slds-form-element__icon{
+    position:relative;
+    top:-5px;
+}
+
+.THIS .lblSaveAsActivity {
+    position: relative;
+    top: 19px;
+    right: 95px;  
+}
+
+
+ .THIS .emailpre {
+    font-family: Salesforce Sans;
+    white-space: pre-line !important;
+    word-wrap: break-word !important;     
+    font-size:12px;    
+}
+
+.THIS .divAvailableDocTemplates .slds-select_container{
+    position:relative;
+    top:-42px;
+    left:154px;
+}
+
+.THIS caption, .THIS th, .THIS td {
+    text-align: unset; 
+    font-family: unset;
+}
+.THIS .custom-loading-text {
+    transform: rotate(-90deg);
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    white-space: nowrap;
+    font-size: 20px;
+}
+.THIS .myclass {
+width:100%;
+border-bottom: 1px solid;
+
+}
+.THIS .myUniqueClass svg {
+width: .75rem;
+height: .75rem;
+fill:red;
+
+}

@@ -1,0 +1,648 @@
+<apex:page controller="FileUploadAndReplace" sidebar="false">
+    <apex:includeScript value="{! $Resource.jQuery }"/>
+    <apex:includeScript value="{!$Resource.XlsPopulate + '/xlsx-populate-master/browser/xlsx-populate.js'}"/>
+    <!-- Include the minified version if needed -->
+    <apex:includeScript value="{!$Resource.XlsPopulate + '/xlsx-populate-master/browser/xlsx-populate-min.js'}"/>
+     <script type="text/javascript">__sfdcSessionId = '{!$Api.Session_Id}';</script> 
+     <script src="../../soap/ajax/48.0/connection.js" type="text/javascript"></script>
+     <style>
+                    .spinner {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        z-index: 9999;
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        border: 3px solid #f3f3f3;
+                        border-top: 3px solid #3498db;
+                        animation: spin 1s infinite linear;
+                    }
+					.toast-message {
+						background-color: #4CAF50;
+						color: #fff;
+						padding: 15px;
+						border-radius: 4px;
+						position: fixed;
+						top: 20px;
+						z-index: 9999;
+         				width: 50%;
+                        left: 25%;
+                        text-align: center;
+					}
+					@keyframes spin {
+						0% {
+							transform: rotate(0deg);
+						}
+						100% {
+							transform: rotate(360deg);
+						}
+					}
+				</style>
+    			<script>
+					window.addEventListener('DOMContentLoaded', function () {
+						var spinner = document.getElementById('spinner');
+						spinner.style.display = 'block'; // Show the spinner
+					});
+    
+    				function showSpinner(text) {
+                        // var spinnerText = document.getElementById('spinner-text');
+                        //  spinnerText.textContent = text;
+                        spinnerContainer.style.display = 'block';
+                    }          
+                    function hideSpinner() {
+                        spinnerContainer.style.display = 'none';
+                    } 
+    				function showToast(color,Message) {
+                        var toastElement = document.getElementById('toastMessage');
+                        toastElement.style.display = 'block';
+                        toastElement.style.backgroundColor = color;
+                        toastElement.innerHTML = Message;
+                        setTimeout(function() {
+                            toastElement.style.display = 'none';
+                        }, 10000); // Hide the toast after 3 seconds
+                    }  
+				</script>
+    <apex:form id="form">
+        		<div id="spinnerContainer" class="spinner-container">
+                    <div id="spinner" class="spinner"></div>
+                    <span id="spinner-text" class="spinner-text" style = " top: 67%;
+                                                                          position : fixed;
+                                                                          left: 52%;
+                                                                          transform: translate(-50%, -50%);
+                                                                          font-size: 14px;
+                                                                          color: #333;
+                                                                          font-weight: 900;">Excel loading, please wait...</span>
+                </div>
+                
+                <div id="toastMessage" class="toast-message" style="display: none;">
+                   
+                    
+                </div>
+        <div id="blobId">
+            
+        </div>
+        <!-- File Upload Input -->
+      <!--  <input type="file" id="fileInput" accept=".xls, .xlsx" onchange="handleUpload()"/> -->
+            
+        <!-- JavaScript functions -->
+        <script>
+            var params = '{!$CurrentPage.parameters.Id}'
+            var versionId = '{!$CurrentPage.parameters.versionId}'
+            var pptxFile = null;
+            let cId = versionId; 
+            let docTitle = 'text';
+            let docNumber = 'text';
+            let docRev = 'text';
+            let docSite = 'text';
+            let ed = 'text';
+            let recId = params;
+            let fileExtension = '';
+                
+        //  alert(params + '***' + versionId);
+            var records = params;
+            getZipFileBlob();
+             async function getZipFileBlob() {
+                    let API_VERSION = "v52.0";
+                    let API_BASE_PATH = `/services/data/${API_VERSION}`;
+                    let AUTH_HEADER = {"Authorization": "Bearer {!$Api.Session_Id}"};
+                    let cId = versionId;
+                    let GET_FILE_DETAILS_PATH = `/services/data/v52.0/query?q=SELECT+Id,+FileExtension,Title+FROM+ContentVersion+WHERE+ContentDocumentId+=+'{id}'`;
+                    let url = GET_FILE_DETAILS_PATH.replace("{id}", versionId); 
+                    let BLOB_DATA ;
+                    // Make a GET request to fetch the ContentVersion record
+                    $.ajax({
+                    type: "GET",
+                        url: url,
+                            headers: {
+                                "Authorization": "Bearer {!$Api.Session_ID}"
+                            },
+                                success: function (response) {
+                                    let headers = {
+                                        headers: AUTH_HEADER
+                                    }
+                                    // Process the record as needed
+                                    console.log('response---->   '+JSON.stringify(response));
+                                    var title = response.records[0].Title;
+                                    console.log('title----->   '+title);
+                                    fileExtension = response.records[0].FileExtension;
+                                    let FILE_DOWNLOAD_PATH = `${API_BASE_PATH}/sobjects/ContentVersion/${response.records[0].Id}/VersionData`;                    
+                                    var contentVersionId = response.records[0].Id; // Example ContentVersion ID                       
+                                    fetchVersionData(contentVersionId);    
+                                },
+                                error: function (error) {
+                                    // Handle error
+                                    console.log(error);
+                                }
+                    });
+                }
+                
+                async function fetchVersionData(contentVersionId) {
+                    const response =  await fetch('/services/data/v53.0/sobjects/ContentVersion/' + contentVersionId + '/VersionData', {
+                        headers: {
+                            'Authorization': 'Bearer {!$Api.Session_ID}',
+                            'Content-Type': 'application/json'
+                        },
+                        method: 'GET'
+                    });
+                    const blob = await response.blob();
+                    if(blob != undefined){
+                        var excelHeaderFiles = [];
+                        //   alert(fileExtension)
+                        
+                        if(fileExtension == 'xlsx' || fileExtension == 'xlsm' ||  fileExtension == 'xls'){
+                            const file = new File([blob], 'filename', {
+                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            });
+                            uploadFile(file,file.type);
+                        }
+                    }    
+                }
+            function handleUpload() {
+                var fileInput = document.getElementById('fileInput');
+                var file = fileInput.files[0];
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var data = event.target.result;
+                    uploadFile(data,file.type);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            function uploadFile(fileData,type) {
+                const arrayBuffer = fileData;
+            const uint8Array = new Uint8Array(arrayBuffer);
+            const blob = new Blob([arrayBuffer], { type: type });
+            const promise = Promise.resolve(arrayBuffer);
+            var fileData = { arrayBuffer, uint8Array, blob, promise };
+            XlsxPopulate.fromDataAsync(blob)
+            .then(function (workbook) {
+                 var fields = [];
+                 var childFields = [];
+                 var globalFields = [];
+                var sheets = workbook.sheets();
+                sheets.forEach(sheet => {
+                    // Now you can perform operations on each sheet
+                    if(sheet.usedRange() != undefined){
+                        sheet.usedRange().forEach(cell => {
+                            // Process each cell as needed
+                            if(cell.value() != undefined){
+                                if (typeof cell.value() === 'string') {
+                                    const match = cell.value().match(/\{\{([^{}]+)\}\}/);
+                                    if (match) {
+                                        if(!match[1].includes('!')){
+                                            const fieldName = match[1].replace(/\s+/g, "");   
+                                            fields.push(fieldName);     
+                                        }
+                                        else{
+                                            const fieldName = match[1].replace(/\s+/g, "");     
+                                            childFields.push(fieldName);    
+                                        }   
+                                    }
+                            		const matches = cell.value().match(/\{\!([^{}]+)\}/);
+                            		if(matches){
+                            			const raw = matches[1].replace(/\s+/g, ""); // Remove spaces
+											console.log('raw *****'+ raw);
+                                            if (!raw.includes('.')) {
+                                            	globalFields.push(raw);
+                                           }
+                            		}
+                                }
+                            }
+                        });    
+                    }
+                });
+                
+                console.log(records + 'records****' + fields + 'Fields************'+ JSON.stringify(globalFields))
+                JunoDoc.FileUploadAndReplace.getGlobalValues(globalFields, function(globs,event){
+                if (event.status) {     
+                      	sheets.forEach(sheet => {
+                            var globLists = globs;
+                            const globalMap = {};
+                            globLists.forEach(item => {
+                                globalMap[item.label.replace(/\s+/g, '')] = item.value;
+                            });
+                            if(sheet.usedRange() != undefined){
+                            	sheet.usedRange().forEach(cell => {
+                            		if(cell.value() != undefined){
+                            			if (typeof cell.value() === 'string') {
+                            				const matches = cell.value().match(/\{\!([^{}]+)\}/);
+                            				if(matches){
+                            					const fieldName = matches[1].replace(/\s+/g, "");
+                            					if (!fieldName.includes('.')) {
+                            						var values = '';
+                            						if(fieldName.includes('Today()') || fieldName.includes('Yesterday()') || fieldName.includes('Tomorrow()')){
+                            							 	if (globalMap[fieldName] !== undefined) {
+                            									values = cell.value().replace(cell.value(), globalMap[fieldName]);
+                            									var dateValue = new Date(globalMap[fieldName]); // Your date value
+                                                                cell.value(dateValue);
+                                                                cell.style('numberFormat', 'yyyy-mm-dd');
+                            									
+                                                            }
+                            						}
+                            						else if(fieldName.includes('Now()')){
+                            							if (globalMap[fieldName] !== undefined) {
+                                                            values = cell.value().replace(cell.value(), globalMap[fieldName]);
+                                                            var dateValue = new Date(globalMap[fieldName]); // Your date value
+                                                            cell.value(dateValue);
+                                                            cell.style('numberFormat', 'yyyy-mm-dd hh:mm:ss');                                                       
+                                                       	}
+                            						}
+                            						else{
+                            							if (globalMap[fieldName] !== undefined) {
+                            								values = cell.value().replace(cell.value(), globalMap[fieldName]);
+                            							}
+                            						}
+                            						cell.value(values);
+                                                }
+                            				}
+                            			}
+                            		}
+                            	});
+                            }                          
+                   		});
+                JunoDoc.FileUploadAndReplace.getObjectDatas(records,fields, function(newResrec, event) {
+                    if (event.status) {
+                        if (newResrec.errorMessage) {
+                            showToast('red',newResrec.errorMessage)
+                            hideSpinner();
+        				} 
+                       	else {
+                        	sheets.forEach(sheet => {
+                            var newRes = newResrec.sObjectRecord;
+                            if(sheet.usedRange() != undefined){
+                            // Now you can perform operations on each sheet
+                            sheet.usedRange().forEach(cell => {
+                                // Process each cell as needed
+                                if(cell.value() != undefined){
+                                    if (typeof cell.value() === 'string') {
+                                        const match = cell.value().match(/\{\{([^{}]+)\}\}/);
+                                        if (match) {
+                                            const mergeField = match[0];
+                                            const fieldName = match[1].replace(/\s+/g, "");
+                            	
+                                            if(!match[1].includes('!')){
+                            					var actualValue = '';
+                                                if(match[1].includes('.')){
+                                                    var fieldslists = match[1].split('.');
+                                                    if(fieldslists.length >= 4){
+                                                        actualValue = '';
+                                                        if(newRes[fieldslists[0]] != undefined){
+                                                            if(newRes[fieldslists[0]][fieldslists[1]] != undefined){
+                                                                if(newRes[fieldslists[0]][fieldslists[1]][fieldslists[2]]){
+                                                                    actualValue = newRes[fieldslists[0]][fieldslists[1]][fieldslists[2]][fieldslists[3]]; 
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    else if(fieldslists.length >= 3){
+                                                        actualValue = '';
+                                                        if(newRes[fieldslists[0]] != undefined){
+                                                            if(newRes[fieldslists[0]][fieldslists[1]] != undefined){
+                                                                actualValue = newRes[fieldslists[0]][fieldslists[1]][fieldslists[2]]; 
+                                                            }
+                                                        }
+                                                       console.log('actualValue **** ' + actualValue);
+                            							var values = '';
+                                                    	if(actualValue != 'undefined' && actualValue != undefined){
+                                                        	values = cell.value().replace(cell.value(), actualValue);
+                            							}
+                                                        cell.value(values);
+                                                    }
+                                                    else if(fieldslists.length >= 2){
+                                                        var actualValue = '';
+                                                        if(newRes[fieldslists[0]] != undefined){
+                                                            actualValue = newRes[fieldslists[0]][fieldslists[1]]; 
+                                                        }
+                            					   }
+                            					  	if(actualValue != 'undefined' && actualValue != undefined){
+                            					  	if(newResrec.fieldMap[fieldName] == 'DATE'){
+                            							var values = cell.value().replace(cell.value(), actualValue);
+                                                        var dateValue = new Date(actualValue); // Your date value
+                            							cell.value(dateValue);
+                                                        cell.style('numberFormat', 'yyyy-mm-dd'); // Custom date format (e.g., YYYY-MM-DD)
+                            						}
+                            						else if(newResrec.fieldMap[fieldName] == 'DATETIME'){
+                            							var values = cell.value().replace(cell.value(), actualValue);
+                                                        var dateValue = new Date(actualValue);
+                            							cell.value(dateValue);
+                                                        cell.style('numberFormat', 'yyyy-mm-dd hh:mm:ss');
+                            						}
+                            						else if(newResrec.fieldMap[fieldName] == 'BOOLEAN'){
+                            							var values = cell.value().replace(cell.value(), actualValue);
+                            							var numericValue = values ? 1 : 0; 
+                                                    	cell.value(numericValue);
+                            							cell.style('numberFormat', '[=1]"☑";[=0]"☐";"☒"');
+                            						}
+                                                    else{
+                                                    	console.log('actualValue **** ' + actualValue);
+                            							var values = '';
+                                                    	if(actualValue != 'undefined' && actualValue != undefined){
+                                                        	values = cell.value().replace(cell.value(), actualValue);
+                            							}
+                                                        cell.value(values);
+                                                   	}
+                								  }
+                                                    else{
+                                                        values = cell.value().replace(cell.value(), '');
+                                                        cell.value(values);
+                                                    } 
+                                                }
+                                                else{
+                                                    actualValue = newRes[fieldName]; 
+                                                    console.log('actualValue **** ' + actualValue);
+                                                    if(actualValue != 'undefined' && actualValue != undefined){
+                                                        console.log(JSON.stringify(newResrec.fieldMap)+' ***** Types ****** '+newResrec.fieldMap);
+                                                        if(newResrec.fieldMap[fieldName] == 'DATE'){
+                                                            var values = cell.value().replace(cell.value(), actualValue);
+                                                            var dateValue = new Date(actualValue); // Your date value
+                                                            cell.value(dateValue);
+                                                            cell.style('numberFormat', 'yyyy-mm-dd'); // Custom date format (e.g., YYYY-MM-DD)
+                                                        }
+                                                        else if(newResrec.fieldMap[fieldName] == 'DATETIME'){
+                                                            var values = cell.value().replace(cell.value(), actualValue);
+                                                            var dateValue = new Date(actualValue);
+                                                            cell.value(dateValue);
+                                                            cell.style('numberFormat', 'yyyy-mm-dd hh:mm:ss');
+                                                        }
+                                                        else if(newResrec.fieldMap[fieldName] == 'BOOLEAN'){
+                                                            var values = cell.value().replace(cell.value(), actualValue);
+                                                            var numericValue = values ? 1 : 0; 
+                                                            cell.value(numericValue);
+                                                            cell.style('numberFormat', '[=1]"☑";[=0]"☐";"☒"');
+                                                        }
+                                                        else if(newResrec.fieldMap[fieldName] == 'CURRENCY'){
+                                                            var values = cell.value().replace(cell.value(), actualValue);
+                                                            cell.value(values);
+                                                            cell.style("numberFormat", "$#,##0.00");
+                                                        }
+                                                            else if(newResrec.fieldMap[fieldName] == 'NUMBER'){
+                                                                var values = cell.value().replace(cell.value(), actualValue);
+                                                                cell.value(values);
+                                                                cell.style("numberFormat", "#,##0.00");
+                                                            }
+                                                        else{
+                                                            var values = cell.value().replace(cell.value(), actualValue);
+                                                            cell.value(values);
+                                                        }
+                                                    } 
+                                                    else{
+                                                       var values = cell.value().replace(cell.value(), '');
+                                                       cell.value(values); 
+                                                    }
+                                                }  
+                                            }
+                                        }
+                                    }
+                                }
+                            }); 
+        					}
+                        });
+                            JunoDoc.FileUploadAndReplace.getChildObjectDatas(records,childFields, function(newRes, event) {
+                                if (event.status) {
+                                    console.log(newRes.length)
+                                    if (newRes.length === 0) {
+                                    } else if (newRes[0].errorMessage) {
+                                         showToast('red',newRes[0].errorMessage)
+                                        hideSpinner();
+                                        return;
+                                    } else {
+                                    	for(var k=0;k< newRes.length;k++){
+                                            var cellstyle = {}
+                                            var cellMap = new Map();
+                                            var rownum = 0;
+                                            var columnNumberMap  = new Map();
+                                            for(var m=0;m < newRes[k].sObjectRecords.length;m++){
+                                                sheets.forEach(sheet => {
+                                                    if(sheet.usedRange() != undefined){
+                                                    sheet.usedRange().forEach(cell => {
+                                                        // Process each cell as needed
+                                                            
+                                                            
+                                                            if(cell.value() != undefined){
+                                                            
+                                                            if (typeof cell.value() === 'string') {
+                                                                const match = cell.value().match(/\{\{([^{}]+)\}\}/);
+                                                                
+                                                                if (match) {
+                                                                    const fieldName = match[1].replace(/\s+/g, "");
+                                                                    if(match[1].includes('!') && fieldName.includes('!'+newRes[k].objectName)){
+                                                                        
+                                                                        var objs = fieldName.split('.'); 
+                                                                        var actualValue = ''; 
+                                                                        if(objs.length >= 6){
+                                                                            actualValue = newRes[k].sObjectRecords[m][objs[2]][objs[3]][objs[4]][objs[5]]; 
+                                                                        }
+                                                                        else if(objs.length >= 5){
+                                                                            actualValue = newRes[k].sObjectRecords[m][objs[2]][objs[3]][objs[4]]; 
+                                                                        }
+                                                                        else if(objs.length >= 4){
+                                                                            actualValue = newRes[k].sObjectRecords[m][objs[2]][objs[3]]; 
+                                                                        }
+                                                                        else{
+                                                                            actualValue = newRes[k].sObjectRecords[m][objs[2]]; 
+                                                                        }
+                                                                        
+                                                                        if(m==0){
+                                                                            if(rownum == 0)
+                                                                            rownum = cell.rowNumber()
+                                                                            cellstyle = cell.style(["bold","italic","underline","strikethrough","subscript","superscript","fontSize","fontFamily","fontGenericFamily","fontScheme","fontColor","horizontalAlignment","justifyLastLine","indent","verticalAlignment","wrapText","shrinkToFit","textDirection","textRotation","angleTextCounterclockwise","angleTextClockwise","rotateTextUp","rotateTextDown","verticalText","fill","border","borderColor","borderStyle"]);
+                                                                            
+                                                                            cellMap.set(cell.value(),cellstyle);
+                                                                            var rows = [];
+                                                                            if(columnNumberMap.get(cell.columnNumber()) == undefined){
+                                                                                sheet.usedRange().forEach((currentCell) => {
+                                                                                    if (cell.rowNumber() < currentCell.rowNumber() && cell.columnNumber() == currentCell.columnNumber()) {
+                                                                                        isRowEmpty = false;
+                                                                                        rows.push(currentCell.value());
+                                                                                        cellstyle = currentCell.style(["bold","italic","underline","strikethrough","subscript","superscript","fontSize","fontFamily","fontGenericFamily","fontScheme","fontColor","horizontalAlignment","justifyLastLine","indent","verticalAlignment","wrapText","shrinkToFit","textDirection","textRotation","angleTextCounterclockwise","angleTextClockwise","rotateTextUp","rotateTextDown","verticalText","fill","border","borderColor","borderStyle"]);			                                                                   
+                                                                                        cellMap.set(''+currentCell.value(),cellstyle); 
+                                                                                        console.log(cellMap.get(currentCell.value())+' *** currentCell.value **** ' + currentCell.value());
+                                                                                        columnNumberMap.set(cell.columnNumber(),rows);
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                        }
+                                                                        if(m>=1){
+                                                                            
+                                                                            cell.style({ bold: cellMap.get(cell.value()).bold, italic: cellMap.get(cell.value()).italic,fontColor: cellMap.get(cell.value()).fontColor,fontSize : cellMap.get(cell.value()).fontSize,fontFamily : cellMap.get(cell.value()).fontFamily,fill : cellMap.get(cell.value()).fill });
+                                                                        } 
+                                                                        var values = '';
+                                                                        
+                                                                        var q = m + rownum;
+                                                                        if(q == cell.rowNumber()){
+                                                                            if(m == (newRes[k].sObjectRecords.length-1)){
+                                                                                var newvalues = [];
+                                                                                if(actualValue != 'undefined' && actualValue != undefined){
+                                                                                    console.log(JSON.stringify(newResrec.fieldMap)+' ***** Types ****** '+newResrec.fieldMap);
+                                                                                    if(newResrec.fieldMap[fieldName] == 'DATE'){
+                                                                                        
+                                                                                        var dateValue = new Date(actualValue); // Your date value
+                                                                                        newvalues.push([dateValue]);
+                                                                                        cell.style('numberFormat', 'yyyy-mm-dd'); // Custom date format (e.g., YYYY-MM-DD)
+                                                                                    }
+                                                                                    else if(newResrec.fieldMap[fieldName] == 'DATETIME'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        var dateValue = new Date(actualValue);
+                                                                                        newvalues.push([dateValue]);
+                                                                                        cell.style('numberFormat', 'yyyy-mm-dd hh:mm:ss');
+                                                                                    }
+                                                                                    else if(newResrec.fieldMap[fieldName] == 'BOOLEAN'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        var numericValue = values ? 1 : 0; 
+                                                                                        newvalues.push([dateValue]);
+                                                                                        cell.style('numberFormat', '[=1]"☑";[=0]"☐";"☒"');
+                                                                                    }
+                                                                                    else if(newRes[k].fieldMap[fieldName] == 'CURRENCY'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        newvalues.push([values]);
+                                                                                        cell.style("numberFormat", "$#,##0.00");
+                                                                                    }
+                                                                                    else if(newRes[k].fieldMap[fieldName] == 'NUMBER'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        newvalues.push([values]);
+                                                                                        cell.style("numberFormat", "#,##0.00");
+                                                                                    }
+                                                                                    else{
+                                                                                        values = cell.value().replace(cell.value(), actualValue);
+                                                                                        newvalues.push([values]);
+                                                                                    }
+                                                                                } 
+                                                                                else{
+                                                                                   values = cell.value().replace(cell.value(), '');
+                                                                                   newvalues.push([values]);
+                                                                                }
+                                                                                
+                                                                                
+                                                                                if(columnNumberMap.get(cell.columnNumber()) != undefined){
+                                                                                    var rows = columnNumberMap.get(cell.columnNumber());
+                                                                                    for(n=0;n<rows.length;n++){
+                                                                                        if(rows[n] != undefined && rows[n] != 'undefined' && rows[n] != ''){
+                                                                                            newvalues.push([rows[n]]);
+                                                                                        } 
+                                                                                        else{
+                                                                                            newvalues.push([]);
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                
+                                                                                cell.value(newvalues);
+                                                                                  // Now let's apply styles to each individual cell
+                                                                                for (var i = 0; i < newvalues.length; i++) {
+                                                                                    for (var j = 0; j < newvalues[i].length; j++) {
+                                                                                        var targetCell = sheet.cell(cell.rowNumber() + i, cell.columnNumber() + j);
+                                                                                        // Apply styles to the target cell
+                                                                                        console.log(newvalues + ' ******* ' + newvalues[i] + ' ******** ' + cellMap.get(newvalues[i]) + '********'+ cellMap.get('LineNumber'));
+                                                                                        if(cellMap.get(''+newvalues[i]) != undefined)
+                                                                                        targetCell.style({ bold: cellMap.get(''+newvalues[i]).bold, italic: cellMap.get(''+newvalues[i]).italic,fontColor: cellMap.get(''+newvalues[i]).fontColor,fontSize : cellMap.get(''+newvalues[i]).fontSize,fontFamily : cellMap.get(''+newvalues[i]).fontFamily,fill : cellMap.get(''+newvalues[i]).fill });
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            else{
+                                                                                var newvalues = [];
+                                                                                if(actualValue != 'undefined' && actualValue != undefined){
+                                                                                    console.log(JSON.stringify(newResrec.fieldMap)+' ***** Types ****** '+newResrec.fieldMap);
+                                                                                    if(newRes[k].fieldMap[fieldName] == 'DATE'){
+                                                                                        var dateValue = new Date(actualValue); // Your date value
+                                                                                        newvalues.push([dateValue]);
+                                                                                        cell.style('numberFormat', 'yyyy-mm-dd'); // Custom date format (e.g., YYYY-MM-DD)
+                                                                                    }
+                                                                                    else if(newRes[k].fieldMap[fieldName] == 'DATETIME'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        var dateValue = new Date(actualValue);
+                                                                                        newvalues.push([dateValue]);
+                                                                                        cell.style('numberFormat', 'yyyy-mm-dd hh:mm:ss');
+                                                                                    }
+                                                                                    else if(newRes[k].fieldMap[fieldName] == 'BOOLEAN'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        var numericValue = values ? 1 : 0; 
+                                                                                        newvalues.push([dateValue]);
+                                                                                        cell.style('numberFormat', '[=1]"☑";[=0]"☐";"☒"');
+                                                                                    }
+                                                                                    else if(newRes[k].fieldMap[fieldName] == 'CURRENCY'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        newvalues.push([values]);
+                                                                                        cell.style("numberFormat", "$#,##0.00");
+                                                                                    }
+                                                                                    else if(newRes[k].fieldMap[fieldName] == 'NUMBER'){
+                                                                                        var values = cell.value().replace(cell.value(), actualValue);
+                                                                                        newvalues.push([values]);
+                                                                                        cell.style("numberFormat", "#,##0.00");
+                                                                                    }
+                                                                                    else{
+                                                                                        values = cell.value().replace(cell.value(), actualValue);
+                                                                                        newvalues.push([values]);
+                                                                                    }
+                                                                                } 
+                                                                                else{
+                                                                                   values = cell.value().replace(cell.value(), '');
+                                                                                   newvalues.push([values]);
+                                                                                }
+                                                                                newvalues.push([cell.value()]);
+                                                                                /*for(n=0;n<rows.length;n++){
+                                                                                   console.log('rows[n] **********'+rows[n]);
+                                                                                   if(rows[n] != undefined && rows[n] != 'undefined' && rows[n] != ''){
+                                                                                       //newvalues.push([rows[n]]);
+                                                                                    }
+                                                                                }*/
+                                                                                cell.value(newvalues);
+                                                                            }
+                                                                        }
+                                                                        
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        
+                                                    }); 
+                                                    }
+                                                });
+                                            }    
+                                        }  
+                                  	}
+                                    	console.log('Complete sheet')
+                                     	workbook.outputAsync("base64")
+                                        .then(function (blobs) {
+                                            
+                                            var datas = JSON.stringify({message :  blobs});
+                                            const base64String = blobs;
+                                            const binaryData = atob(base64String);
+                                            const array = new Uint8Array(binaryData.length);
+                                            for (let i = 0; i < binaryData.length; i++) {
+                                                array[i] = binaryData.charCodeAt(i);
+                                            }
+                                            const blob = new Blob([array], { type: 'application/octet-stream' });
+                                           
+                                            // Function to send a message to the parent window (Lightning component)
+                                             window.parent.postMessage(datas, '*'); 
+                                            const downloadLink = document.createElement('a');
+                                            downloadLink.href = window.URL.createObjectURL(blob);
+                                            downloadLink.download = 'modified_excel.'+fileExtension;
+                                            document.body.appendChild(downloadLink);
+                                            downloadLink.click();
+                                            document.body.removeChild(downloadLink);
+                                            showToast('#4CAF50','Primary Content Updated Successfully.')
+                                            hideSpinner();
+                                        }) 
+                                }
+                                else{
+                                    hideSpinner();
+                                    //  alert('Child error');
+                                }
+                            });
+        				}
+                    } 
+                    else{
+                        hideSpinner();
+                        //  alert('error occured');    
+                    }
+        		
+                }); 
+        		}
+        		});
+                });
+            }
+        </script>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,80 @@
+<aura:component controller="AuditData" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	 <aura:html tag="style">
+        .modal-container slds-modal__container {
+          width: 85%;
+    margin: 0 auto;
+    width: 80%;
+    max-width: 80rem;
+    min-width: 20rem;
+         }
+        
+    </aura:html>
+        <aura:attribute name="indexval" type="Integer" default="0"/>
+    <aura:attribute name="VFPage" type="boolean" default="false"/>
+
+ <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> <!-- calling doInit method in Component Controller -->
+    
+    <aura:attribute name="accLst" type="Account[]"/> <!-- create Array type Account variable-->
+    <article class="slds-card">
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+          <div class="slds-media__figure">
+            <span class="slds-icon_container slds-icon-standard-account" title="description of icon when needed">
+                <lightning:icon iconName="standard:account" size="large" alternativeText="List account"/>
+            </span>
+          </div>
+          <div class="slds-media__body">
+            <h2>
+              <a href="javascript:void(0);" class="slds-card__header-link slds-truncate" title="Account">
+                <span class="slds-text-heading_small">Audit Trail</span>
+              </a>
+            </h2>
+          </div>
+        </header>
+       </div>
+        
+      <div class="slds-card__body">
+                      
+              <aura:iteration items="{!v.accLst}" var="acc" >
+                  <div>
+                  <aura:if isTrue="{!acc.JunoDoc__Status__c=='Pending' ? 'true' : 'false'}">
+                      
+                     Mail sent to <b>{!acc.Name}</b> On <b>{!acc.JunoDoc__Date__c}</b> . <!-- <b>{!acc.JunoDoc__Date_Time__c}</b> -->
+                       </aura:if>
+                  <aura:if isTrue="{!acc.JunoDoc__Status__c=='Viewed' ? 'true' : 'false'}">
+                     File Viewed by <b>{!acc.Name}</b> On  <b>{!acc.JunoDoc__Date__c}</b> . <!-- {!acc.JunoDoc__Date_Time__c} -->
+                       </aura:if>
+                  <aura:if isTrue="{!acc.JunoDoc__Status__c=='Signed' ? 'true' : 'false'}">
+                      File signed by <b>{!acc.Name}</b> On  <b>{!acc.JunoDoc__Date__c}</b> . <!-- {!acc.JunoDoc__Date_Time__c} -->
+                       </aura:if>
+                       <aura:if isTrue="{!acc.JunoDoc__Status__c=='Rejected' ? 'true' : 'false'}">
+                      File Rejected <b>{!acc.Name}</b> On  <b>{!acc.JunoDoc__Date__c}</b> .  <!-- {!acc.JunoDoc__Date_Time__c} -->
+                       </aura:if>
+                  </div>
+                  &nbsp;
+                  <div></div>
+                  <!-- iteration account record.-->
+                 <!-- <tr class="slds-hint-parent">
+                      <th scope="row">
+                          <div class="slds-truncate" title="Adam Choi"><a href="javascript:void(0);">{!acc.Name}</a></div>
+                          
+                      </th>
+                      <td>
+                          <div class="slds-truncate" title="Company One">{!acc.IP_Address__c}</div>
+                      </td>
+                      <td>
+                          <div class="slds-truncate" title="{!acc.JunoSign_Transaction__r.Name}">{!acc.JunoSign_Transaction__r.Name}</div>
+                      </td>
+                      <td>
+                          <div class="slds-truncate" title="{!acc.Date__c}">{!acc.Date__c}</div>
+                      </td>
+                      <td>
+                          <div class="slds-truncate" title="{!acc.Status__c}">{!acc.Status__c}</div>
+                      </td>
+                  </tr>  -->                   
+              </aura:iteration>
+        
+        <!--</table>-->
+      </div>
+    </article>
+</aura:component>

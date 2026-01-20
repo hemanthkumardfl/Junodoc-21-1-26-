@@ -1,0 +1,20 @@
+<apex:page sidebar="False">
+    <apex:includeLightning />
+   
+    <div id="LcDisplayId"></div> 
+    <script>
+        
+        $Lightning.use("JunoDoc:JunoInpersonSignApp", function() {
+        $Lightning.createComponent("JunoDoc:JunoInpersonSign",
+        { 
+           
+            recordId : "{!$CurrentPage.parameters.id}",
+            VFPage : "true",
+            isInPerson : "true"
+        },
+       "LcDisplayId",
+        function(component) {
+        });
+     });
+    </script>
+</apex:page>

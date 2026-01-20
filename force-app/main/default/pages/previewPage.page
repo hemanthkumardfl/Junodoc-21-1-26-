@@ -1,0 +1,11 @@
+<apex:page Controller="previewPage_AC" docType="html-5.0" standardStylesheets="true" showHeader="false" sidebar="false" applyHtmlTag="false" cache="true">
+      <html>
+    
+     <body> 
+        
+        <div class="content" >
+            <apex:dynamicComponent componentValue="{!ClassroomRelatedLists}" />      
+         </div>
+      </body>
+    </html>   
+</apex:page>

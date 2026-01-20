@@ -1,0 +1,175 @@
+<aura:component controller="PostAction_AC" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:attribute name="docList" type="List"/>
+    <aura:attribute name = "Fields" type = "List"/>
+    <!--<aura:attribute name = "UpdateList" type = "List"/>-->
+    <!--<aura:attribute name="SelectedUpdate" type="String" default = ""/>-->
+    <aura:attribute name="SelectedValue" type="String" default = ""/>
+    <aura:attribute name="value" type="String" />
+    <aura:attribute name="SelectedFieldValue" type="String" default = ""/>
+    <aura:attribute name="GenerateCheck" type="Boolean" />
+    <aura:attribute name="AttachCheck" type="Boolean" />
+    <aura:attribute name="MailCheck" type="Boolean" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:html tag="style">
+        .slds-modal__container {
+        width:55% !important;      
+        max-width: 55% !important;   
+        overflow: hidden !important;
+        
+        }
+        .slds-modal__content {
+        overflow: hidden !important;
+        height:auto !important;
+        max-height:auto !important;
+        }
+        .slds-modal__close{
+        display:block !important;    
+        }  
+    </aura:html>
+    
+    <div class="slds-modal__content">
+        <div class="slds slds-scope">
+            <header class="slds-modal__header">
+                <div class="slds-text-heading_medium" id="header" style="font-size:17px;">
+                    Post Action
+                </div>
+            </header>    
+            <div class=" slds-p-around_medium" id="pageTop" style="overflow-y:auto">
+                <div class="slds-modal__content slds-p-around_small " style="height:auto;">
+                    <aura:html tag="style">
+                        .slds-modal__container {
+                        width:55% !important;      
+                        max-width: 55% !important;    
+                        height: 99% !important;
+                        }
+                        
+                        .slds-modal__content {
+                        padding: 0 0rem !important;
+                        height:90% !important;
+                        max-height:90% !important;
+                        
+                        }
+                        .cuf-content {
+                        padding: 0 0rem !important;
+                        }
+                        .slds-p-around--medium {
+                        padding: 0rem !important;
+                        }   
+                    </aura:html>
+                    <div style = "display:inline-flex;margin-top:3%; width:100%">
+                                <div style="text-align:left;display:inline-flex; width:100%">
+                                    <div style = "color:red">Note: </div>&nbsp;&nbsp; <div style = "display:inline-flex;" >Date Format Should be in YYYY-MM-DD </div>
+                                </div>
+                                <div class="slds-form-element slds-text-align_center" style="text-align:right; width:100%">
+                                    <lightning:button label="Add Row" variant="brand" onclick="{!c.addRow}"/>
+                                </div><br/>
+                        </div>
+                    <div class = "slds-scrollable_y" style = "overflow-y:auto">
+                        <div class="container-fluid" style="height:620px;margin-top:0.5%;">        
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered"> 
+                                <thead>
+                                    <tr class="slds-text-title_caps">
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="No">No</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Field Name">Field Name</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Value">Value</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Update TYpe">Update Type</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Action">Action</div>
+                                        </th>
+                                    </tr>
+                                </thead>   
+                                <tbody>
+                                    <aura:iteration items="{!v.docList}" var="acc" indexVar="index">
+                                        <tr style = "max-height:75%">
+                                            <td> 
+                                                {!index + 1}
+                                            </td> 
+                                            <td style = "width:40%;">
+                                                <lightning:combobox variant= "label-hidden" value="{! acc.SelectedValue}" options="{! v.Fields }" onchange = "{!c.valueType}" />
+                                            </td>
+                                            <td style = "width:40%">
+                                                <aura:if isTrue = "{!OR(acc.FieldType=='STRING',acc.FieldType=='INTEGER')}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="255" value="{!acc.value}" />
+                                                </aura:if>
+                                                <aura:if isTrue = "{!OR(acc.FieldType=='PHONE',acc.FieldType=='EMAIL')}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="255" value="{!acc.value}" />
+                                                </aura:if>
+                                                <aura:if isTrue = "{!OR(acc.FieldType=='REFERENCE',acc.FieldType=='DECIMAL')}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="255" value="{!acc.value}" />
+                                                </aura:if>
+                                                <aura:if isTrue = "{!OR(acc.FieldType=='CURRENCY',acc.FieldType=='DOUBLE')}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="255" value="{!acc.value}" />
+                                                </aura:if>
+                                                <aura:if isTrue = "{!OR(acc.FieldType=='ID',acc.FieldType=='URL')}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="255" value="{!acc.value}" />
+                                                </aura:if>
+                                                <aura:if isTrue = "{!acc.FieldType=='TEXTAREA'}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="131072" value="{!acc.value}" />
+                                                </aura:if>
+                                                <aura:if isTrue = "{!acc.FieldType=='PERCENT'}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="255" value="{!acc.value}" />
+                                                </aura:if>
+                                                <aura:if isTrue = "{!acc.FieldType=='BOOLEAN'}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="checkbox" value="{!acc.Check}" checked = "{!acc.Check}"/>
+                                                </aura:if>
+                                                <aura:if isTrue = "{!OR(acc.FieldType=='DATETIME',acc.FieldType=='DATE')}">
+                                                    <lightning:input variant= "label-hidden" name="value" type="text" maxlength="50" value="{!acc.value}" />
+                                                    
+                                                </aura:if>
+                                                <aura:if isTrue = "{!acc.FieldType=='PICKLIST'}">
+                                                    <ui:inputSelect value="{! acc.value}" class="FieldValue-class" aura:id="getFieldValueId">
+                                                        <aura:iteration var="option" items="{! acc.PickValues }">
+                                                            <option value="{! option.pickvalue }" selected="{!option.pickvalue == acc.value}">{! option.picklabel }</option>
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>
+                                                </aura:if>
+                                                <!--<aura:if isTrue = "{!acc.FieldType == 'MULTIPICKLIST'}">
+                                                    <lightning:dualListbox sourceLabel="Available" 
+                                                                           selectedLabel="Selected" 
+                                                                           options="{!acc.PickValues}" 
+                                                                           value="{!acc.MultiPickValues}"/>
+                                                </aura:if>-->
+                                            </td>
+                                            <td style = "width:40%;">
+                                                    <lightning:input label = "Generate PDF" name="value" type="checkbox" value="{!acc.GenerateCheck}" checked = "{!acc.GenerateCheck}"/>
+                                                    <lightning:input label = "Attach PDF" name="value" type="checkbox" value="{!acc.AttachCheck}" checked = "{!acc.AttachCheck}"/>
+                                                    <lightning:input label = "Send PDF" name="value" type="checkbox" value="{!acc.MailCheck}" checked = "{!acc.MailCheck}"/>
+                                                <!--<ui:inputSelect value="{! acc.SelectedUpdate}" aura:id="getUpdateTypeId">
+                                                        <aura:iteration var="option" items="{! acc.UpdateList }">
+                                                            <option value="{! option.value }" selected="{!option.value == acc.SelectedUpdate}">{! option.label }</option>
+                                                        </aura:iteration>
+                                                    </ui:inputSelect>-->
+                                            </td>
+                                            <td>
+                                                <a onclick="{!c.removeRecord}" data-record="{!index}">
+                                                    <lightning:icon iconName="utility:delete" size="small" alternativeText="Delete"/>
+                                                    <span class="slds-assistive-text">Delete</span>
+                                                </a>
+                                            </td> 
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <footer role="contentinfo"  class="slds-docked-form-footer fixedFooter" style="display:block;height:60px;text-align:right;padding-right:10px;padding-top:10px;">
+                
+                <lightning:button variant="brand" label="Save Action" onclick="{!c.doSave}" />
+                <lightning:button variant="neutral" label="Cancel" onclick="{!c.doCancel}" />
+                
+            </footer>
+        </div>
+    </div>
+    
+</aura:component>

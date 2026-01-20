@@ -1,0 +1,138 @@
+<aura:component controller="FormulaBuilder" implements="force:appHostable,forceCommunity:availableForAllPageTypes" access="global" >
+    <aura:attribute name="toggleSpinner" type="boolean" default="false" />
+    <!-- Need to pass this APIName Dyanamically -->
+    <aura:attribute name="ObjectAPIName" type="string" default="QuoteLineItem" />
+    <aura:attribute name="parents" type="string" default="" />
+    <aura:attribute name="ObjectLabelName" type="string" />
+    <aura:attribute name="InitialObjectFields" type="List" />
+    <aura:attribute name="FirstLevelObjectFields" type="List" />
+    <aura:attribute name="SecondLevelObjectFields" type="List" />
+    <aura:attribute name="ThirdLevelObjectFields" type="List" />
+    <aura:attribute name="FinalLevelObjectFields" type="List" />
+    <aura:attribute name="FirstLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="SecondLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="ThirdLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="FinalLevSelectedFieldDetails" type="string" />
+    <aura:attribute name="FirstLevField" type="string" />
+    <aura:attribute name="SecondLevField" type="string" />
+    <aura:attribute name="ThirdLevField" type="string" />
+    <aura:attribute name="FinalLevField" type="string" />
+    <aura:attribute name="ShowLevel1" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel2" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel3" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel4" type="boolean" default="false" />
+    <aura:attribute name="ShowLevel5" type="boolean" default="false" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    
+    <aura:if isTrue="{!v.toggleSpinner}">
+        <div class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <div style="background-color:white;slds-p-around_small;overflow:auto;" id="myDiv">
+        <table style="width:100%" >
+            <tbody>
+                <tr class="selectTableRow" id="selectTableRow">
+                  <!--  <td style="width:5%;" class="slds-p-around_small">
+                        <select id="FieldTreeSelect0" name="FieldTreeSelect0" size="9" title="Insert Field" style="display: inline;">
+                            <option value="{!v.ObjectAPIName}" onclick="{!c.GetMainObjectFields}">{!v.ObjectLabelName}</option>
+                        </select>
+                    </td> -->
+                    <td style="width:15%;" class="slds-p-around_small">
+                        <aura:if isTrue="{!v.ShowLevel1}">
+                            <select id="FieldTreeSelect0" name="FieldTreeSelect0" size="9" title="Insert Field" style="display: inline;" onchange="{!c.GetFirstLevelSelectedField}">
+                                <aura:iteration items="{!v.InitialObjectFields}" var="Field">
+                                    <option value="{!Field.APIName+'@@@'+Field.LookUpAPIName+'@@@'+Field.Label}" label="{!Field.Label}" ></option>
+                                </aura:iteration>
+                            </select>
+                        </aura:if>
+                    </td>
+                    <td style="width:15%;" class="slds-p-around_small">
+                        <aura:if isTrue="{!v.ShowLevel2}">
+                            <aura:if isTrue="{!if(v.FirstLevSelectedFieldDetails != undefined,true,false)}">
+                                <div style="border:1px solid black;" class="slds-box">	
+                                    <center><b>You have selected:</b> </center>
+                                    <center style="font-family: Arial,Helvetica,sans-serif;"><p aura:id="pId1">{!v.FirstLevSelectedFieldDetails}</p></center>
+                                	<center><lightning:button iconName="utility:copy_to_clipboard"
+                          				onclick="{!c.copyHardcoreTextFirst}"
+                          					label="Copy Text"
+                          						aura:id="btn1"/> </center>
+                                </div>
+                                <aura:set attribute="else">
+                                    <select id="FieldTreeSelect0" name="FieldTreeSelect0" size="9" title="Insert Field" style="display: inline;" onchange="{!c.GetSecLevelSelectedField}">
+                                        <aura:iteration items="{!v.FirstLevelObjectFields}" var="Field">
+                                            <option value="{!Field.APIName+'@@@'+Field.LookUpAPIName+'@@@'+Field.Label}" aura:id="{!Field.APIName}">{!Field.Label}</option>
+                                        </aura:iteration>
+                                    </select>
+                                </aura:set>
+                            </aura:if>
+                        </aura:if>
+                    </td>
+                    <td style="width:15%;" class="slds-p-around_small">
+                        <aura:if isTrue="{!v.ShowLevel3}">
+                            <aura:if isTrue="{!if(v.SecondLevSelectedFieldDetails != undefined,true,false)}">
+                                <div style="border:1px solid black;" class="slds-box">
+                                    <center><b>You have selected:</b> </center>
+                                    <center><p aura:id="pId2">{!v.SecondLevSelectedFieldDetails}</p> </center>
+                                    <center> <lightning:button iconName="utility:copy_to_clipboard"
+                          				onclick="{!c.copyHardcoreTextSecond}"
+                          					label="Copy Text"
+                                                               aura:id="btn1"/></center>
+                                </div>
+                                <aura:set attribute="else">
+                                    <select id="FieldTreeSelect0" name="FieldTreeSelect0" size="9" title="Insert Field" style="display: inline;" onchange="{!c.GetThirdLevelSelectedField}">
+                                        <aura:iteration items="{!v.SecondLevelObjectFields}" var="Field">
+                                            <option value="{!Field.APIName+'@@@'+Field.LookUpAPIName+'@@@'+Field.Label}" aura:id="{!Field.APIName}" >{!Field.Label}</option>
+                                        </aura:iteration>
+                                    </select>
+                                </aura:set>
+                            </aura:if>
+                        </aura:if>
+                    </td>
+                    <td style="width:15%;" class="slds-p-around_small">
+                        <aura:if isTrue="{!v.ShowLevel4}">
+                            <aura:if isTrue="{!if(v.ThirdLevSelectedFieldDetails != undefined,true,false)}">
+                                <div style="border:1px solid black;" class="slds-box">
+                                    <center><b>You have selected:</b> </center>
+                                    <center><p aura:id="pId3">{!v.ThirdLevSelectedFieldDetails}</p></center>
+                                    <center><lightning:button iconName="utility:copy_to_clipboard"
+                          				onclick="{!c.copyHardcoreTextThird}"
+                          					label="Copy Text"
+                                                              aura:id="btn1"/></center>
+                                </div>
+                                <aura:set attribute="else">
+                                    <select id="FieldTreeSelect0" name="FieldTreeSelect0" size="9" title="Insert Field" style="display: inline;"  onchange="{!c.GetFinalLevelSelectedField}">
+                                        <aura:iteration items="{!v.ThirdLevelObjectFields}" var="Field">
+                                            <option value="{!Field.APIName+'@@@'+Field.LookUpAPIName+'@@@'+Field.Label}" aura:id="{!Field.APIName}">{!Field.Label}</option>
+                                        </aura:iteration>
+                                    </select>
+                                </aura:set>
+                            </aura:if>
+                        </aura:if>
+                    </td>
+                    
+                    <td style="width:15%;" class="slds-p-around_small">
+                        <aura:if isTrue="{!v.ShowLevel5}">
+                            <aura:if isTrue="{!if(v.FinalLevSelectedFieldDetails != undefined,true,false)}">
+                                <div style="border:1px solid black;" class="slds-box">
+                                    <center><b>You have selected:</b> </center>
+                                    <center><p aura:id="pId4">{!v.FinalLevSelectedFieldDetails}</p></center>
+                                    <center><lightning:button iconName="utility:copy_to_clipboard"
+                          				onclick="{!c.copyHardcoreTextFInal}"
+                          					label="Copy Text to clipboard"
+                          						aura:id="btn1"/></center>
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                    </td> 
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</aura:component>

@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="Event to notify parent when rows are empty">
+    <aura:attribute name="isChecked" type="Boolean"/>
+</aura:event>

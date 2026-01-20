@@ -1,0 +1,162 @@
+<apex:page applyBodyTag="false" sidebar="false" showHeader="false" title="Object Selector">
+    <html>
+        <body>
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <!--<a class="navbar-brand" href="#">
+                    <img src="./assets/images/icon32.png" width="30" height="30" class="d-inline-block align-top" alt="">PDF To Image
+                </a>-->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <small>
+                                <a class="nav-link text-muted" href="https://pdflite.co/">Explore all free tools</a>
+                            </small>
+                        </li>
+                        <li class="nav-item">
+                            <small>
+                                <a class="nav-link text-muted" href="https://chrome.google.com/webstore/search/pdflite?_category=extensions">Install as free browser plugin</a>
+                            </small>
+                        </li>
+                        <li class="nav-item">
+                            <small>
+                                <a class="nav-link text-muted" href="https://pdf.co/?utm_source=pdf-to-image-plugin">
+                                    Need to automate? Try <strong>PDF.co API</strong>
+                                </a>
+                            </small>
+                        </li>
+                        <li class="nav-item">
+                            <small>
+                                <i class="fa fa-envelope-o"></i>
+                                <a class="nav-link text-muted" href="https://support.bytescout.com/hc/en-us/requests/new?subject=PDFLite.co%20PDF%20To%20Image%20Customization%20Request">Request customization</a>
+                            </small>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2>PDF to Image Conversion</h2>
+                    <small class="text-muted">Click on "Select File" to select input file and proceed with converting to image.</small>
+                    <br/>
+                    <small class="text-muted">
+                        100% privacy: your files are <strong>not</strong>
+                        uploaded and everything works in your browser only.
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div id="divFileSelector" class="row">
+                <div class="col-sm-12">
+                    <div class="panel text-center">
+                        <p class="lead">
+                            <input id="fileInput" style="display:none" type="file" accept="application/pdf"/>
+                            <button type="button" class="btn btn-primary btn-lg btnSelectFile">
+                                <span class="oi oi-data-transfer-upload"></span>
+                                Select File
+                            </button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="divInfo" style="display:none">
+                <div class="alert alert-default" role="alert">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <strong>
+                                <span id="spnInputFileName">sample1.pdf</span>
+                            </strong>
+                            ,&nbsp;Pages:&nbsp;
+                            <strong>
+                                <span id="spnPageNums"></span>
+                            </strong>
+                            ,&nbsp;Pages Selected: 
+                            <strong>
+                                <span id="spnTotalPageSelected"></span>
+                            </strong>
+                        </div>
+                        <div class="col-md-3 text-right">
+                            <button type="button" class="btn btn-sm btn-default clsSelectAll">
+                                <span class="oi oi-circle-check"></span>
+                                Select All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-default clsDeselectAll">
+                                <span class="oi oi-circle-x"></span>
+                                Deselect All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row col-sm-12">
+                        <small>Select pages (click to select):</small>
+                    </div>
+                </div>
+                <div id="divAllImagePreview" class="row align-items-center"></div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <hr/>
+            <div id="divProcess" style="display:none" class="form-group row">
+                <div class="col-md-12 text-center">
+                    <button id="btnProcess" type="button" class="btn btn-lg btn-primary">
+                        <span class="oi oi-data-transfer-download"></span>
+                        Convert To Images and Save
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <small class="col-lg-12 col-md-12 small text-muted">
+                        100% PRIVACY FOR YOUR FILES AND DATA: This app does not upload your files or data and everything is processed on your computer only.<br/>
+                        Configurations options (not your files or data!) can be stored inside your browser's so called <i>local storage</i>
+                        . To clean it up simply clean <i>stored application data</i>
+                        in the browser Settings.
+                    </small>
+                </div>
+            </div>
+        </div>
+        <p>&nbsp;</p>
+        <div class="modal fade" id="mdlImgPreview" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mldImgPreviewTitle">Preview</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <img id="imgMagnifyPreview"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tmplPagePrev" style="display:none">
+            <div class="col-xs-4 col-sm-3 col-md-2 clsCard">
+                <div class="clsCardContainer">
+                    <img class="clsImgPreview"/>
+                    <span class="clsCheck">
+                        <span class="oi oi-check" data-width="24" data-height="24"></span>
+                    </span>
+                    <a class="float-right clsMagnify" title="Page Preview" href="javascript:">
+                        <span class="oi oi-magnifying-glass"></span>
+                    </a>
+                    <a class="float-right clsDownload" title="Save page as jpg" href="javascript:">
+                        <span class="oi oi-arrow-circle-bottom"></span>
+                        <small>Save page as jpg</small>
+                    </a>
+                    <span class="badge badge-primary spnPageNo"></span>
+                    <input type="hidden" class="hdnPageNo"/>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="https://pdflite.co/pdf-to-image/assets/js/index_production.js"></script>
+            
+    </body>
+    </html>
+</apex:page>

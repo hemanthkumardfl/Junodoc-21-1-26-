@@ -1,0 +1,31 @@
+<apex:page standardStylesheets="false" applyBodyTag="false" sidebar="false"  title="Object Selector">
+     <html>
+    <head>
+        <title>Object Selector</title>
+    </head>
+    <apex:includeLightning />
+    
+    <style>
+        html, body {
+        margin: 0;
+        padding: 0;
+        }
+        #lightningComponent {width: 100%;}
+    </style>
+
+    <div id="content">
+        <div id="lightningComponent" />
+    </div>
+    <script>
+    $Lightning.use("JunoDoc:MasterObjectSelectorApp", function() {
+        $Lightning.createComponent("JunoDoc:MasterObjectSelector",
+                                   {},
+                                   "lightningComponent",
+                                   function(cmp) {
+                                       
+                                   }
+                                  );
+    });
+    </script>
+    </html>
+</apex:page>

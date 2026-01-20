@@ -1,0 +1,130 @@
+<apex:page action="{!methodone}" 
+    showQuickActionVfHeader="false" 
+    title="Testpage" 
+    controller="PreviewTemplatePDF_AC" 
+    applyBodyTag="false" 
+    showHeader="false" 
+    sidebar="false"  
+    standardStylesheets="false"
+    applyHtmlTag="false" 
+    renderAs="pdf">  
+
+    <html>
+        <head>
+            <title>Case</title>
+            <style type="text/css" media="print">
+                /* First Page Styling */
+                @page:first {
+                    padding-top: 0px;
+                    margin: {!margin};
+                    margin-top: {!HeaderFirstmargin};
+                    margin-bottom: {!FooterFirstmargin};
+                    size: {!height};
+                    background-image: {!backgroundImage};
+                    background-position: right;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                	margin-left:{!marginLeft};
+                }
+
+                /* General Page Styling */ 
+                @page {
+                    padding-top: 0px;
+                    margin: {!margin};
+                    margin-top: {!Headermargin};
+                    margin-bottom: {!Footermargin};
+                    size: {!height};
+                    background-image: {!backgroundImage};
+                    background-position: right;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                	margin-left:{!marginLeft};
+
+                    @bottom-right {
+                        {!pageNumber};
+                    }
+
+                    @top-center {
+                        content: element(header);
+                    }
+
+                    @bottom-left {
+                        content: element(footer);
+                    }
+                }
+
+                /* Header Styling */
+                div.header {
+                    display: block;
+                    padding: {!padding};
+                    padding-left: {!paddingLeft};
+                    position: running(header);
+                	margin-left:{!marginLeftHeader};
+                }
+
+                /* Footer Styling */
+                div.footer {
+                    padding: 0px;
+                    padding-left: {!paddingLeft};
+                    margin-top: 0px;
+                    position: running(footer);
+                	margin-left:{!marginLeftHeader};
+                }
+
+                /* Table Styling */
+                td {
+                    height: auto !important;
+                	
+                }
+  
+                /* table {
+                   page-break-inside: avoid;
+                }*/
+                
+               
+                
+                 tr {
+                    border-collapse: collapse !important;
+                	border: none !important;
+                }
+                
+                thead {
+                    display: table-header-group; /* Repeats header if table spans pages */
+                }
+            
+                tbody {
+                    display: table-row-group;
+                }
+
+                /* Page-specific Styling */
+                @page:first {
+                    {!hideheaderfooter};
+                    {!pageNumber};
+                }
+
+                /* Body Styling */
+                body {
+                    font-family: 'Arial Unicode MS';
+                }
+				 
+				 .pagenumber:before {
+                content: counter(page);
+                }
+                
+                .pagecount:before {
+                content: counter(pages);
+                }
+                
+                a{
+                	text-decoration:none
+                }
+                
+              
+            </style>
+        </head>
+        <body>
+             
+            <apex:outputText value="{!output}" escape="false" />
+        </body>
+    </html>
+</apex:page>

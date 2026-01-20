@@ -1,0 +1,246 @@
+<aura:component controller="JunosignObjectSettings" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <aura:attribute name="docTemplate" type="string"/>
+    <aura:attribute name="options" type="List" />
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="imgUrl" type="String" />
+    <aura:attribute name="fileName" type="String" /> 
+    <aura:attribute name="isText" type="String" default="false" /> 
+    <aura:attribute name="options2" type="List" default="[ ]"/>
+    <aura:attribute name="toggleSpinner" type="boolean" default="false"/>
+    
+    <aura:attribute name="results" type="List" />
+    <aura:attribute name="openDropDown" type="Boolean" default="false" />
+    <aura:attribute name="selectedOption" type="String" />
+    <aura:attribute name="inputValue" type="String" />
+    <aura:attribute name="DocTemplates" type="String" />
+    
+    <aura:attribute name="inputSearchFunction" type="Object" />
+    <aura:attribute name="showButton" type="Boolean" />
+    <aura:attribute name="selectedFormat" type="string" default=""/>
+    <aura:attribute name="sObjName" type="string" default="Quote"/>
+    <aura:attribute name="variable1" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name = "accList" type ="list"></aura:attribute>
+    <aura:attribute name = "ccaccList" type ="list"></aura:attribute>
+    
+    <aura:attribute name="Spinner" type="Boolean" />
+    <aura:attribute name="AvailableDocTemplatesList" type="List" default="[]"/>    
+    <aura:attribute name="DocTemplateId" type="String" />
+    <aura:attribute name="ObjectAPIName" type="String" /> 
+    <aura:attribute name="AvailableDocTemplateSelectedValue" type="String" default=""/>    
+    <aura:attribute name="isDocTemplate" type="boolean" default="false"/>
+    <aura:attribute name="DocTemplatesWraplist" type="list" />
+     <aura:attribute name="showLoadingSpinner" type="boolean" default="false"/>
+    <aura:attribute name="isSendPDF" type="boolean" default="false"/>
+    <aura:attribute name="toUserEmailsList" type="list" />
+    <aura:attribute name="toContactEmailsList" type="list" />
+    <aura:attribute name="toEmails" type="String" />  
+    <aura:attribute name="SetSenderDisplayName" type="String" />            
+    <aura:attribute name="subject" type="String" />
+    <aura:attribute name="emailbody" type="String" />   
+    <aura:attribute name="SaveAsActivity" type="Boolean" default="true" />   
+    <aura:attribute name="JunoDocPDFTemplatesList" type="List" default="[]"/> 
+    <aura:attribute name="selectedValues" type="String" />
+    <aura:attribute name="isDocWordTemplate" type="boolean" default="false"/>
+    <aura:attribute name="isDocExcelTemplate" type="boolean" default="false"/>
+    <aura:attribute name="activeSections" type="List" default="['A','B','C']" />    
+     <aura:attribute name="SetReplyTo" type="String" />
+    <aura:attribute name="ToTextEmailsList" type="list" />
+    <aura:attribute name="ToEmailMergeFieldsList" type="list" />    
+    <aura:attribute name="CCTextEmailsList" type="list" />
+    <aura:attribute name="CCEmailMergeFieldsList" type="list" />        
+    <aura:attribute name="BCCTextEmailsList" type="list" />
+    <aura:attribute name="BCCEmailMergeFieldsList" type="list" />
+    <aura:attribute name="JunodocUrl" type="String" default="apex"/>    
+    <aura:attribute name="VFPage" type="boolean" default="false"/>   
+    <aura:attribute name="isSuccess" type="boolean" default="false"/> 
+    <aura:attribute name="isError" type="boolean" default="false"/> 
+    <aura:attribute name="message" type="string" default="false"/>
+    <aura:attribute name="OrgEmailAddrId" type="String" />
+    
+    <!--<aura:handler name="OrgEmailSelectedEvent" event = "JunoDoc:AddOrgEmailEvent" action="{!c.handleOrgEmailEvent}"/>-->
+    <aura:html tag="style">
+        .slds-brand-band {
+        background : white;
+        background-color: white;
+        padding:0px;
+        }
+    </aura:html>
+    <div style="background:white">
+        <div style="Background:white;width:100%;">
+            <div class="slds-page-header slds-page-header_record-home" style="background-color: #6564db !important;  height: 50px;">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                            <div class="slds-media__figure" style="max-width: 190px;position: relative;bottom: 13px;">
+                                <span class="slds-icon_container">
+                                    <img src="{!$Resource.JunoSign}" class="imageClass slds-m-top_xxx-small" title="Juno DOc Logo"/>       
+                                </span>
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        <h1>
+                                            <span class="slds-text-heading_small"></span>	
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="gridClas slds-grid slds-gutters slds-p-around_large">
+            
+            <div class="slds-col slds-size_12-of-12">
+                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                    <div class="slds-col slds-size_12-of-12">
+                        <aura:if isTrue="{!v.isSuccess}">
+                            <div style="background: #034107e0;color: white;padding: 10px;border-radius: 5px;font-weight: 600;Z-index:1000;text-align:center" >Saved Successfully</div>
+                        </aura:if> 
+                    </div>
+                    <div class="slds-col slds-size_4-of-12">
+                        
+                    </div>  
+                    <div class="slds-col slds-size_4-of-12" >
+                        <div class="slds-form-element" >
+                            <label class="slds-form-element__label " for="myInput" style="font-weight: bold;font-size: 14px;position:relative;">Select Primary Object</label>
+                            <div class="slds-form-element__control" style="position:relative;">
+                                <div class="slds-combobox_container">
+                                    <div class="{! v.openDropDown ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}"
+                                         aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right slds-m-left_xx-large" role="none" style="margin-left: 0px;position=relative;">
+                                            <div class="inputBox">
+                                                <input type="text"
+                                                       class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+                                                       id="myInput" aria-autocomplete="list" aria-controls="listbox-id-11"
+                                                       autocomplete="no" onkeyup="{!c.searchHandler}" role="textbox" onclick="{!c.searchAll}" placeholder="Please Select"
+                                                       value="{!v.inputValue}"/>
+                                            </div>
+                                        </div>
+                                        <div id="listbox-id-11" class="dropDownClass slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                             role="listbox">
+                                            <ul id="myUL" class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <aura:iteration items="{!v.results}" var="result">
+                                                    <li role="presentation" class="slds-listbox__item"
+                                                        data-value="{!result.value}" onclick="{!c.optionClickHandler}">
+                                                        <div
+                                                             class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                             role="option">
+                                                            <span class="slds-media__body">
+                                                                <span class="slds-truncate" title="All Oobjects">
+                                                                    <span>{!result.label}</span>
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </aura:iteration>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>     
+                    </div>
+                    <div class="slds-col slds-size_4-of-12">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>  
+        <div class="gridClas slds-grid slds-gutters slds-p-around_large" style="display:none;">
+            
+            <div class="slds-col slds-size_12-of-12">
+                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                    <div class="slds-col slds-size_12-of-12">
+                        <div style="border:1px solid lightgray;border-radius:5px;padding:10px;margin-top:10px" >
+                            <lightning:layout multipleRows = "true">
+                                <lightning:layoutitem size="2">
+                                    <div style="padding-bottom: 5px;"><label style="font-size:15px;font-weight:600">Select Logo</label></div>
+                                    <div><lightning:input aura:id="fileId" onchange="{!c.handleFilesChange}" type="file" variant="label-hidden" name="file" label="" multiple="false" accept="image/png,image/jpeg,image/jpg"/>
+                                        
+                                        <aura:if isTrue="{!v.isText}">
+                                            <div class="slds-text-body_small slds-text-color_error">{!v.fileName} </div>
+                                        </aura:if> 
+                                        
+                                        <!--use aura:if for show-hide the loading spinner image--> 
+                                        <aura:if isTrue="{!v.showLoadingSpinner}">
+                                            <div class="slds-text-body_small slds-text-color_error">Uploading... 
+                                                <img src="/auraFW/resources/aura/images/spinner.gif" class="spinner-img" alt="Loading"/>'
+                                            </div>
+                                        </aura:if><br/>
+                                        <button class="slds-button slds-button_brand" onclick="{!c.doSave}">Save</button>
+                                    </div>
+                                </lightning:layoutitem>
+                                <lightning:layoutitem size="6">
+                                    <div style="width: 100%;text-align: center;margin-bottom: 20px;">
+                                        <img src="{!v.imgUrl}" id="logoImg" />
+                                    </div>
+                                </lightning:layoutitem>
+                            </lightning:layout>	
+                        </div>    
+                    </div>
+                </div>
+            </div>
+        </div> 
+        
+        <aura:if isTrue="{!v.variable1}">
+            <div>
+                <div class="gridClas slds-grid slds-gutters slds-p-around_large">
+                    <div class="slds-col slds-size_12-of-12">
+                        <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                            <div class="slds-col slds-size_2-of-12">
+                                
+                            </div>         
+                            <div class="slds-col slds-size_8-of-12">
+                                <div class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small" style="width:100%;">
+                                    <c:AddEmailReceipient ObjectAPIName="{!v.inputValue}" accList="{!v.accList}" docTemplate="{!v.DocTemplates}"   isSigneeMapping="true" />
+                                <!--EmailAddressSelectedValue="{!v.OrgEmailAddrId}"-->
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_2-of-12">
+                                
+                            </div>     
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slds-grid slds-wrap slds-grid--pull-padded slds-m-bottom_small">
+                    <div class="slds-col slds-size_1-of-12 slds-var-m-left_x-large" style="position: relative;">
+                    </div>
+                    <div class="slds-col slds-size_3-of-12 slds-var-m-left_x-large" style="position: relative;">
+                        <!-- Junodoc Doc Templates:
+            
+            <lightning:helptext content="Select JunoDoc Email Template to auto fill Subject and Body." class="customIcon" style="bottom:2px"/>
+            -->
+                    </div>
+                    <!-- <div class="slds-col slds-size_8-of-12" style="position:relative;right:50px;width: 600px;">
+            <ui:inputSelect class="slds-select" label="" aura:id="InputSelectSingle1" value="{!v.DocTemplates}">
+                    <ui:inputSelectOption text="" label="choose one..."/>
+                    <aura:iteration items="{!v.JunoDocPDFTemplatesList}" var="EmailTemplate">
+                        <ui:inputSelectOption text="{!EmailTemplate.value}" label="{!EmailTemplate.label}" value="{!EmailTemplate.value == v.DocTemplates ? 'true' : 'false'}"/>	
+                    </aura:iteration>
+                </ui:inputSelect>
+            
+            </div> -->
+                </div>
+            </div>
+            
+            
+            
+        </aura:if>  
+        <aura:if isTrue="{!v.toggleSpinner}" >
+            <div aura:id="spinnerId" class="slds-spinner_container" style="position:fixed; ">
+                <div class="slds-spinner_container">
+                    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div></div>
+        </aura:if>
+    </div>
+</aura:component>

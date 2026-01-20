@@ -1,0 +1,141 @@
+<aura:component controller="MasterObjectSelector_MOD_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,lightning:isUrlAddressable" access="global" >
+    <aura:attribute name="options" type="List" />
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="results" type="List" />
+    <aura:attribute name="openDropDown" type="Boolean" default="false" />
+    <aura:attribute name="selectedOption" type="String" />
+    <aura:attribute name="inputValue" type="String" />
+    <aura:attribute name="inputSearchFunction" type="Object" />
+    <aura:attribute name="showButton" type="Boolean" />
+    <aura:attribute name="selectedFormat" type="string" default=""/>
+    
+    <aura:attribute name="PDFStyle" type="string" default=""/>
+    <aura:attribute name="EmailStyle" type="string" default=""/>
+    <aura:attribute name="WordStyle" type="string" default=""/>
+    <aura:attribute name="ExcelStyle" type="string" default=""/>
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />
+    <aura:html tag="style">
+        .slds-brand-band {
+        background : white;
+        }
+    </aura:html>
+    <div style="Background:white;width:100%;height: 70vh;">
+        <div class="slds-page-header slds-page-header_record-home" style = "filter: drop-shadow(0 0 2px #f0f0f0) !important;">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container" style = "padding-left:9px;padding-top:6px">
+                                <img src="{!$Resource.JunoDoc}" class="imageClass slds-m-top_xxx-small" title="Juno Doc Logo"/>       
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-text-heading_small"></span>	
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>     
+        <div class="gridClas slds-grid slds-gutters slds-p-around_large" style="background: #ffffff;padding-top: 35px;padding-bottom: 35px;margin-left:0px">
+            <div class="slds-col slds-size_12-of-12">
+                <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                    <div class="slds-col slds-size_3-of-12">
+                    </div>  
+                    <div class="slds-col slds-size_6-of-12">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label slds-m-left_xx-large" for="myInput" style="font-weight: bold;font-size: 14px;color: #0a0a0a;padding-bottom:10px">Select Primary Object</label>
+                            <div class="slds-form-element__control">
+                                <div class="slds-combobox_container">
+                                    <div class="{! v.openDropDown ? 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open' : 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click'}"
+                                         aria-expanded="true" aria-haspopup="listbox" role="combobox" >
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right slds-m-left_xx-large" role="none">
+                                            <div class="inputBox">
+                                                <input type="text"
+                                                       class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value "
+                                                       id="myInput" aria-autocomplete="list" aria-controls="listbox-id-11"
+                                                       autocomplete="no" onkeyup="{!c.searchHandler}" role="textbox" onclick="{!c.searchAll}" placeholder="Please Select"
+                                                       value="{!v.inputValue}"/>
+                                            </div>
+                                        </div>
+                                        <div id="listbox-id-11" class="dropDownClass slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+                                             role="listbox">
+                                            <ul id="myUL" class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <aura:iteration items="{!v.results}" var="result">
+                                                    <li role="presentation" class="slds-listbox__item"
+                                                        data-value="{!result.value}" onclick="{!c.optionClickHandler}">
+                                                        <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                                                             role="option">
+                                                            <span class="slds-media__body">
+                                                                <span class="slds-truncate" title="All Oobjects">
+                                                                    <span>{!result.label}</span>
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </aura:iteration>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>     
+                    </div>
+                    <div class="slds-col slds-size_3-of-12">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>  
+        
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem size="2" padding="around-small">
+                
+            </lightning:layoutItem>
+            <lightning:layoutItem size="2" padding="around-small">
+                <div class="slds-col sldscol slds-size_1-of-1 slds-large-size_3-of-12 slds-small-size_12-of-12 slds-medium-size_6-of-12" style = "border:none !important; box-shadow: 1px 3px 5px 3px rgba(0,0,0,0.25) !important;">
+                    <!--<div class="sldscoldiv"> <lightning:icon iconName="standard:document" aura:id="PDF" class="PDF" alternativeText="PDF" title="PDF" size="large"/><br/> <br/>Create PDF <br/> Template </div>-->
+                    <div class="{!v.PDFStyle}"><div style = "height:30%;width:30%;margin-left:35%"><center><img src = "{!$Resource.PDF_Icon2}"/></center></div><br/><div style = "color:#647d98">PDF Template</div><br/> <center><div class = "slds-box slds-box_small hoverclass" style = "border:none !important; width:60%; height:5%;padding-top:3px;padding-bottom:3px; font-size:13px" aura:id="PDFdiv" onclick="{!c.selectFormat}" data-value="PDF">Create</div></center></div>
+                    
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="2" padding="around-small">
+                <div class="slds-col sldscol slds-size_1-of-1 slds-large-size_3-of-12 slds-small-size_12-of-12 slds-medium-size_6-of-12" style = "border:none !important; box-shadow: 1px 3px 5px 3px rgba(0,0,0,0.25) !important;">
+                    <!-- <div class="sldscoldiv"><lightning:icon iconName="standard:email" aura:id="EMAIL" class="Email" alternativeText="Email" title="Email" size="large"/><br/><br/>Create Email <br/>Template</div>-->
+                    <div class="{!v.EmailStyle}"><div style = "height:30%;width:30%;margin-left:35%"><center><img src = "{!$Resource.Email_Icon2}"/></center></div><br/><div style = "color:#647d98">Email Template</div><br/> <center><div class = "slds-box slds-box_small hoverclass" style = "border:none !important; width:60%; height:5%;padding-top:3px;padding-bottom:3px; font-size:13px"  aura:id="EMAILdiv" onclick="{!c.selectFormat}" data-value="EMAIL">Create</div></center></div>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="2" padding="around-small">
+                <div class="slds-col sldscol slds-size_1-of-1 slds-large-size_3-of-12 slds-small-size_12-of-12 slds-medium-size_6-of-12" style = "border:none !important; box-shadow: 1px 3px 5px 3px rgba(0,0,0,0.25) !important;" >
+                    <!--  <div class="sldscoldiv"	><lightning:icon iconName="doctype:word" alternativeText="WORD DOC" title="WORD DOC" size="large"/><br/><br/>Create Word <br/>Template <br/></div>-->
+                    <div class="{!v.WordStyle}"><div style = "height:30%;width:30%;margin-left:35%"><center><img src = "{!$Resource.Word_Icon2}"/></center></div><br/><div style = "color:#647d98">Word Template</div><br/> <center><div class = "slds-box slds-box_small hoverclass" style = "border:none !important; width:60%; height:5%;padding-top:3px;padding-bottom:3px; font-size:13px" data-value="WORD"  onclick="{!c.selectFormat}">Create</div></center></div>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="2" padding="around-small">
+                <!--  <div class="{!v.ExcelStyle}"  data-value="EXCEL" style="background: #f3f3f3;opacity: 0.3;">
+            <div class="sldscoldiv"><lightning:icon iconName="doctype:excel" alternativeText="EXCEl" title="EXCEl" size="large"/> <br/>Create Excel Template <br/><b>Coming Soon</b></div>
+        </div> -->
+                <div class="slds-col sldscol slds-size_1-of-1 slds-large-size_3-of-12 slds-small-size_12-of-12 slds-medium-size_6-of-12" style = "border:none !important; box-shadow: 1px 3px 5px 3px rgba(0,0,0,0.25) !important;"><!--background: #f3f3f3;opacity: 0.3;background: #f3f3f3;opacity: 0.3;"-->
+                    <!--<div class="sldscoldiv"><lightning:icon iconName="doctype:excel" alternativeText="EXCEl" title="EXCEl" size="large"/><br/> <br/>Create Excel <br/>Template</div>-->
+                    <div class="{!v.ExcelStyle}"><div style = "height:30%;width:30%;margin-left:35%"><center><img src = "{!$Resource.Excel_Icon}"/></center></div><br/><div style = "color:#647d98">Excel Template</div><br/> <center><div class = "slds-box slds-box_small hoverclass "  style = "border:none !important; width:60%; height:5%;padding-top:3px;padding-bottom:3px; font-size:13px"  data-value="EXCEL" onclick="{!c.selectFormat}">Create</div></center></div>
+                </div>  
+            </lightning:layoutItem>
+            
+        </lightning:layout>
+        
+        
+        
+        <!--<div style="text-align:center;margin-top:20px">
+         <lightning:button variant="brand"
+                                          label="Go To Template Builder"
+                                          title="Go To Template Builder"
+                                          class="buttonsstyle"
+                                          onclick="{!c.redirectToPdfBuilder}"/>
+        </div>-->
+    </div>
+</aura:component>
