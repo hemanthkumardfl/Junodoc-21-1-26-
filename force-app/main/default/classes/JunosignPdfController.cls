@@ -1457,7 +1457,7 @@ emailList.add(email);*/
                     if(!Test.isRunningTest()) {
                         if (isAllRecipientEmail == false) {
                             Messaging.SendEmailResult[] Signresults2 = Messaging.sendEmail(Signeemessages2);
-                            Messaging.SendEmailResult[] Senderresults2 = Messaging.sendEmail(Sendermessages2);
+                           // Messaging.SendEmailResult[] Senderresults2 = Messaging.sendEmail(Sendermessages2);
                         }
                     }
             

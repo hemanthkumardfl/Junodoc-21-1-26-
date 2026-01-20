@@ -2829,7 +2829,7 @@
                                     fieldNode.innerHTML = `
                                         <div class="signaturedragfield textInput"
                                             data-type="${dataType}"
-                                            style="padding:0px !important;justify-content:center;width:70%;max-width:100px;min-width:80px;font-size:xx-small;height:20px;"
+                                            style="padding:0px !important;justify-content:center;width:70%;max-width:100px;min-width:60px;font-size:xx-small;height:15px;"
                                             onclick="openSignaturePad(event)">
                                             ${placeholderText}
                                         </div>`;
@@ -2859,7 +2859,7 @@
                                         <div class="signaturedragfield"
                                             id="signeditIcon"
                                             data-type="signature"
-                                            style="padding:0px !important;justify-content:center;width:70%;max-width:100px;min-width:60px;font-size:xx-small;height:20px;"
+                                            style="padding:0px !important;justify-content:center;width:50%;max-width:100px;min-width:60px;font-size:xx-small;height:15px;"
                                             onclick="openSignaturePad(event)">
                                             Sign Here
                                         </div>`;
@@ -2884,7 +2884,7 @@
                                 fieldNode.setAttribute('data-dateorderno', dateCount);
 
                                 const dateHTML = isPhone ?
-                                    '<div class="signaturedragfield textInput" id="textEdit" data-type="date" style="padding:0px !important;justify-content:center;width:70%;max-width:100px;min-width:60px;font-size:xx-small;height:20px;" onclick="addDate(event)"> MM/DD/YYYY </div>' :
+                                    '<div class="signaturedragfield textInput" id="textEdit" data-type="date" style="padding:0px !important;justify-content:center;width:70%;max-width:100px;min-width:60px;font-size:xx-small;height:15px;" onclick="addDate(event)"> MM/DD/YYYY </div>' :
                                     '<div class="signaturedragfield textInput" id="textEdit" data-type="date" style="padding:0px !important;justify-content:center;" onclick="addDate(event)"> MM/DD/YYYY </div>';
 
                                 fieldNode.innerHTML = dateHTML + `
