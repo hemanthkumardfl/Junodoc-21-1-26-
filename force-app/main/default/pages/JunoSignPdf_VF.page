@@ -214,7 +214,7 @@
                                 </svg>
                                 Type
                             </div>
-                            <div class="signature-tab" data-tab="upload">
+                          <!--  <div class="signature-tab" data-tab="upload">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
                                     strokeLinejoin="round">
@@ -223,7 +223,7 @@
                                     <line x1="12" y1="3" x2="12" y2="15"></line>
                                 </svg>
                                 Upload
-                            </div>
+                            </div> -->
                             <!-- div class="signature-tab" data-tab="camera">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
@@ -1656,7 +1656,8 @@
 
                     // Create the date element
                     const dateElement = document.createElement('div');
-                    // dateElement.className = 'date-element';
+                    //dateElement.className = 'date-element';
+                    dateElement.setAttribute('data-element', 'date-element');
                     dateElement.id = dateId;
                     dateElement.textContent = formattedDate;
 
@@ -2144,7 +2145,7 @@
 
                     // Get the image inside the wrapper
                     const img = element.querySelector('img');
-                    const dateElement = element.querySelector('.date-element');
+                    const dateElement = element.querySelector('[data-element="date-element"]'); // element.querySelector('.date-element');
                     if (!img && !dateElement) return;
 
                     let isResizing = true;
@@ -2267,7 +2268,7 @@
 
                     // Get the image inside the wrapper
                     const img = element.querySelector('img');
-                    const dateElement = element.querySelector('.date-element');
+                    const dateElement = element.querySelector('[data-element="date-element"]'); //element.querySelector('.date-element');
                     if (!img && !dateElement) return;
 
                     let isResizing = true;
@@ -2484,7 +2485,7 @@
                                 const y = height - (relativeTop / scale) * yScale;
 
                                 if (sig.type === "date") {
-                                    const dateElement = sig.element.querySelector(".date-element");
+                                    const dateElement = sig.element.querySelector('[data-element="date-element"]'); //sig.element.querySelector(".date-element");
                                     if (dateElement) {
                                         const text = dateElement.textContent || "";
                                         const fontSize = 12;

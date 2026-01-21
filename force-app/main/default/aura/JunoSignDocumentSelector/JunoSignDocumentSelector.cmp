@@ -6,7 +6,8 @@
     <aura:attribute name="defaultDocTemplate" type="Object" />
     <aura:registerEvent name="docSelectorEvt" type="c:JunoSignDocumentSelectorEvt"/>
     
-    <aura:attribute name="filetype" type="List" default="['.pdf','.docx']" />
+    <!-- <aura:attribute name="filetype" type="List" default="['.pdf','.docx']" /> -->
+    <aura:attribute name="filetype" type="List" default="['.pdf']" />
     <aura:attribute name="multiple" type="Boolean" default="true" />
     <aura:attribute name="disabled" type="Boolean" default="true" />
     <aura:attribute name="recordId" type="String" />
