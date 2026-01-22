@@ -1505,6 +1505,10 @@
                     //wrapper.style.left = `${centerX - (sigWidth / 2)}px`; // Adjusted for new width
                     //       wrapper.style.top = `${centerY - (sigHeight / 2)}px`; // Adjusted for new height
 
+                    if(isPhone){
+                        wrapper.style.top = '-10px'
+                    }
+
                     wrapper.appendChild(signatureImg);
                     wrapper.appendChild(deleteControl);
 
@@ -1671,7 +1675,7 @@
                     dateElement.style.width = isMobile ? '60px' : '100px'; // Smaller on mobile, larger on PC
                     //dateElement.style.height = isMobile ? '20px' : '30px'; // Smaller on mobile, larger on PC
                     //dateElement.style.lineHeight = isMobile ? '20px' : '30px'; // Adjust line height to match height
-                    dateElement.style.fontSize = isMobile ? '10px' : '14px'; // Smaller font on mobile
+                    dateElement.style.fontSize = isMobile ? '9px' : '14px'; // Smaller font on mobile
 
                     // Add delete control
                     const deleteControl = document.createElement('div');

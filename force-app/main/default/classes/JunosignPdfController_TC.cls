@@ -38,7 +38,7 @@ private class JunosignPdfController_TC {
         // Create Juno_Sign_Transaction__c
         JunoDoc__Juno_Sign_Transaction__c trans = new JunoDoc__Juno_Sign_Transaction__c(
             JunoDoc__Object_Id__c = testAcc.Id,
-            JunoDoc__Status__c = 'In Progress',
+            JunoDoc__Status__c = 'Pending',
             JunoDoc__Sender_Name__c = 'Test Sender',
             JunoDoc__Sender_Email__c = 'sender@example.com',
             JunoDoc__CC_Address__c = 'cc@example.com',
