@@ -16,6 +16,7 @@ public class JunosignPdfController {
     public string todayDateValue {get; set;}
     public string selectedDocId {get;set;}
     public static string ipaddress {get;set;}
+    public string recipientName {get;set;}
     
     public JunosignPdfController(){
         isRejected = 'false';
@@ -157,6 +158,8 @@ pdfPage.getParameters().put('DocTemplateId', id);*/
                                                          JunoDoc__Juno_Sign_Transaction__r.JunoDoc__Original_Document_Id__c
                                                          from JunoDoc__Juno_Sign_Recipient__c 
                                                          where id=:recid ]; 
+
+                                                         recipientName = recdata[0].JunoDoc__Recipient_Name__c;
         
         //String trancId =  transcid;
         List<JunoDoc__Junodoc_Page_Tab__c> pageTabsList = [select Id,Name, JunoDoc__Pos_Left__c, JunoDoc__Pos_Top__c, 

@@ -261,28 +261,28 @@
                         </div>
 
                         <!-- Type Tab Content -->
-                        <div class="signature-tab-content" id="typeTab">
-                            <input type="text" id="typedSignature" class="signature-type-input"
+                        <div class="signature-tab-content" id="typeTab"> {!recipientName}
+                            <input type="text" id="typedSignature" class="signature-type-input" value="{!recipientName}"
                                 placeholder="Type your name" />
 
                             <div class="font-options">
                                 <div class="font-option selected" data-font="Dancing Script">
-                                    <span style="font-family: 'Dancing Script'; font-size: 1.5rem;">Your Name</span>
+                                    <span style="font-family: 'Dancing Script'; font-size: 1.5rem;">{!recipientName}</span>
                                 </div>
                                 <div class="font-option" data-font="Homemade Apple">
-                                    <span style="font-family: 'Homemade Apple'; font-size: 1.25rem;">Your Name</span>
+                                    <span style="font-family: 'Homemade Apple'; font-size: 1.25rem;">{!recipientName}</span>
                                 </div>
                                 <div class="font-option" data-font="Caveat">
-                                    <span style="font-family: 'Caveat'; font-size: 1.5rem;">Your Name</span>
+                                    <span style="font-family: 'Caveat'; font-size: 1.5rem;">{!recipientName}</span>
                                 </div>
                                 <div class="font-option" data-font="Kalam">
-                                    <span style="font-family: 'Kalam'; font-size: 1.5rem;">Your Name</span>
+                                    <span style="font-family: 'Kalam'; font-size: 1.5rem;">{!recipientName}</span>
                                 </div>
                                 <div class="font-option" data-font="Parisienne">
-                                    <span style="font-family: 'Parisienne'; font-size: 1.5rem;">Your Name</span>
+                                    <span style="font-family: 'Parisienne'; font-size: 1.5rem;">{!recipientName}</span>
                                 </div>
                                 <div class="font-option" data-font="Sacramento">
-                                    <span style="font-family: 'Sacramento'; font-size: 1.5rem;">Your Name</span>
+                                    <span style="font-family: 'Sacramento'; font-size: 1.5rem;">{!recipientName}</span>
                                 </div>
                             </div>
                         </div>
