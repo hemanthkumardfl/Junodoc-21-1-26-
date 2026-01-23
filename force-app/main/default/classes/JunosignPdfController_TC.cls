@@ -69,6 +69,33 @@ private class JunosignPdfController_TC {
             JunoDoc__Sign_Completed__c = false
         );
         insert tab1;
+
+        Doc_Template__c temp = new Doc_Template__c();
+        temp.Name = 'test';
+        temp.Parent_Object__c = 'Contact';
+        temp.Parent_Fields__c = 'LastName';
+        temp.JunoDoc__Show_Templates__c = false;
+        insert temp;
+                
+        JunoDoc__Email_Template__c jemailtemplate = new JunoDoc__Email_Template__c();
+        jemailtemplate.Name='testtemplate';
+        jemailtemplate.JunoDoc__Parent_Object__c='Account';
+        jemailtemplate.JunoDoc__Parent_Fields__c='Name';
+        insert jemailtemplate;
+        
+        JunoDoc__Junosign_Object_Setting__c juno = new JunoDoc__Junosign_Object_Setting__c(); 
+        juno.Selected_object__c='Account';
+        juno.JunoDoc__Junodoc_Default_EmailTemplate__c = jemailtemplate.Id;
+        juno.JunoDoc__Junodoc_Default_EmailTemplate_For_Owner__c = jemailtemplate.Id;
+        juno.JunoDoc__Junodoc_Default_EmailTemplate_For_Signee__c = jemailtemplate.Id;
+        juno.JunoDoc__Junodoc_Doc_Template__c = temp.Id;
+        insert juno;
+        
+        JunoDoc__Email_Template_Item__c EmItem = new JunoDoc__Email_Template_Item__c();
+        EmItem.JunoDoc__Email_Template__c = temp.Id;
+        EmItem.JunoDoc__Subject__c = 'Test----{!Today()}{!Name}';
+        //EmItem.JunoDoc__Template_Body__c = '{!Today()}{!Name}{!NOW()}{!CreatedDate}{!Type}{!Industry}';
+        insert EmItem;
     }
 
     // -------------------------------------------------------------------------
@@ -173,6 +200,7 @@ private class JunosignPdfController_TC {
         ];
 
         ContentVersion cv = [SELECT ContentDocumentId FROM ContentVersion LIMIT 1];
+        Account acc = [SELECT Id From Account LIMIT 1];
 
         String fakeBase64 = EncodingUtil.base64Encode(Blob.valueOf('%PDF- fake signed document'));
 
@@ -183,7 +211,8 @@ private class JunosignPdfController_TC {
             'Signed_Test_Document',
             'data:application/pdf;base64,' + fakeBase64,
             rec.Id,
-            cv.ContentDocumentId,   // using as conId
+            acc.Id,
+            // cv.ContentDocumentId,   // using as conId
             completedTabIds
         );
         Test.stopTest();
