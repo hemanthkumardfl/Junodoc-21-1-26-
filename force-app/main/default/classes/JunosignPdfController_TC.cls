@@ -57,6 +57,16 @@ private class JunosignPdfController_TC {
         );
         insert recipient;
 
+        JunoDoc__Juno_Sign_Recipient__c recipient2 = new JunoDoc__Juno_Sign_Recipient__c(
+            JunoDoc__Juno_Sign_Transaction__c = trans.Id,
+            JunoDoc__Recipient_Name__c = 'Test Signer',
+            JunoDoc__Recipient_Email__c = 'signer@example.test',
+            JunoDoc__Status__c = 'Not Sent',
+            JunoDoc__Sort_Order__c = 1,
+            JunoDoc__JunoSign_Expiration_Date__c = Date.today().addDays(7)
+        );
+        insert recipient2;
+
         // Create some page tabs
         JunoDoc__Junodoc_Page_Tab__c tab1 = new JunoDoc__Junodoc_Page_Tab__c(
             JunoDoc__Linked_To__c = trans.Id,
@@ -81,6 +91,11 @@ private class JunosignPdfController_TC {
         jemailtemplate.Name='testtemplate';
         jemailtemplate.JunoDoc__Parent_Object__c='Account';
         jemailtemplate.JunoDoc__Parent_Fields__c='Name';
+        jemailtemplate.JunoDoc__Blank_Fields_As_Zeroes__c = true;
+        jemailtemplate.JunoDoc__Number_Format__c = '.00';
+        jemailtemplate.JunoDoc__Currency_Format__c = '.00';
+        jemailtemplate.JunoDoc__Currency_Symbol__c = '';
+        jemailtemplate.Junodoc__Date_Format__c = 'dd-MM-yyyy';
         insert jemailtemplate;
         
         JunoDoc__Junosign_Object_Setting__c juno = new JunoDoc__Junosign_Object_Setting__c(); 
@@ -92,9 +107,9 @@ private class JunosignPdfController_TC {
         insert juno;
         
         JunoDoc__Email_Template_Item__c EmItem = new JunoDoc__Email_Template_Item__c();
-        EmItem.JunoDoc__Email_Template__c = temp.Id;
-        EmItem.JunoDoc__Subject__c = 'Test----{!Today()}{!Name}';
-        //EmItem.JunoDoc__Template_Body__c = '{!Today()}{!Name}{!NOW()}{!CreatedDate}{!Type}{!Industry}';
+        EmItem.JunoDoc__Email_Template__c = jemailtemplate.Id;
+        EmItem.JunoDoc__Subject__c = 'Test----{!Name} {!NOW()} {!#User.Name}';
+        EmItem.JunoDoc__Template_Body__c = '{!Name} {!TODAY()} {!NOW()} {!#User.Name}';
         insert EmItem;
     }
 
@@ -107,6 +122,7 @@ private class JunosignPdfController_TC {
         JunoDoc__Juno_Sign_Recipient__c rec = [
             SELECT Id, JunoDoc__Juno_Sign_Transaction__c
             FROM JunoDoc__Juno_Sign_Recipient__c
+            WHERE JunoDoc__Status__c = 'Pending'
             LIMIT 1
         ];
 
@@ -137,6 +153,7 @@ private class JunosignPdfController_TC {
             SELECT Id, JunoDoc__Juno_Sign_Transaction__c,
                    JunoDoc__JunoSign_Expiration_Date__c
             FROM JunoDoc__Juno_Sign_Recipient__c
+            WHERE JunoDoc__Status__c = 'Pending'
             LIMIT 1
         ];
 
@@ -195,7 +212,8 @@ private class JunosignPdfController_TC {
         JunoDoc__Juno_Sign_Recipient__c rec = [
             SELECT Id, JunoDoc__Juno_Sign_Transaction__c,
                    JunoDoc__Recipient_Name__c, JunoDoc__Recipient_Email__c
-            FROM JunoDoc__Juno_Sign_Recipient__c
+            FROM JunoDoc__Juno_Sign_Recipient__c 
+            WHERE JunoDoc__Status__c = 'Pending'
             LIMIT 1
         ];
 
@@ -205,6 +223,45 @@ private class JunosignPdfController_TC {
         String fakeBase64 = EncodingUtil.base64Encode(Blob.valueOf('%PDF- fake signed document'));
 
         List<String> completedTabIds = new List<String>(); // empty → no tabs to update
+        for(JunoDoc__Junodoc_Page_Tab__c tab : [SELECT Id FROM JunoDoc__Junodoc_Page_Tab__c]){
+            completedTabIds.add(tab.Id);
+        }
+
+        Test.startTest();
+        String result = JunosignPdfController.savePDFToSalesforce(
+            'Signed_Test_Document',
+            'data:application/pdf;base64,' + fakeBase64,
+            rec.Id,
+            acc.Id,
+            // cv.ContentDocumentId,   // using as conId
+            completedTabIds
+        );
+        Test.stopTest();
+
+        Map<String, Object> resp = (Map<String, Object>) JSON.deserializeUntyped(result);
+       // System.assertEquals('success', resp.get('status'));
+    }
+
+    @IsTest
+    static void test_savePDFToSalesforce_SingleSigner2() {
+
+        JunoDoc__Juno_Sign_Recipient__c rec = [
+            SELECT Id, JunoDoc__Juno_Sign_Transaction__c,
+                   JunoDoc__Recipient_Name__c, JunoDoc__Recipient_Email__c
+            FROM JunoDoc__Juno_Sign_Recipient__c 
+            WHERE JunoDoc__Status__c = 'Not Sent'
+            LIMIT 1
+        ];
+
+        ContentVersion cv = [SELECT ContentDocumentId FROM ContentVersion LIMIT 1];
+        Account acc = [SELECT Id From Account LIMIT 1];
+
+        String fakeBase64 = EncodingUtil.base64Encode(Blob.valueOf('%PDF- fake signed document'));
+
+        List<String> completedTabIds = new List<String>(); // empty → no tabs to update
+        for(JunoDoc__Junodoc_Page_Tab__c tab : [SELECT Id FROM JunoDoc__Junodoc_Page_Tab__c]){
+            completedTabIds.add(tab.Id);
+        }
 
         Test.startTest();
         String result = JunosignPdfController.savePDFToSalesforce(
