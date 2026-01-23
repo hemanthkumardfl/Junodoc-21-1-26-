@@ -368,6 +368,7 @@ throw new AuraHandledException('Error saving PDF to Salesforce: ' + e.getMessage
             // Update recipient status
             recipient.JunoDoc__Status__c = 'Signed';
             update recipient;
+            system.debug('Trigger started');
             
             // Create Audit Trail
             JunoDoc__Audit_Trail__c auditTrail = new JunoDoc__Audit_Trail__c();

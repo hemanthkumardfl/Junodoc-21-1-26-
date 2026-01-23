@@ -452,6 +452,12 @@ global class JunoSignSendDocsController_Tc{
         JunoObs2.JunoDoc__Junodoc_Default_EmailTemplate_For_Owner__c = JET2.Id;
         JunoObs2.JunoDoc__Junodoc_Default_EmailTemplate_For_Signee__c = JET2.Id;
         insert JunoObs2;
+
+        List<JunoSignSendDocsController.PostActionRecords> postActionList = new List<JunoSignSendDocsController.PostActionRecords>();
+        JunoSignSendDocsController.PostActionRecords act1 = new JunoSignSendDocsController.PostActionRecords();
+        act1.fieldName  = 'Name';
+        act1.fieldValue = 'Test';
+        postActionList.add(act1);
         
         JunoSignSendDocsController.GetCurrencyvalues('300.00');
         JunoSignSendDocsController.GetNumbervalues('678.00');
@@ -459,6 +465,8 @@ global class JunoSignSendDocsController_Tc{
         JunoSignSendDocsController.getObjectFields(acc2.id);        
         JunoSignSendDocsController.GetSecLevelFieldDetailscontroller('JunoDoc__Email_Template_Item__c', 'AccountId', 'OwnerId');
         JunoSignSendDocsController.GetSecLevelFieldDetailscontroller('Contact', 'JunoDoc__Doc_Sent__c', 'JunoDoc__Doc_Sent__c');
+        JunoSignSendDocsController.getRecordName(JETI2.Id);
+        JunoSignSendDocsController.performImmediateUpdate(JET.Id,JSON.serialize(postActionList));
         
         JunoSignSendDocsController.DefaultEmailList emaillist = new JunoSignSendDocsController.DefaultEmailList();
         emaillist.Email = 'test';

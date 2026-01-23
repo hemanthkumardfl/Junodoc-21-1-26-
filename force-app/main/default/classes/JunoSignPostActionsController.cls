@@ -112,20 +112,31 @@ global class JunoSignPostActionsController {
     }
     
     public static void handleTransactionUpdate(List<JunoDoc__Juno_Sign_Recipient__c> transactions) {
+
+        Set<string> signRecipIds = new Set<string>();
+        for(JunoDoc__Juno_Sign_Recipient__c sign : transactions){
+            signRecipIds.add(sign.Id);
+        }
+
+        List<JunoDoc__Juno_Sign_Recipient__c> signedRecords = [SELECT Id,Juno_Sign_Transaction__c,JunoDoc__Status__c,Juno_Sign_Transaction__r.JunoDoc__Object_Id__c FROM JunoDoc__Juno_Sign_Recipient__c
+                                                                        Where Id IN :signRecipIds]; 
         
         List<JunoDoc__Juno_Sign_Recipient__c> signedRecipients = new List<JunoDoc__Juno_Sign_Recipient__c>();
-        for (JunoDoc__Juno_Sign_Recipient__c tx : transactions) {
-            if (tx.Status__c == 'Signed' && tx.Juno_Sign_Transaction__c != null && tx.Juno_Sign_Transaction__r.JunoDoc__Object_Id__c != null) {
+        system.debug('signedRecords>> '+signedRecords);
+        for (JunoDoc__Juno_Sign_Recipient__c tx : signedRecords) {
+            if (tx.Status__c == 'Signed' && tx.Juno_Sign_Transaction__c != null) {
                 signedRecipients.add(tx);
             }
         }
 
-    
+        system.debug('signedRecipients >>> '+signedRecipients);
         // Extract recipient Ids
         Set<Id> signedRecipientIds = new Set<Id>();
         for (JunoDoc__Juno_Sign_Recipient__c recipient : signedRecipients) {
             signedRecipientIds.add(recipient.Id);
         }
+
+        system.debug('signedRecipientIds >> '+signedRecipientIds);
 
         // Query for post actions related to signed recipients
         List<JunoDoc__JunoSign_Post_Actions__c> postActions = [SELECT Id, JunoDoc__Field_DataType__c, JunoDoc__Field_Name__c, 
@@ -277,7 +288,7 @@ global class JunoSignPostActionsController {
         try {
             update recordsToUpdate.values();
         } catch (DmlException e) {
-            system.debug('Update failed: ' + e.getMessage());
+            system.debug('Update failed: ' +e.getStackTraceString()+' >> '+ e.getMessage());
         }
     
     

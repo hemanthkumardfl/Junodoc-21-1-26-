@@ -261,7 +261,7 @@
                         </div>
 
                         <!-- Type Tab Content -->
-                        <div class="signature-tab-content" id="typeTab"> {!recipientName}
+                        <div class="signature-tab-content" id="typeTab">
                             <input type="text" id="typedSignature" class="signature-type-input" value="{!recipientName}"
                                 placeholder="Type your name" />
 
@@ -2563,7 +2563,7 @@
                         const link = document.createElement("a");
                         link.href = url;
                         link.download = "signed-document.pdf";
-                        link.click();
+                       // link.click();
                         URL.revokeObjectURL(url);
 
                         try {
