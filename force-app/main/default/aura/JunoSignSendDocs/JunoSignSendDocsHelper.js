@@ -914,8 +914,8 @@
         });
         objFileReader.readAsDataURL(file);
         
-        
-        /*const reader = new FileReader();
+            
+            /*const reader = new FileReader();
             
             reader.onload = function(e) {
                 let blobVal = new Blob([new Uint8Array(reader.result)], {type: file.type });
@@ -952,41 +952,17 @@
     
     }*/
     fetchEmailTemplates : function(component) {
-        var action = component.get("c.getClassicEmailTemplates");
-        action.setCallback(this, function(response) {
-            var state = response.getState();
-            if (state === "SUCCESS") {
-                var templates = response.getReturnValue();
-                var options = templates.map(function(template) {
-                    return { label: template.Name, value: template.Id };
-                });
-                component.set("v.emailTemplateOptions", options);
-            }
-        });
-        $A.enqueueAction(action);
-    },
-    
-    callTemplatePreviewLwcMethod : function(component) {
-        var myLwc = component.find("junoTemplatePreviewCmp");
-        if (myLwc) {
-            myLwc.handleSendForSignatures(); // Calls the @api method
+    var action = component.get("c.getClassicEmailTemplates");
+    action.setCallback(this, function(response) {
+        var state = response.getState();
+        if (state === "SUCCESS") {
+            var templates = response.getReturnValue();
+            var options = templates.map(function(template) {
+                return { label: template.Name, value: template.Id };
+            });
+            component.set("v.emailTemplateOptions", options);
         }
-    },
-    
-    getRecordName: function(component) {
-        var action = component.get("c.getRecordName");
-        action.setParams({
-            recordId: component.get("v.recordId")
-        });
-        action.setCallback(this, function(response) {
-            var state = response.getState();
-            if (state === "SUCCESS") {
-                component.set("v.recordName", response.getReturnValue());
-            } else {
-                component.set("v.isError", true);
-                component.set("v.isErrorMessage", "Error fetching record name.");
-            }
-        });
-        $A.enqueueAction(action);
-    },
+    });
+    $A.enqueueAction(action);
+},
 })

@@ -1,8 +1,4 @@
 <aura:component controller="JunoSignSendDocsController" implements="force:appHostable,lightning:isUrlAddressable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global">
-
-    <aura:attribute name="recordName" type="String" default="" />
-    <aura:attribute name="showSendConfirmation" type="Boolean" default="false" />
-
     <aura:attribute name="expirationDays" type="Integer" default="10"/>
     <aura:attribute name="selectedValueMonthly" type="Boolean" default="false" />
     <aura:attribute name="customDay" type="Integer" />
@@ -120,7 +116,6 @@
     <aura:attribute name="isStep1" type="boolean" default="false" />
     <aura:attribute name="isStep2" type="boolean" default="false" />
     <aura:attribute name="step3" type="boolean" default="false" />
-    <aura:attribute name="step4" type="boolean" default="false" />
     <aura:attribute name="isCheckboxChecked" type="Boolean" default="false" />
     
     <aura:attribute name="isChecked" type="Boolean" default="false" />
@@ -141,7 +136,6 @@
     <aura:attribute name="showPostAction" type="boolean" default="false" />
     <aura:attribute name="isAddReceipent" type="boolean" default="false"/>
     <aura:attribute  name="isPrepareandSend" type="boolean" default="false"/>
-    <!--<aura:attribute name="isImmediateActions" type="boolean" default="false"/>-->
     <aura:attribute  name="isDocumentcmp" type="boolean" default="false"/>
     <aura:attribute  name="isaddReceipentcmp" type="boolean" default="false"/>
     <aura:attribute  name="isPostActioncmp" type="boolean" default="false"/>
@@ -217,28 +211,13 @@
     <aura:attribute name="showAttachmentSettingEnabledValue" type="boolean" default="false"/>
     <aura:handler name="passInsertedIds" event="c:passInsertedIdsEvt" action="{!c.handleInsertedIds}"/>
     <aura:handler  name="parentPostActionEvent" event="c:parentPostActionEvent" action="{!c.handleUncheck}" />
-    <aura:handler name="docSelectorEvt" event="c:JunoSignDocumentSelectorEvt" action="{!c.handleselectedDocument}"/>
     
-   <aura:attribute name="isImmediateActions" type="boolean" default="false"/>
-   <aura:attribute name="immediateActionRows" type="List" default="[{ fieldName: '', fieldValue: '' }]"/>
-   <aura:handler name="rowsUpdated" event="c:RowsUpdated" action="{!c.handleImmediateRows}"/>
-
-   
     <aura:attribute name="notificationDate" type="string"/>
     <aura:attribute name="notifyOptions" type="List" default="[
                                                               {'label': '1 Day Before', 'value': '1 Day Before'},
                                                               {'label': '2 Days Before', 'value': '2 Days Before'},
                                                               {'label': 'Every Day', 'value': 'Every Day'},
                                                               ]"/>
-    
-    <aura:attribute name="signOptions" type="List" default="[
-                                                            {'label': 'Junodoc Template', 'value': 'junodocTemplate'},
-                                                            {'label': 'Record Files', 'value': 'recordFiles'},
-                                                            {'label': 'Upload', 'value': 'uploadfile'},
-                                                            ]"/>
-    <aura:attribute name="selectedSignOption" type="String" />
-    
-    
     
     <!-- SaiRam 19/05/2023 -->
     <aura:attribute name="SetReplyToValue" type="string" />
@@ -259,62 +238,23 @@
             </aura:if> 
             <div class="slds-modal__header" style = "background-color : #f3f3f3;" >
                 <div style="font-size:16px;text-align: initial;">
-                    <h1 style="font-size:17px;font-weight: 700;float:left;width:fit-content;">Send With JunoSign
-                       <aura:if isTrue="{!v.recordName}">
-                            - <lightning:formattedUrl value="{!'/lightning/r/' + v.ObjectAPIName + '/' + v.recordId + '/view'}" label="{!v.recordName}" target="_blank" style="font-size:small;"/>
-                        </aura:if>
-                    </h1> 
-
+                    <h1 style="font-size:17px;font-weight: 700;float:left;width:fit-content;">Send With JunoSign </h1> 
                     <div style = "text-align:right;"> <!-- margin-top: -40px;  -->
                         <aura:if isTrue="{!v.isDocumentcmp}">
                             <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.cancelSigning}" />
                             <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.addReceipents}" aura:id="nextBtn" />
                         </aura:if>
-                        
                         <!-- Add Recipient Component -->
                         <aura:if isTrue="{!v.isaddReceipentcmp}">
                             <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.cancelSigning}" />
                             <lightning:button variant="neutral" label="Back" title="Back" onclick="{!c.backToDocs}" aura:id="backBtn" />
-                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c. onClickImmediateActions}" aura:id="nextBtn" />
-                        </aura:if>
-                        
-                        
-                        <!--Immediate Actions-->
-                        <aura:if isTrue="{!v.isImmediateActions}">
-                            <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.cancelSigning}" />
-                            <lightning:button variant="neutral" label="Back" title="Back" onclick="{!c.onClickRecipients}" />
-                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.onClickPrepareAndSend}" />
-                        </aura:if>
-                        
-                        <aura:if isTrue="{!v.isPrepareandSend}">
-                            <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.cancelSigning}" />
-                            <lightning:button variant="neutral" label="Back" title="Back" onclick="{!c.addImmediateActions}" aura:id="backBtn" />
-                            <lightning:button variant="brand" label="Send" title="Send" onclick="{!c.showSendConfirmationDialog}" aura:id="nextBtn" />
-                        <!--<lightning:button variant="brand" label="Send" title="Send" onclick="{!c.onClickPrepareAndSend}" aura:id="nextBtn" />-->
+                            <lightning:button variant="brand" label="Send" title="Send" onclick="{!c.onClickPrepareAndSend}" aura:id="nextBtn" />
                         </aura:if>
                     </div>
                 </div>
             </div>
-             
-            <aura:if isTrue="{!v.showSendConfirmation}">
-                <div class="slds-modal slds-modal--prompt slds-fade-in-open" role="alertdialog" aria-labelledby="confirmModalHeading" aria-describedby="confirmModalContent">
-                    <div class="slds-modal__container">
-                        <div class="slds-modal__header slds-theme_warning">
-                            <h2 id="confirmModalHeading" class="slds-text-heading_small">Confirm Document Send</h2>
-                        </div>
-                        <div class="slds-modal__content slds-p-around_medium" id="confirmModalContent">
-                            <p>Are you sure you want to send the document?</p>
-                        </div>
-                        <div class="slds-modal__footer">
-                            <lightning:button variant="neutral" label="No" onclick="{!c.closeSendConfirmation}" aura:id="noBtn" />
-                            <lightning:button variant="brand" label="Yes" onclick="{!c.confirmSend}" aura:id="yesBtn" />
-                        </div>
-                    </div>
-                </div>
-                <div class="slds-backdrop slds-backdrop_open"></div>
-            </aura:if>
             
-            <!-- aura:if isTrue="{!!v.isPrepareandSend}" -->
+            <aura:if isTrue="{!!v.isPrepareandSend}">
                 <div style = "padding-top: 16px">
                     
                     <lightning:layout horizontalAlign="space">
@@ -323,12 +263,9 @@
                         </lightning:layoutItem>
                         <lightning:layoutItem padding="around-small" class = "slds-size_10-of-12">
                             <lightning:progressIndicator currentStep="{!v.selectedStep}" type="path"  >
-                                
                                 <lightning:progressStep label="Documents" value="step1" onclick="{!c.onClickDocuments}"/>
                                 <lightning:progressStep label="Recipients" value="step2" onclick="{!c.onClickRecipients}"/>
-                                <lightning:progressStep label="Immediate Actions" value="step4" onclick="{!c.onClickImmediateActions}"/>
-                                <lightning:progressStep label="Prepare and Send" value="step3" onclick="{!c.onClickPrepareAndSend}"/>
-                                
+                                <lightning:progressStep label="Prepare and Send" value="step4" onclick="{!c.onClickPrepareAndSend}"/>
                             </lightning:progressIndicator>
                         </lightning:layoutItem>
                         <lightning:layoutItem padding="around-small" class = "slds-size_1-of-12">
@@ -336,7 +273,6 @@
                     </lightning:layout>
                 </div> 
                 
-             <aura:if isTrue="{!!v.isPrepareandSend}">
                 <div style = "background:white;padding-top: 16px">
                     
                     <lightning:layout horizontalAlign="space">
@@ -350,24 +286,14 @@
                             
                             
                             <aura:if isTrue="{!v.showDocuments}">
-                                <!-- aura:if isTrue="{!v.showAttachmentSettingEnabledValue}">
+                                <aura:if isTrue="{!v.showAttachmentSettingEnabledValue}">
                                     <div style="padding:1rem;">
                                         <lightning:input type="checkbox" label="Show Attachments on Sign Page" checked="{!v.showAttachmentSetting}" name="attachmentsPage" onchange="{!c.allowShowAttachments}"/>
                                     </div>
-                                </aura:if -->
-                                
-                                <c:JunoSignDocumentSelector 
-                                                            recordId="{!v.recordId}"
-                                                            defaultDocTemplate="{!v.defaultDocTemplate}">
-                                
-                                </c:JunoSignDocumentSelector>
-                                
-                                <!-- lightning:combobox name="selectSignOption" label="Select Sign Option" value="{!v.selectedSignOption}" placeholder="Select Progress" options="{! v.signOptions }" onchange="{! c.signOptionChange }"/-->
-                                
-                                <!-- lightning:accordion allowMultipleSectionsOpen="true" activeSectionName="A" class="slds-border">
-                                    <lightning:accordionSection name="A" label="Selected Template" -->
+                                </aura:if>
+                                <lightning:accordion allowMultipleSectionsOpen="true" activeSectionName="A" class="slds-border">
+                                    <lightning:accordionSection name="A" label="Selected Template">
                                         <lightning:layout multipleRows="true">
-                                        <aura:if isTrue="{!v.selectedSignOption == 'junodocTemplate'}">
                                             <lightning:layoutItem size="7">
                                                 
                                                 <lightning:select class="Picklist PickStyle label-hidden  " required="false" variant="label-hidden" 
@@ -396,28 +322,22 @@
                                                 </lightning:select>
                                                 
                                             </lightning:layoutItem>
-                                            
-                                            
                                             <lightning:layoutItem size="4" >
                                             </lightning:layoutItem>
-                                            
                                             <lightning:layoutItem size="1">
                                                 <lightning:buttonIcon iconName="utility:edit" alternativeText="Edit Template "  onclick="{!c.toggleEditPicklist}" class="custom-button-icon"  />
                                             </lightning:layoutItem>
-                                        </aura:if>
-                                            
-                                        <!-- /lightning:layout -->
-                                        <!-- </lightning:layoutItem  style="margin-left: 69rem;margin-top: 1rem;" -->
                                         </lightning:layout>
+                                        <!-- </lightning:layoutItem  style="margin-left: 69rem;margin-top: 1rem;">
+                                        </lightning:layout> -->
                                         
-                                    <!-- /lightning:accordionSection -->
+                                    </lightning:accordionSection>
                                     <!--</div>-->
-                                   
-                                	
+                                    <br/>
                                     <aura:if isTrue="{!v.showAttachmentSettingEnabledValue}">
-                                        <!-- lightning:accordionSection name="B" label="{!v.SelDocsLabel}" -->
-                                            <aura:if isTrue="{!v.selectedSignOption == 'recordFiles'}">
-                                            	<div class="slds-modal__content" style = "min-height : 30% !important; max-height:10% !important">
+                                        <lightning:accordionSection name="B" label="{!v.SelDocsLabel}">
+                                            
+                                            <div class="slds-modal__content" style = "min-height : 30% !important; max-height:10% !important">
                                                 <div class="slds slds-scope">
                                                     <table class=" slds-table slds-table_bordered slds-table_fixed-layout" role="grid" >
                                                         <thead>
@@ -436,7 +356,7 @@
                                                             <aura:iteration items="{!v.ContentDocumentList}" var="rec">
                                                                 <tr class="slds-hint-parent">
                                                                     <td> 
-                                                                        <lightning:input type="radio" value="{!rec.budgetRecord.ContentDocumentId}" checked="{!rec.budgetCheck}" aura:id="boxPack" onchange = "{!c.handleCheck}"/>
+                                                                        <lightning:input type="checkbox" value="{!rec.budgetRecord.ContentDocumentId}" checked="{!rec.budgetCheck}" aura:id="boxPack" onchange = "{!c.handleCheck}"/>
                                                                         
                                                                     </td> 
                                                                     <td role="gridcell" style = "line-height: 3;">
@@ -449,43 +369,41 @@
                                                     <br/>
                                                 </div> 
                                             </div> 
-                                            </aura:if>
-                                        <!-- /lightning:accordionSection -->
+                                        </lightning:accordionSection>
                                         <br/>
-                                        <!--lightning:accordionSection name="C" label="Upload Documents" -->
-                                            <aura:if isTrue="{!v.selectedSignOption == 'uploadfile'}">
-                                                <div class="slds-modal__content">
-                                                    <div class="slds slds-scope">
-                                                        <lightning:fileUpload multiple="true" accept="{!v.filetype}" onuploadfinished="{!c.handleUploadFinished}" />
-                                                    </div><br/>
-                                                    <aura:if isTrue="{!v.FilesTable}">
-                                                        <div class="slds slds-scope">
-                                                            <table class="slds-table slds-table_bordered slds-table_fixed-layout" role="grid">
-                                                                <tbody >
-                                                                    <aura:iteration items="{!v.UploadFiles}" var="rec" indexVar="index">
-                                                                        
-                                                                        <tr class="slds-hint-parent">
-                                                                            <td>
-                                                                                {!rec.name}
-                                                                            </td>
-                                                                            <td role="gridcell" style = "line-height: 3;text-align:right">
-                                                                                <div  data-id ="{!index}" onclick="{!c.deleteThisFile}">
-                                                                                    <lightning:buttonIcon iconName="utility:close" variant="bare" />
-                                                                                </div>
-                                                                            </td>
-                                                                            
-                                                                        </tr>
-                                                                    </aura:iteration> 
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </aura:if>
-                                                </div> 
-                                            </aura:if>
+                                        <lightning:accordionSection name="C" label="Upload Documents">
                                             
-                                        <!-- /lightning:accordionSection -->
+                                            <div class="slds-modal__content">
+                                                <div class="slds slds-scope">
+                                                    <lightning:fileUpload multiple="true" accept="{!v.filetype}" onuploadfinished="{!c.handleUploadFinished}" />
+                                                </div><br/>
+                                                <aura:if isTrue="{!v.FilesTable}">
+                                                    <div class="slds slds-scope">
+                                                        <table class="slds-table slds-table_bordered slds-table_fixed-layout" role="grid">
+                                                            <tbody >
+                                                                <aura:iteration items="{!v.UploadFiles}" var="rec" indexVar="index">
+                                                                    
+                                                                    <tr class="slds-hint-parent">
+                                                                        <td>
+                                                                            {!rec.name}
+                                                                        </td>
+                                                                        <td role="gridcell" style = "line-height: 3;text-align:right">
+                                                                            <div  data-id ="{!index}" onclick="{!c.deleteThisFile}">
+                                                                                <lightning:buttonIcon iconName="utility:close" variant="bare" />
+                                                                            </div>
+                                                                        </td>
+                                                                        
+                                                                    </tr>
+                                                                </aura:iteration> 
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </aura:if>
+                                            </div> 
+                                            
+                                        </lightning:accordionSection>
                                     </aura:if>
-                                <!-- /lightning:accordion -->
+                                </lightning:accordion>
                             </aura:if>
                             
                             <aura:if isTrue="{!v.addRecipents}">
@@ -615,7 +533,7 @@
                                                                             <c:JunoSignPostActions aura:id="childComponent" recordId="{!v.recordId}" rows="{!rec.childRows}" />
                                                                         </lightning:accordionSection>
                                                                         
-                                                                        <lightning:accordionSection name="B" label="Reminders">
+                                                                        <lightning:accordionSection name="B" label="Remainders">
                                                                             <div class="slds-grid slds-wrap">
                                                                                 
                                                                                 <!-- Left Side: Daily Reminder -->
@@ -921,17 +839,6 @@
                                 </div>
                             </aura:if>
                             
-                            <aura:if isTrue="{!v.isImmediateActions}">
-                                <div class="slds-p-around_large">
-                                    <lightning:accordion activeSectionName="['A']" class="slds-border">
-                                        <lightning:accordionSection name="A" label="Post Actions">
-                                            <c:JunoSignObjectImmediateActions  aura:id="immediatePostActions" recordId="{!v.recordId}" rows="{!v.immediateActionRows}"/>
-                                        </lightning:accordionSection>
-                                    </lightning:accordion>
-                                </div>
-                            </aura:if>
-                            
-                            
                         </lightning:layoutItem>
                         
                         <lightning:layoutItem padding="around-small" class = "slds-size_1-of-12">
@@ -945,21 +852,11 @@
             </aura:if>
         </div>
         
+        
         <aura:if isTrue="{!v.isPrepareandSend}">
-            <!-- c:JunoPrepareandSend setReplyTo="{!v.SetReplyToValue}" selectedDocumentsForsend="{!v.SelectedDocuments}" receiver="{!v.ListOfContact}" recordId="{!v.recordId}"  isInPerson="{!v.isInPerson}" selectedDocumentsForsendItem = "{!v.AvailableDocTemplateSelectedValue}" UploadedFiles="{!v.UploadFiles}" showAttachmentSetting="{!v.showAttachmentSetting}"  insertedIds ="{!v.insertedIds}" /--><!-- showAttachmentSetting="{!v.showAttachmentSetting}" -->
+            <c:JunoPrepareandSend setReplyTo="{!v.SetReplyToValue}" selectedDocumentsForsend="{!v.SelectedDocuments}" receiver="{!v.ListOfContact}" recordId="{!v.recordId}"  isInPerson="{!v.isInPerson}" selectedDocumentsForsendItem = "{!v.AvailableDocTemplateSelectedValue}" UploadedFiles="{!v.UploadFiles}" showAttachmentSetting="{!v.showAttachmentSetting}"  insertedIds ="{!v.insertedIds}" /><!-- showAttachmentSetting="{!v.showAttachmentSetting}" -->
             <!--<c:JunoPrepareandsend selectedDocumentsForsend="{!v.SelectedDocuments}" receiver="{!v.ListOfContact}" recordId="{!v.recordId}"/>-->
-            <c:junoSignTemplatePreview aura:id="junoTemplatePreviewCmp"
-                                       setReplyTo="{!v.SetReplyToValue}" 
-                                       onsendsuccess="{!c.handleSendSuccess}"
-                                       selectedDocumentsForsend="{!v.SelectedDocuments}" 
-                                       receiver="{!v.ListOfContact}" 
-                                       recordId="{!v.recordId}"  
-                                       isInPerson="{!v.isInPerson}" 
-                                       selectedDocumentsForsendItem = "{!v.AvailableDocTemplateSelectedValue}" 
-                                       selectedDocOption = "{!v.selectedSignOption}" 
-                                       uploadedFiles="{!v.UploadFiles}"  
-                                       showAttachmentSetting="{!v.showAttachmentSetting}"  
-                                       insertedIds ="{!v.insertedIds}" />
+            
         </aura:if>
         
         
