@@ -788,8 +788,8 @@
             }
             
             thmltabl+='</tbody></table>'; 
-            var parentsId = document.getElementById('pageId:formId:parentChildObject').value;
-            if(parentsId != null && parentsId != undefined && parentsId != ''){
+            var parentsId = $('#containerParent2').children('.box-item').length;
+            if(parentsId != null && parentsId != undefined && parentsId > 0){
                 thmltabl += '<div id="parentTable'+ids+'" class="Tableorder ordlist order-list table-drag table-element item_element ui-draggable ui-draggable-handle ui-draggable-dragging element_item" data-title="Child-Table Element" style="font-size: 11px; font-weight: 500; font-family: sans-serif; min-height: auto; table-layout: fixed; cursor: pointer; overflow: hidden; box-sizing: border-box; border-spacing: 0px; text-align: center; position: relative; background:transparent;width:auto !important">  <table class="order-list" id="TablesTestparent'+ids+'" style="width: '+parentwidth+';border-collapse: collapse;padding:0px;min-height:50px;" onclick="changeheight(\''+ids+'\')" ><tbody><tr id="parenttr'+ids+'" class="hover-row" style="background-color:'+parentbackgroundtr+'">';
     
                 $('#containerParent2').children('.box-item').each(function () {
@@ -834,7 +834,7 @@
             document.getElementById(ids).style.height= "auto";
             document.getElementById(ids).style.width= "100%";
             $("#"+ids).append(thmltabl);
-            $('#childFieldlabelBox').hide();
+            
             
             var rendercondition = document.getElementById('renderedFieldId').value
             
@@ -899,7 +899,13 @@
             //sectioncreate();
             savechilddetails(ids,chidl,Fields,AvailFields,border,color1,color2,Labels,RenderFields,rendercondition,htmls,Headerhtmls,Footerhtmls,OrderField,height,invoices,'','','','','',parentFields,parentLabels,parentAvailFields); 
             RenderFields = '';
+            document.getElementById('spinners').className = 'slds-spinner_container slds-show';
             
+            
+        }
+        function afterSaveDetials(){
+            $('#childFieldlabelBox').hide();
+           document.getElementById('spinners').className = 'slds-spinner_container slds-hide';  
         }
         function groupcreateChildItemTable(){
             var groupby = '';
@@ -1261,7 +1267,7 @@
                     </div>
                 </li>`;
                            
-             groupHtml += `
+                           /*   groupHtml += `
                 <li class="Containers hoverclass2">
                     <div class="Tableorder ordlist order-list snippet_item table-drag table-element item_element"
                          style="font-size: 11px; font-weight: 500;font-family: ${'{!fontFamily}'}; height:1rem; min-height:auto;
@@ -1277,13 +1283,13 @@
                         </div>
 
                     </div>
-                </li>`;
+                </li>`;*/
         });
         $("#ParentSelchildUL").css("display", "block");
         
         document.getElementById("ParentSelchildUL").innerHTML = html;
-            $("#ParentgroupSelchildUL").css("display", "block");
-             document.getElementById("ParentgroupSelchildUL").innerHTML = groupHtml;
+                  //  $("#ParentgroupSelchildUL").css("display", "block");
+                  // document.getElementById("ParentgroupSelchildUL").innerHTML = groupHtml;
         
             });
        
@@ -2607,7 +2613,7 @@ if (contentAreaDiv) {
         
         <apex:actionFunction name="savechilddetails" status="status"  action="{!savechilddetails}"
                              reRender="childFieldlabelBoxid,showchiIds,TaxtId"
-                             oncomplete="boxDragdrop()">
+                             oncomplete="boxDragdrop(),afterSaveDetials()">
             <apex:param name="SortOrder" assignTo="{!SortOrders}" value=""/>
             <apex:param name="parentObject" assignTo="{!parentObjects}" value=""/>
             <apex:param name="childField" assignTo="{!childFields}" value=""/>
@@ -3056,9 +3062,8 @@ Form Controls
                                                     
                                                 </div><!---modal Body End --->
                                             </div>  
-                                             <div style="width:100%" >
+                                          <!--   <div style="width:100%" >
                                                         <span class="slds-box slds-box_x-small hoverclassFields" onclick="toggleLayout(this,'.parentGroupchildtoggle')" onmouseover = "toggleLayout_show('.parentGroupchildtoggle')" onmouseout = "toggleLayout_hide('.parentGroupchildtoggle')" style = "border:none !important;width:94% !important">
-                                                            <!--<input type="radio" id="unique-id-01-GroupBy" value="unique-id-01-GroupBy" onclick="toggleLayout(this,'.parentGroupchildtoggle')" name="unique-id-example1" />-->
                                                             <label style = "display:inline-flex; width:92%; height:auto; padding:0px;">
                                                                 
                                                                 <span class="slds-icon_container slds-icon-standard-cms" style="cursor: pointer;margin-left:0px; text-decoration: none;width:9%;">
@@ -3070,7 +3075,6 @@ Form Controls
                                                                 </span>&nbsp;&nbsp;
                                                                 <h2 style= "text-decoration: none;width:86%" >
                                                                     <b >Parent Group By </b>
-                                                                    <!-- <span class="fa fa-plus-circle" style="float:right;font-size:20px"></span> -->
                                                                 </h2>
                                                                 <em style="float:right;color:white;text-align:right;font-size:10px;width:4%;"><i class="fa fa-chevron-right" ></i></em>
                                                             </label>
@@ -3087,8 +3091,8 @@ Form Controls
                                                                 
                                                             </div>
                                                             
-                                                        </div><!---modal Body End --->
-                                                    </div>  
+                                                        </div>
+                                                    </div>  -->
                                             <div style="width:100%" >
                                                 <span class="slds-box slds-box_x-small hoverclassFields" onclick="toggleLayout(this,'.querychildtoggle')" onmouseover = "toggleLayout_show('.querychildtoggle')" onmouseout = "toggleLayout_hide('.querychildtoggle')" style = "border:none !important;width:94% !important">
                                                     <!--<input type="radio" id="unique-id-01-Aggregate" value="unique-id-01-Aggregate" onclick="toggleLayout(this,'.querychildtoggle')" name="unique-id-example1" />-->
@@ -4512,7 +4516,7 @@ xlink:href="/apexpages/slds/latest/assets/icons/utility-sprite/svg/symbols.svg#d
                             <a class = "chtablinks slds-box slds-box_small " onclick = "openChilds(event, 'Calculations')" style = "width:8%; height:5%; margin-right:10px; padding-top:5px; padding-bottom:5px;padding-right:5px; padding-left:5px;font-size:85%; text-decoration: none;color:#455a91;margin-bottom:20px;background:white;">Calculation</a>
                             <a class = "chtablinks slds-box slds-box_small " onclick = "openChilds(event, 'rendering')" style = "width:8%; height:5%; margin-right:10px; padding-top:5px; padding-bottom:5px;padding-right:5px; padding-left:5px;font-size:85%; text-decoration: none;color:#455a91;margin-bottom:20px;background:white;">Rendering</a>
                             <a class = "chtablinks slds-box slds-box_small " onclick = "openChilds(event, 'orderby')" style = "width:8%; height:5%; margin-right:10px; padding-top:5px; padding-bottom:5px;padding-right:5px; padding-left:5px;font-size:85%; text-decoration: none;color:#455a91;margin-bottom:8px;background:white;">Order By</a>
-                            <a class = "chtablinks slds-box slds-box_small " onclick = "openChilds(event, 'parentChilds')" style = "width:8%; height:5%; margin-right:10px; padding-top:5px; padding-bottom:5px;padding-right:5px; padding-left:5px;font-size:85%; text-decoration: none;color:#455a91;margin-bottom:8px;background:white;">Parent Childs</a>
+                          <!--  <a class = "chtablinks slds-box slds-box_small " onclick = "openChilds(event, 'parentChilds')" style = "width:8%; height:5%; margin-right:10px; padding-top:5px; padding-bottom:5px;padding-right:5px; padding-left:5px;font-size:85%; text-decoration: none;color:#455a91;margin-bottom:8px;background:white;">Parent Childs</a>-->
                         </div>
                         
                         <div id="SelectFields" class="chtabcontent actives">
@@ -4595,7 +4599,7 @@ xlink:href="/apexpages/slds/latest/assets/icons/utility-sprite/svg/symbols.svg#d
                                                                             </div>
                                                                             <div class="slds-col slds-size_5-of-12 slds-m-right_x-small">
                                                                                 <apex:outputPanel rendered="{!wrapper.isPicklist}">
-                                                                                    <apex:selectList id="picklistId" value="{!wrapper.selectedInputValue}" size="1" styleClass="slds-input">
+                                                                                    <apex:selectList id="picklistId" value="{!wrapper.selectedInputPicklist}" size="1" styleClass="slds-input">
                                                                                         <apex:selectOptions value="{!pickLIstValues}"/>
                                                                                     </apex:selectList>      
                                                                                 </apex:outputPanel>
@@ -6216,11 +6220,11 @@ Please select Group By
         bottom: -1rem;
         }
         .contCustom{
-            max-height: 29vh !important;
+            max-height: 25vh !important;
         }
         .contCustom2{
-            min-height:197px !important;
-            max-height:187px !important;
+            min-height:177px !important;
+            max-height:177px !important;
         }
         
         .contCustomParent{

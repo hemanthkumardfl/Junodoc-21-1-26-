@@ -51,12 +51,16 @@
                             elementsToRemove.forEach(function(el) {
                                 el.parentNode.removeChild(el);
                             });
+                            tempContainer.innerHTML = tempContainer.innerHTML.replace('Page <span class="pagenumber"></span> of <span class="pagecount"></span>','Page <span style="mso-field-code: PAGE "></span> of <span style="mso-field-code: NUMPAGES "></span>');
+                            tempContainer.innerHTML = tempContainer.innerHTML.replace('Page <span class="pagenumber"></span> of <span class="pagecount"></span>','Page <span style="mso-field-code: PAGE "></span> of <span style="mso-field-code: NUMPAGES "></span>');
+                            tempContainer.innerHTML = tempContainer.innerHTML.replace('Page <span class="pagenumber"></span> of <span class="pagecount"></span>','Page <span style="mso-field-code: PAGE "></span> of <span style="mso-field-code: NUMPAGES "></span>');
+                            tempContainer.innerHTML = tempContainer.innerHTML.replace('Page <span class="pagenumber"></span> of <span class="pagecount"></span>','Page <span style="mso-field-code: PAGE "></span> of <span style="mso-field-code: NUMPAGES "></span>');
                         var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>";
                         header += '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1"/> <meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/> ';
                         header += '<title></title> <style>v\\:* {behavior: url(#default#VML);} o\\:* { behavior: url(#default#VML);} w\\:* {behavior: url(#default#VML);} .shape { behavior: url(#default#VML);} </style>';
                         header += ' <style> @page main-section {size: 8.43in 12in;  margin: .0cm .0cm .0cm .0cm;mso-header-margin: .0in;mso-footer-margin: .0in;mso-paper-source: 0;height:12in';
                         header += 'mso-header: h1;mso-footer: f1;}div.main-section {page: main-section;} .Tableorder table,tr, td{font-family:sans-serif} div{height:auto} td{height:auto} p{height:auto}';
-                        header += ' img{width: 15px !important;height: 15px !important; }p.MsoFooter,li.MsoFooter,div.MsoFooter {margin: 0in;margin-bottom: .0001pt;mso-pagination: widow-orphan;tab-stops: center 0in right 0in;} div[data-renderdiv="showDiv"]{display: block; }div[data-renderdiv="hideDiv"]{display: none; }</style><body>';
+                        header += ' img{width: 15px !important;height: 15px !important; }p.MsoFooter,li.MsoFooter,div.MsoFooter {margin: 0in;margin-bottom: .0001pt;mso-pagination: widow-orphan;tab-stops: center 0in right 0in;} div[data-renderdiv="showDiv"]{display: block; }div[data-renderdiv="hideDiv"]{display: none; } .pagenumber:before {content: counter(page);}.pagecount:before {content: counter(pages);}</style><body>';
                          
                             var footer = "</body></html>";
                         var html = header + tempContainer.innerHTML + footer;

@@ -5,7 +5,7 @@
         component.set("v.urillink",window.location.href);
         var locations = window.location.href;
         var pageRef = component.get("v.pageReference");
-        console.log('pageRef--->'+JSON.stringify(pageRef));
+      //  console.log('pageRef--->'+JSON.stringify(pageRef));
         var recordId = '';
         
         var formFactor = $A.get("$Browser.formFactor");
@@ -286,7 +286,7 @@
                 if(state === "SUCCESS"){
                     
                     var InnerResult = response.getReturnValue();
-                    console.log('doc **********  '+JSON.stringify(InnerResult.AvailableDocTemplatesList));
+                  //  console.log('doc **********  '+JSON.stringify(InnerResult.AvailableDocTemplatesList));
                     component.set("v.AvailableDocTemplatesList",InnerResult.AvailableDocTemplatesList);
                     component.set("v.DocTemplateId",InnerResult.DocTemplateId);
                     component.set("v.ObjectAPIName",InnerResult.ObjectAPIName); 
@@ -1117,7 +1117,7 @@
                     var message = event.getParam("emailList");
                     var fieldDetails = event.getParam("fieldDetails");
                     
-                    console.log('message ------> '+JSON.stringify(message));
+                //    console.log('message ------> '+JSON.stringify(message));
                     
                     var textValues = '';
                     var referenceValues = '';
@@ -1226,7 +1226,7 @@
                     var oldFilelist = component.get("v.fileData");
                     oldFilelist.splice(index,1);
                     component.set("v.fileData",oldFilelist);
-                    console.log(JSON.stringify(component.get("v.fileData")));
+                  //  console.log(JSON.stringify(component.get("v.fileData")));
                     var fileList =  component.get("v.uploadFileList")
                     fileList.splice(index,1)
                     

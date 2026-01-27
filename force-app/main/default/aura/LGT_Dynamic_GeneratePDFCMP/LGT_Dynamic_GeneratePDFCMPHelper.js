@@ -89,7 +89,7 @@
             if(state === "SUCCESS"){
                 var InnerResult = response.getReturnValue();
                 
-                console.log("Query result"+JSON.stringify(InnerResult));
+             //   console.log("Query result"+JSON.stringify(InnerResult));
                 if(InnerResult!=null && InnerResult!='' && InnerResult!=undefined){
                     
                     component.set("v.FromEmailAddress",InnerResult.junodoc[0].JunoDoc__From_Email_Address__c);
@@ -209,7 +209,7 @@
                     
                     component.set("v.accList",InnerResult.junoEmailList);
                     var message = component.get("v.accList");
-                    console.log('message ------> '+JSON.stringify(message));
+                 //   console.log('message ------> '+JSON.stringify(message));
                     var textValues = '';
                     var referenceValues = '';
                     var ToTextEmailsList = [];
@@ -347,7 +347,7 @@
             var BCCTextEmailsList = component.get("v.BCCTextEmailsList");
             var BCCEmailMergeFieldsList = component.get("v.BCCEmailMergeFieldsList");
             
-            console.log('uploadFileLists ' + JSON.stringify(component.get("v.fileData")))
+           // console.log('uploadFileLists ' + JSON.stringify(component.get("v.fileData")))
             var action = component.get("c.SendPDFs");
             action.setParams({
                 "id" : recordId,
@@ -540,7 +540,7 @@
                 component.set("v."+spinnerId,false); 
                 var errors = response.getError();
                 console.log('********* errors' + errors);
-                console.log('********* errors' + JSON.stringify(errors));
+              //  console.log('********* errors' + JSON.stringify(errors));
                 if (errors) {
                     if (errors[0] && errors[0].message) {
                         alert("Error message: " + 

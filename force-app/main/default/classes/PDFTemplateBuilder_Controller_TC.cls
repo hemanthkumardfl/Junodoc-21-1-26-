@@ -32,6 +32,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+        PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();
@@ -95,6 +97,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+         PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();
@@ -158,6 +162,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+         PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();
@@ -221,6 +227,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+         PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();
@@ -284,6 +292,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+          PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();
@@ -350,6 +360,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+         PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();
@@ -416,6 +428,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+          PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();
@@ -483,6 +497,8 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.SortOrders = '2';
         PTB.childFields = 'FirstName, LastName';
         PTB.FieldLabels = 'First Name, Last Name';
+          PTB.parentFields = 'Name, Id';
+        PTB.parentLabels = 'Name, Id';
         PTB.savechilddetails();
         PTB.close();
         PTB.closeEmailTemplate();

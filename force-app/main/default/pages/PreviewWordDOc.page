@@ -70,7 +70,7 @@
                                         <tr>
                                             <td width="100%" align="left">
                                                 <table class="table-word-footer">
-                                                    <tr>
+                                                    <tr> 
                                                         <td> 
                                                         <apex:dynamicComponent componentValue="{!FooterLists}" />
                                                         <apex:outputPanel rendered="{!showpageNumber}">

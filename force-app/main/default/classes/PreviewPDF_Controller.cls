@@ -573,13 +573,32 @@ global without sharing class PreviewPDF_Controller {
             || FooterBody.contains('{{showPageNumber}}') 
             || HeaderBody.contains('{{showPageNumber}}')){
                            
-            NewTemplateBody = NewTemplateBody.replace('{{showPageNumber}}','Page <span class="pagenumber"/> of <span class="pagecount"/>');
+          /*  NewTemplateBody = NewTemplateBody.replace('{{showPageNumber}}','Page <span class="pagenumber"/> of <span class="pagecount"/>');
             if(FooterBody != null){
                 FooterBody = FooterBody.replace('{{showPageNumber}}','Page <span class="pagenumber"/> of <span class="pagecount"/>');
             }
             if(HeaderBody != null){
                 HeaderBody = HeaderBody.replace('{{showPageNumber}}','Page <span class="pagenumber"/> of <span class="pagecount"/>');
-            }
+            }*/
+                
+                String pdfPageNumber =
+                    'Page <span class="pagenumber"></span> of <span class="pagecount"></span>';
+                
+                String wordPageNumber = 'Page <span class="pagenumber"></span> of <span class="pagecount"></span>';
+                
+                if (DocTemplates.JunoDoc__Template_Type__c == 'Word Document') {
+                    NewTemplateBody = NewTemplateBody.replace('{{showPageNumber}}', wordPageNumber);
+                    if (FooterBody != null)
+                        FooterBody = FooterBody.replace('{{showPageNumber}}', wordPageNumber);
+                    if (HeaderBody != null)
+                        HeaderBody = HeaderBody.replace('{{showPageNumber}}', wordPageNumber);
+                } else {
+                    NewTemplateBody = NewTemplateBody.replace('{{showPageNumber}}', pdfPageNumber);
+                    if (FooterBody != null)
+                        FooterBody = FooterBody.replace('{{showPageNumber}}', pdfPageNumber);
+                    if (HeaderBody != null)
+                        HeaderBody = HeaderBody.replace('{{showPageNumber}}', pdfPageNumber);
+                }
         }
         if(NewTemplateBody.contains('{!NOW()}') 
            || FooterBody.contains('{!NOW()}') 
@@ -1032,10 +1051,12 @@ global without sharing class PreviewPDF_Controller {
                 system.debug(DocChild.Junodoc__Child_object__c.split(':')[1] + '***DocChild.Junodoc__Child_object__c **** ' + DocChild.Junodoc__Child_object__c.split(':')[2] + ' ***** ' + DocChild.Junodoc__Child_object__c.split(':')[0]);
                 string quoteObjString = 'select ' + DocChild.Junodoc__Child_object__c.split(':')[0] + ' From ' + SobjectApiName + ' WHERE Id =: quoteId';
                 Sobject quoteObj = Database.query(quoteObjString);
-                quoteNewId = ''+quoteObj.get(DocChild.Junodoc__Child_object__c.split(':')[0]);
+              //  if(quoteObj.get(DocChild.Junodoc__Child_object__c.split(':')[0]) != null){
+                	quoteNewId = ''+quoteObj.get(DocChild.Junodoc__Child_object__c.split(':')[0]);
+              //  }
                 
             }
-            String Queries = ' SELECT '+ chquries + ' from ' + ChildObjField + ' where '+ DocChild.Junodoc__Parent_Reference__c + ' = \''+ quoteNewId+ '\' ';
+            String Queries = ' SELECT '+ chquries + ' from ' + ChildObjField + ' where '+ DocChild.Junodoc__Parent_Reference__c + ' =: quoteNewId ';
             if(DocChild.Junodoc__Filter__c != null){
                 if(DocChild.Junodoc__Filter__c.contains('ssz')){ 
                     DocChild.Junodoc__Filter__c = DocChild.Junodoc__Filter__c.replace('ssz','\'');
@@ -1051,7 +1072,8 @@ global without sharing class PreviewPDF_Controller {
                     DocChild.Junodoc__Render_Condition__c = DocChild.Junodoc__Render_Condition__c.replace('ssz','\'');
                 }
             }
-          
+          	  system.debug( 'Queries **** ' + Queries);
+             
             list<Sobject> SobjectRecs = Database.query(Queries);
             string checks = '<tbody id="'+DocChild.Junodoc__Child_object__c+DocChild.Junodoc__Sort_Order__c+'">';
          
@@ -2062,6 +2084,7 @@ global without sharing class PreviewPDF_Controller {
     
     global Component.Apex.OutputText getFooterLists() {
         Component.Apex.OutputText head1 = new Component.Apex.OutputText();
+        system.debug('FooterBody***' + FooterBody);
         if(FooterBody.contains('{{showPageNumber}}')){                          
             FooterBody = FooterBody.replace('{{showPageNumber}}','Page <span class="pagenumber"/> of <span class="pagecount"/>');
         }

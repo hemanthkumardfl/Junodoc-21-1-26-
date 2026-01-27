@@ -1127,7 +1127,7 @@ global without sharing class PDFTemplateBuilder_Controller {
     }
      
     
-    global transient list<parentInnerClass> parentobjectFields{get;set;}
+    global list<parentInnerClass> parentobjectFields{get;set;}
     global void getparentobjectFields(){
         parentobjectFields = new list<parentInnerClass>();
         mpOfFieldsLabels = new map<string,string>();
@@ -1297,6 +1297,9 @@ global without sharing class PDFTemplateBuilder_Controller {
             }
             Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
             Schema.SObjectType leadSchema = schemaMap.get(selObj);
+         	if (leadSchema == null) {
+                return;
+            }
             Map<String, Schema.SObjectField> fieldMap = leadSchema.getDescribe().fields.getMap();
              Fields = new List<SelectOption>();
             for (String fieldName: fieldMap.keySet()) {
@@ -1973,11 +1976,13 @@ global without sharing class PDFTemplateBuilder_Controller {
             list<decimal> Sortorderlist = new list<decimal>();
             
             system.debug(ChildInnerClasseslists.size() + '  ChildInnerClasseslists ****************************** ');
+            list<string> deleteChildsData = new list<string>();
             for(ChildInnerClasses child: ChildInnerClasseslists){
                 Sortorderlist.add(child.sortorder);
                 system.debug(child.ChildObject + '  ****************************** ' + child.sortorder);
                 system.debug(child.ChildObject + '  render** ' + child.rendercondition);
                 if(string.valueof(finalstring).contains(child.ChildObject+''+child.sortorder)){
+                    deleteChildsData.add(child.ChildObject);
                     string childRelationship = '';
                     childRelationship = ChildobjGetNamemap.get(child.ChildObject);
                     Doc_Template_Child__c DocChild = new Doc_Template_Child__c();
@@ -2052,6 +2057,7 @@ global without sharing class PDFTemplateBuilder_Controller {
                     }
                     DocTemplatechildList.add(DocChild);
                 }
+                
             }
             if(Schema.sObjectType.Doc_Template_Child__c.isCreateable() 
                && Schema.sObjectType.Doc_Template_Child__c.fields.Child_Query__c.isCreateable() 
@@ -2089,7 +2095,7 @@ global without sharing class PDFTemplateBuilder_Controller {
             }
             system.debug(Sortorderlist + ' Sortorderlist');
             if(Doc_Template_Child__c.sObjectType.getDescribe().isDeletable()) {
-                Delete [select id from Doc_Template_Child__c where Doc_Template__c =: DocId and Sort_Order__c NOT IN: Sortorderlist];
+                Delete [select id from Doc_Template_Child__c where Doc_Template__c =: DocId and (Sort_Order__c NOT IN: Sortorderlist OR (Child_object__c NOT IN: deleteChildsData and Sort_Order__c IN: Sortorderlist))];
             }
         }
         if(ActionName == 'saveandclose' || ActionName == 'saveas'){
@@ -3040,7 +3046,7 @@ global without sharing class PDFTemplateBuilder_Controller {
         system.debug('wrapperList ************ '+ wrapperList);
         if(wrapperList != null){
             for(WrapperClass wrapper : wrapperList){
-                system.debug(sortOrder + ' wrapper.Ids ************ '+ wrapper.Ids);
+                system.debug(sortOrder + ' wrapper.Ids ************ '+ wrapper);
                 if(wrapper.Ids == ''+sortOrder){
                 String fType = String.valueOf(fieldMap.get(wrapper.fieldName).getDescribe().getType());
                 system.debug('fType ************ '+ fType);
@@ -3066,6 +3072,11 @@ global without sharing class PDFTemplateBuilder_Controller {
                     }  
                 }
                 else {
+                    system.debug( + 'wrapper.selectedInputPicklist ************ '+ wrapper.selectedInputPicklist);
+                    if(wrapper.selectedInputPicklist != null && wrapper.selectedInputPicklist != ''){
+                        wrapper.selectedInputValue = wrapper.selectedInputPicklist;
+                    }
+                    system.debug( + 'wrapper.selectedInputValue ************ '+ wrapper.selectedInputValue);
                     if(wrapper.selectedInputValue == '' || wrapper.selectedInputValue == null){
                         wrapper.selectedInputValue = null;
                     }
@@ -3198,6 +3209,7 @@ global without sharing class PDFTemplateBuilder_Controller {
         global boolean isGroup { get; set; }
         global List<SelectOption> pickListOptions { get; set; }
         global String selectedInputValue { get; set; }
+        global String selectedInputPicklist { get; set; }
         global WrapperClass(Integer rowCount, String fieldName, Boolean isPicklist, String filterOption, List<SelectOption> pickListOptions, String selectedInputValue,string Ids){
             this.rowCount = rowCount;
             this.fieldName = fieldName;
