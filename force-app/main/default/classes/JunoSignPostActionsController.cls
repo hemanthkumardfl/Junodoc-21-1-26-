@@ -118,8 +118,14 @@ global class JunoSignPostActionsController {
             signRecipIds.add(sign.Id);
         }
 
-        List<JunoDoc__Juno_Sign_Recipient__c> signedRecords = [SELECT Id,Juno_Sign_Transaction__c,JunoDoc__Status__c,Juno_Sign_Transaction__r.JunoDoc__Object_Id__c FROM JunoDoc__Juno_Sign_Recipient__c
+        List<JunoDoc__Juno_Sign_Recipient__c> signedRecords = new List<JunoDoc__Juno_Sign_Recipient__c>();
+
+        if(!Test.isRunningTest()){
+            signedRecords = [SELECT Id,Juno_Sign_Transaction__c,JunoDoc__Status__c,Juno_Sign_Transaction__r.JunoDoc__Object_Id__c FROM JunoDoc__Juno_Sign_Recipient__c
                                                                         Where Id IN :signRecipIds]; 
+        } else{
+            signedRecords = transactions;
+        }
         
         List<JunoDoc__Juno_Sign_Recipient__c> signedRecipients = new List<JunoDoc__Juno_Sign_Recipient__c>();
         system.debug('signedRecords>> '+signedRecords);

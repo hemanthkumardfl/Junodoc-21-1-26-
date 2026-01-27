@@ -1424,20 +1424,20 @@
         }
         
         
-        alert('PARENT: Starting record function.');
+        //alert('PARENT: Starting record function.');
         
-        var remindersCmp = component.find("Reminders");
+       /* var remindersCmp = component.find("Reminders");
         if (!remindersCmp) {
             console.error("ERROR: Reminders component not found.");
             return;
-        }
+        } */
         
        // alert('PARENT: Calling saveData() on Reminders component.');
-        remindersCmp.saveData();
+       /* remindersCmp.saveData(); */
         
        // alert('PARENT: Reminders saveData() called successfully.');
         
-        alert('22222');
+       // alert('22222');
         component.set("v.toggleSpinner",true);
         var inputValue = component.get("v.ObjectAPIName");
         var doctemplete=component.get("v.docTemp");
