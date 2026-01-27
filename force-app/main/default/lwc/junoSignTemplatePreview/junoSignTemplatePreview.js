@@ -90,7 +90,8 @@ export default class JunoSignTemplatePreview extends LightningElement {receiverJ
 
     get vfPageUrl() {
         let docSelected = this.selectedDocumentsForsendItem ? this.selectedDocumentsForsendItem : this.selectedDocumentsForsend;
-        return '/apex/JunoTemplatePreviewVF?recordId=' + this.recordId + '&templateId=' + docSelected + '&selectedOption=' + this.selectedDocOption + '&parentOrigin=' + window.location.origin;
+        // console.log('/apex/Junodoc__JunoTemplatePreviewVF?recordId=' + this.recordId + '&templateId=' + docSelected + '&selectedOption=' + this.selectedDocOption + '&parentOrigin=' + window.location.origin);
+        return '/apex/Junodoc__JunoTemplatePreviewVF?recordId=' + this.recordId + '&templateId=' + docSelected + '&selectedOption=' + this.selectedDocOption + '&parentOrigin=' + window.location.origin;
     }
 
     // Lifecycle hooks
