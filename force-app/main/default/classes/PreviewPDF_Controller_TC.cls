@@ -152,6 +152,10 @@ public class PreviewPDF_Controller_TC {
         docTemplateChild.JunoDoc__Order_By__c = 'Account.AnnualRevenue ASC';
         docTemplateChild.Calculation_Fields__c = 'Account.AnnualRevenue';
         docTemplateChild.JunoDoc__Render_Condition__c = '{{Id}} != NULL';
+        docTemplateChild.JunoDoc__Related_Object_Child_Query__c = 'Name,Account.Name,Account.Owner.LastName,Account.Owner.CreatedBy.LastName';
+         docTemplateChild.JunoDoc__Parent_Child_Object__c = 'Contact';
+         docTemplateChild.JunoDoc__Parent_Child_Reference__c = 'accountId';
+         docTemplateChild.JunoDoc__Parent_Child_Object_Reference__c= 'accountId';
         //docTemplateChild.JunoDoc__Aggregate_Query__c = 'SELECT Count(id) FROM Contact WHERE Id != null GROUP BY Id';
         //docTemplateChild.JunoDoc__Group_By__c = 'ID';
         docTemplateChildsList.add(docTemplateChild);
@@ -287,6 +291,10 @@ public class PreviewPDF_Controller_TC {
         docTemplateChild.JunoDoc__Related_Object_Labels__c = 'Discount[[Center]],Grand Total[[Center]],Subtotal[[Center]],Quote Number';
         docTemplateChild.JunoDoc__Aggregate_Query__c = 'SELECT SUM(SubTotal) Subtotals, SUM(GrandTotal) TotalPrices from quote group by  OpportunityId';
         docTemplateChild.JunoDoc__Group_By__c = 'OpportunityId';
+        docTemplateChild.JunoDoc__Related_Object_Child_Query__c = 'Name,Account.Name,Account.Owner.LastName,Account.Owner.CreatedBy.LastName';
+         docTemplateChild.JunoDoc__Parent_Child_Object__c = 'Contact';
+         docTemplateChild.JunoDoc__Parent_Child_Reference__c = 'accountId';
+         docTemplateChild.JunoDoc__Parent_Child_Object_Reference__c= 'accountId';
         docTemplateChildsList.add(docTemplateChild);
         insert docTemplateChildsList; 
 
@@ -404,6 +412,10 @@ JunoDoc__Calculated_Fields__c CalcFld = new JunoDoc__Calculated_Fields__c();
         docTemplateChild.JunoDoc__Related_Object_Labels__c = 'Discount[[Center]],Grand Total[[Center]],Subtotal[[Center]],Quote Number';
         docTemplateChild.JunoDoc__Aggregate_Query__c = 'SELECT SUM(SubTotal) Subtotals, SUM(GrandTotal) TotalPrices from quote group by  OpportunityId';
         docTemplateChild.JunoDoc__Group_By__c = 'OpportunityId';
+         docTemplateChild.JunoDoc__Related_Object_Child_Query__c = 'Name,Account.Name,Account.Owner.LastName,Account.Owner.CreatedBy.LastName';
+         docTemplateChild.JunoDoc__Parent_Child_Object__c = 'Contact';
+         docTemplateChild.JunoDoc__Parent_Child_Reference__c = 'accountId';
+         docTemplateChild.JunoDoc__Parent_Child_Object_Reference__c= 'accountId';
         docTemplateChildsList.add(docTemplateChild);
         insert docTemplateChildsList; 
 
@@ -460,6 +472,63 @@ JunoDoc__Calculated_Fields__c CalcFld = new JunoDoc__Calculated_Fields__c();
          PPC.GetCurrencyvalues('1000000');
         PPC.getRelType('Quote','Opportunity','Name');
         PPC.getchilType('Quote','Opportunity');
+         
+         //----------------------------------------------------------
+         Document checkDoc = new Document(
+        Name = 'TestCheckImg',
+        Body = Blob.valueOf('mock check image'),
+        ContentType = 'image/png',
+        FolderId = UserInfo.getUserId(),
+        IsPublic = true
+    );
+    insert checkDoc;
+
+    Document uncheckDoc = new Document(
+        Name = 'TestUncheckImg',
+        Body = Blob.valueOf('mock uncheck image'),
+        ContentType = 'image/png',
+        FolderId = UserInfo.getUserId(),
+        IsPublic = true
+    );
+    insert uncheckDoc;
+         String baseUrl = '';
+          Map<String, String> typeMap = new Map<String, String>{
+        'firstnamecontact'           => 'STRING',
+        'lastnamecontact'            => 'STRING',
+        'emailcontact'               => 'EMAIL',
+        'donotcallcontact'           => 'BOOLEAN',
+        'mobilephonecontact'         => 'PHONE',
+        'birthdatecontact'           => 'DATE',
+        'createddatecontact'         => 'DATETIME',
+        'account.owner.namecontact'  => 'STRING'
+    };
+        Contact parentAcc = new Contact(
+        LastName = 'Test Parent Account 2025',
+            AccountId = acc.Id,
+        OwnerId = UserInfo.getUserId()
+    );
+    insert parentAcc;
+             String parentHtmlFragment = '<h3>Contacts for ' + parentAcc.Name + '</h3>';
+    Integer testColspan = 8;
+        PPC.getChildTabelData(
+        docTemplateChild,               // Doc_Template_Child__c
+        null,                   // str (often unused)
+        uncheckDoc,             // Document uncheckdocument
+        checkDoc,               // Document checkdocument
+        baseUrl,                // sfdcURLForDocImage
+        typeMap,                // ChildobjectsMap
+        parentAcc,              // childSobj = parent record
+        parentHtmlFragment,     // parentstr
+        testColspan             // colspan
+    );
+          String input =
+            '<div style="color:PLACEHOLDER;">PLACEHOLDER</div>';
+
+        String output = PreviewPDF_Controller.safeReplaceOutsideStyle(
+            input,
+            'PLACEHOLDER',
+            'RED'
+        );
         //PreviewPDF_Controller.isSafeObject('Account');
         system.assertEquals('test', 'test');
         Test.stopTest();

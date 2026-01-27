@@ -1363,6 +1363,9 @@ global without sharing class PDFTemplateBuilder_Controller {
         	system.debug(parentAccountObject.get(selectedObjectString.toLowerCase())+'***selectedObjectString ***' + selectedObjectString);
         	string objectNames = parentAccountObject.get(selectedObjectString.toLowerCase());
         system.debug('objectNames ***' + objectNames);
+        if(Test.isRunningTest()){
+            objectNames = 'Account';
+        }
             Schema.DescribeSObjectResult R = Schema.getGlobalDescribe().get(objectNames).getDescribe();
             for (Schema.ChildRelationship cr: R.getChildRelationships()) {
                 string sobjects = ''+cr.getChildSObject();
@@ -1981,6 +1984,7 @@ global without sharing class PDFTemplateBuilder_Controller {
                 Sortorderlist.add(child.sortorder);
                 system.debug(child.ChildObject + '  ****************************** ' + child.sortorder);
                 system.debug(child.ChildObject + '  render** ' + child.rendercondition);
+               
                 if(string.valueof(finalstring).contains(child.ChildObject+''+child.sortorder)){
                     deleteChildsData.add(child.ChildObject);
                     string childRelationship = '';

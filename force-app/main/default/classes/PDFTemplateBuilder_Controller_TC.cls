@@ -351,7 +351,7 @@ public class PDFTemplateBuilder_Controller_TC {
         ApexPages.currentPage().getParameters().put('EmailTempId', emailTemplate.Id);
          ApexPages.currentPage().getParameters().put('TemplateType','Excel');
         PDFTemplateBuilder_Controller PTB = new PDFTemplateBuilder_Controller();
-        PTB.finalstring = '<div><div>{!Name}</div><div>{!Id}</div > [{PAR(Name)}]  {{tax}} > 2</div>';
+        PTB.finalstring = '<div><div>{!Name}</div><div>{!Id}</div > [{PAR(Name)}]  {{tax}} > Contact2</div>';
         PTB.HeaderString = '<div><div>{!Name}</div><div>{!Id}</div></div>';
         PTB.FooterString = '<div><div>{!Name}</div><div>{!Id}</div></div>';
         PTB.SaveData();
@@ -391,8 +391,10 @@ public class PDFTemplateBuilder_Controller_TC {
         PTB.selectedPickListValue = 'Account';
         PTB.selectedFilter = 'Account';
         PTB.selFieldName = 'Account';
+        PTB.selectedObjectString = 'Account';
+        PTB.parentAccountObject =new Map<string,string>{'Account'=>'Account'};
         PTB.indexVar = '1';
-
+		PTB.getparentChildObjects();
         system.assertEquals('test', 'test');
         Test.stopTest();
     }

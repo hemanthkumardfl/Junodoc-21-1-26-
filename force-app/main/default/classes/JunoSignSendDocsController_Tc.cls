@@ -364,11 +364,14 @@ global class JunoSignSendDocsController_Tc{
         opp.TotalOpportunityQuantity = 100;
         insert opp;
         
-        Account quo = new Account();
-        quo.name = 'test_quo';
-        //quo.ContactId = con2.id;
-       // quo.OpportunityId = opp.id;
-        insert quo;
+        Account quo = new Account(
+        Name = 'Test Company XYZ',
+        AnnualRevenue = 1250000.75,           // NUMBER / CURRENCY
+       // BillingLatitude = 16.5062,             // to test NUMBER
+        Description = 'This is a test account',
+        NumberOfEmployees = 42           // INTEGE
+    );
+    insert quo;
         list< JunoDoc__Junodoc_Currency__c> JunoCurrencylist  = new  List<JunoDoc__Junodoc_Currency__c>();
         JunoDoc__Junodoc_Currency__c JunoCurrency = new JunoDoc__Junodoc_Currency__c();
         JunoCurrency.Name = 'test';
@@ -394,13 +397,20 @@ global class JunoSignSendDocsController_Tc{
         JET.Name = 'Test';
         insert JET;
         
-        JunoDoc__Email_Template_Item__c JETI = new JunoDoc__Email_Template_Item__c();
-        JETI.JunoDoc__Subject__c = 'Test{URL}test{!TODAY()} {!NOW()} {!#User.Signature}';
-        JETI.JunoDoc__Template_Body__c = 'Test{URL}test{!TODAY()} {!NOW()} {!#User.Signature}';
-       // JETI.JunoDoc__Template_Body__c = '{URL}test{!TODAY()} {!NOW()} {!#User.Signature}{!Contact.Email} {!Email} {!Contact.Name}{!Contact.Account.Name}{!Contact.Account.Owner.IsActive}{!opportunity.CloseDate}{!opportunity.Account.owner.Name} {!opportunity.IsClosed}{!opportunity.TotalOpportunityQuantity}{!Account.AnnualRevenue}';
-        //JETI.JunoDoc__Subject__c = 'test{!TODAY()} {!NOW()} {!#User.Signature} {!Email} {!Contact.Email}{!Contact.Name}{!Contact.Account.Name}{!Contact.Account.Owner.IsActive}{!opportunity.CloseDate}{!opportunity.Account.owner.Name} {!opportunity.IsClosed}{!opportunity.TotalOpportunityQuantity}{!Account.AnnualRevenue}';
-        JETI.JunoDoc__Email_Template__c = JET.Id;
-        insert JETI;
+      
+        JunoDoc__Email_Template_Item__c JETI = new JunoDoc__Email_Template_Item__c(
+        JunoDoc__Email_Template__c = JET.Id,
+            JunoDoc__Subject__c = 'Review documents for {!Name} {!Owner.Name} {!Owner.LastName} {!Owner.FirstName} {!Owner.CreatedBy.LastName} - {!TODAY()} - {!#User.Name}',
+        JunoDoc__Template_Body__c = String.join(new List<String>{
+            '<h2>Account: {!Name} {!Owner.Name}</h2>',
+            '<p>Revenue: {!AnnualRevenue} | Currency: </p>',  // test currency
+            '<p>Employees: {!NumberOfEmployees}</p>',
+            '<p>Created Date: {!CreatedDate}</p>',
+            '<p>Checkbox example: </p>',           // add real boolean field if exists
+            '{URL}'                                                        // test URL placeholder
+        }, '\n')
+    );
+    insert JETI;
         
         JunoDoc__Junosign_Object_Setting__c JunoObs = new JunoDoc__Junosign_Object_Setting__c();
         JunoObs.JunoDoc__Selected_object__c = 'Account';

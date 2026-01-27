@@ -197,6 +197,8 @@ public class JunoUsersignContrl_TC {
         s.JunoDoc__Site_URL__c='https://junodoc-developer-edition.na111.force.com';
         insert s;
         
+        
+        
         PageReference signPage = new PageReference('');    
         ApexPages.currentPage().getParameters().put('id',tem.Id);
         ApexPages.currentPage().getParameters().put('recid',rec.Id);
@@ -249,7 +251,7 @@ ApexPages.currentPage().getParameters().put('orgTempRecordId',tem.Id);*/
         
         
         
-        ApexPages.currentPage().getParameters().put('id',tem2.Id);
+        ApexPages.currentPage().getParameters().put('id',temp.Id);
         ApexPages.currentPage().getParameters().put('recid',rec2.Id);
         ApexPages.currentPage().getParameters().put('conid',opp.Id);
         ApexPages.currentPage().getParameters().put('trancid',tr.Id);
@@ -496,7 +498,7 @@ insert cv;**/
         ApexPages.currentPage().getParameters().put('conid',con.Id);
         ApexPages.currentPage().getParameters().put('trancid',tr.Id);
         ApexPages.currentPage().getParameters().put('orgDocid',tem.Id);
-        ApexPages.currentPage().getParameters().put('conDocID','');
+        ApexPages.currentPage().getParameters().put('conDocID','0693h00000G9UUKAA3,0693h00000G9UY2AAN');
         ApexPages.currentPage().getParameters().put('showattachment','false');
         
         JunoDoc__Doc_Template__c test23 = new JunoDoc__Doc_Template__c();
@@ -523,6 +525,7 @@ insert cv;**/
         Juno.Reference();
         Juno.deleteDocTemplate();
         Juno.rejectStatus();
+        juno.NumberFormat = '###,###.00';
         Juno.GetNumbervalues('33333.00');
         //\Juno.GetNumbervalues('33,333');
         Juno.GetNumbervalues(null);

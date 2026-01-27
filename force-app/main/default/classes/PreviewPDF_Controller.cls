@@ -2644,8 +2644,11 @@ private static String escapePlainText(String value) {
                                 }
                             }
                             else{
+                                system.debug('childs ???? '+childs);
                                 string Stringobjct = childs.replace('.',',');
+                                system.debug('Stringobjct ???? '+Stringobjct);
                                 string[] Stringobjcts = Stringobjct.split(',');
+                                system.debug('Stringobjct 2 ???? '+Stringobjct);
                                 if(Stringobjcts.size() > 3){
                                     if(Sb.getsobject(Stringobjcts[0]) != null){
                                         if(Sb.getsobject(Stringobjcts[0]).getsobject(Stringobjcts[1]) != null) {

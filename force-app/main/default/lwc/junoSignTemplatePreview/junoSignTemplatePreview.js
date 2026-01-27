@@ -108,6 +108,7 @@ export default class JunoSignTemplatePreview extends LightningElement {receiverJ
 
     // Event handlers
     handleVFMessage(event) {
+        console.log('On load called');
         if (event.data?.pageImages && event.data.actionfrom === 'junodoc') {
             let pageImages = event.data.pageImages;
             let previewElementsList = [];

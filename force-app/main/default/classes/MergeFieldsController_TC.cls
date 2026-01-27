@@ -19,6 +19,23 @@ public class MergeFieldsController_TC {
         Test.stopTest();
     }
     
+    private static testMethod void test22(){
+        insertAccounts();
+        insertContacts();
+        Test.startTest();
+        MergeFieldsController MF = new MergeFieldsController();
+        MF.recordId = acc.Id;
+        MF.SobjectName = 'Account';
+        MF.m_MergeData('test'); 
+       
+        MergeFieldsController MFs = new MergeFieldsController();
+        MFs.recordId = con.Id;
+        MFs.SobjectName = 'Contact';
+        MFs.m_MergeData('{!Account.Name}{!Account.Owner.Name}{!Account.Owner.Createddate}{!#User.Email}{!LastName}'); 
+        Test.stopTest();
+    }
+
+    
     public static void insertAccounts(){
         acc = new Account();
         acc.Name = 'Test Account';

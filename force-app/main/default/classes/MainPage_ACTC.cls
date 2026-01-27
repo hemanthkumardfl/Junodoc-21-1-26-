@@ -36,7 +36,7 @@ public class MainPage_ACTC {
         doc.JunoDoc__Parent_Fields__c = juno.id;
         doc.JunoDoc__Parent_Object__c = 'Contact';
        // doc.Id = juno.id;
-        doc.JunoDoc__PDF_Name__c = '{!Name} - {!Account.Name} - {!Account.owner.Name}';
+        doc.JunoDoc__PDF_Name__c = '{!Name} - {!Account.Name} - {!Account.owner.Name} {!Account.owner.CreatedBy.Name} {!TODAY()} {!NOW()}';
       //  doc.PDF_Name__c = '{!PreviewPDF';
         insert doc;
         

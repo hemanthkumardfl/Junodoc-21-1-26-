@@ -59,6 +59,7 @@ public class MasterObjectSelector_Controller_TC {
         
         MasterObjectSelector_Controller.getrecorddetails('Account');
          MasterObjectSelector_Controller.getOrgUrl();
+        MasterObjectSelector_Controller.getParentObjects('Contact');
     }
     
     @isTest static void test3(){

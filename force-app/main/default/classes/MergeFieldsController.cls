@@ -83,7 +83,7 @@ global without sharing class MergeFieldsController {
         for(String s : fieldNames){
             if(!s.contains('.')){
                 if(querySOject.get(s) != null){
-                    
+                    system.debug('s >>> '+s);
                     if(s.trim() == 'Date__c'){
                     Date DateValue = Date.valueof(querySOject.get('Date__c'));
                     

@@ -1494,6 +1494,7 @@ defaultEmailDataList.add(defaultEmailDataItem);*/
                 system.debug('parentSubRef--->'+parentSubRef);
             }
             for(String strs: FldSublst){
+                system.debug('Strrs >>> '+strs);
                 string str = strs.replace(' ','');
                 string Parentvalues = '';
                 if(!str.contains('.')){
