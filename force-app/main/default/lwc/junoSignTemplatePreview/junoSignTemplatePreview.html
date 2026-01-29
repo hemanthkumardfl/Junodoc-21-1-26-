@@ -220,78 +220,85 @@
                         <div class="document-content">
                             
                             <template if:true={previewLoaded}>
-                                <template if:true={previewElements} for:each={previewElements} for:item="previewItem" for:index="index">
-                                    <div key={previewItem.id} 
-                                            class="preview-page-wrapper" 
-                                            data-pgno={index} 
-                                            style="position:relative;border: 1px solid black;" 
-                                            ondrop={handleDrop} 
-                                            ondragover={handleDragOver}
-                                            >
-                                            <!-- onmousedown={handleDocumentMouseDown}
-                                            onmousemove={handleDocumentMouseMove}
-                                            onmouseup={handleDocumentMouseUp} -->
-                                            <img src={previewItem.pageImages} />
-                                            <!-- <hr> -->
-                                            <!-- Overlay for signature elements -->
+                                <template if:true={previewElements}>
+                                    <template for:each={previewElements} for:item="previewItem" for:index="index">
+                                        <div key={previewItem.id}
+                                             class="preview-page-wrapper"
+                                             data-pgno={index}
+                                             style="position:relative;border:1px solid black;"
+                                             ondrop={handleDrop}
+                                             ondragover={handleDragOver}>
+                                
+                                            <!-- ================= PDF BACKGROUND ================= -->
+                                            <template if:true={previewItem.pageImages}>
+                                                <img src={previewItem.pageImages}
+                                                     style="width:100%;display:block;" />
+                                            </template>
+                                
+                                            <!-- ================= DOCX BACKGROUND ================= -->
+                                            <template if:true={previewItem.isDocx}>
+                                                <!-- DOCX HTML is rendered by VF underneath.
+                                                     This div is ONLY a positioning surface -->
+                                                <div class="docx-surface"></div>
+                                            </template>
+                                
+                                            <!-- ================= OVERLAY (COMMON) ================= -->
                                             <div class="signature-overlay"
-                                                onmousedown={handleOverlayMouseDown}
-                                                >
-                                                <!-- onmousemove={handleOverlayMouseMove}
-                                                onmouseup={handleOverlayMouseUp} -->
-
-                                                <!-- Signature Elements -->
+                                                 style="position:absolute;top:0;left:0;right:0;bottom:0;">
+                                
+                                                <!-- Placed Elements -->
                                                 <template for:each={previewItem.droppedEles} for:item="element">
                                                     <div key={element.id}
-                                                        class={element.elementClass}
-                                                        style={element.elementStyle}
-                                                        data-element-id={element.id}
-                                                        >
-
-                                                        
+                                                         class={element.elementClass}
+                                                         style={element.elementStyle}
+                                                         data-element-id={element.id}>
+                                
                                                         <!-- Drag Handle -->
-                                                        <div class="drag-handle" 
-                                                            onmousedown={handleElementMouseDown}
-                                                            data-element-id={element.id}>
-                                                            <lightning-icon icon-name="utility:move" size="xx-small"></lightning-icon>
+                                                        <div class="drag-handle"
+                                                             onmousedown={handleElementMouseDown}
+                                                             data-element-id={element.id}>
+                                                            <lightning-icon
+                                                                icon-name="utility:move"
+                                                                size="xx-small">
+                                                            </lightning-icon>
                                                         </div>
-
+                                
                                                         <!-- Remove Button -->
-                                                        <lightning-button-icon 
+                                                        <lightning-button-icon
                                                             class="remove-button"
-                                                            icon-name="utility:delete" 
-                                                            variant="destructive" 
-                                                            alternative-text="Remove element"
+                                                            icon-name="utility:delete"
+                                                            variant="destructive"
                                                             size="xx-small"
                                                             data-element-id={element.id}
                                                             onclick={removeElement}>
                                                         </lightning-button-icon>
-
+                                
                                                         <!-- Element Content -->
                                                         <div class="element-content">
                                                             <div class="slds-grid slds-grid_align-center slds-m-bottom_xx-small">
-                                                                <lightning-icon icon-name={element.iconName} size="xx-small"></lightning-icon>
-                                                                <span class="slds-text-body_small slds-m-left_xx-small">{element.recipientName}</span>
+                                                                <lightning-icon
+                                                                    icon-name={element.iconName}
+                                                                    size="xx-small">
+                                                                </lightning-icon>
+                                                                <span class="slds-text-body_small slds-m-left_xx-small">
+                                                                    {element.recipientName}
+                                                                </span>
                                                             </div>
-                                                            
-                                                            <lightning-input 
+                                
+                                                            <lightning-input
                                                                 type={element.fieldType}
                                                                 value={element.label}
-                                                                placeholder="Field label"
                                                                 variant="label-hidden"
-                                                                class="element-label-input"
-                                                                data-element-id={element.id}
-                                                                onchange={updateElementLabel}
-                                                                onclick={handleLabelClick}>
+                                                                data-element-id={element.id}>
                                                             </lightning-input>
-
+                                
                                                             <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
                                                                 {element.typeLabel} • Order {element.recipientOrder}
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </template>
-
+                                
                                                 <!-- Drop Zone Indicator -->
                                                 <template if:true={isDraggingNew}>
                                                     <div class="drop-zone-indicator">
@@ -303,18 +310,13 @@
                                                         </div>
                                                     </div>
                                                 </template>
-
-                                                <!-- iframe Loading Indicator -->
-                                                <!-- <template if:false={iframeLoaded}>
-                                                    <div class="iframe-loading">
-                                                        <lightning-spinner alternative-text="Loading document..." size="medium"></lightning-spinner>
-                                                        <p class="slds-text-heading_small slds-m-top_medium">Loading document...</p>
-                                                    </div>
-                                                </template> -->
+                                
                                             </div>
-                                    </div>
-                                        
+                                        </div>
+                                    </template>
                                 </template>
+                                
+                                
                             </template>
                             <template if:false={previewLoaded}>
                                 <iframe src={vfPageUrl} width="100%" height="100%"  scrolling="yes" style="overflow: auto" frameborder="0"></iframe>

@@ -23,7 +23,7 @@ public class JunoSignDocumentSelectorCntrl {
         // Build main query
         String baseQuery = 'SELECT ContentDocumentId, ContentDocument.Title, LinkedEntityId ' +
             'FROM ContentDocumentLink ' +
-            'WHERE LinkedEntityId = :recordId AND ContentDocument.FileType = :fileType';
+            'WHERE LinkedEntityId = :recordId';// AND ContentDocument.FileType = :fileType';
         
         if (!String.isBlank(searchKey)) {
             baseQuery += ' AND ContentDocument.Title LIKE \'%' + String.escapeSingleQuotes(searchKey) + '%\'';

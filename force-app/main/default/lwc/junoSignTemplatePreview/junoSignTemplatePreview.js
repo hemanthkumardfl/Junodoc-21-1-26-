@@ -26,6 +26,8 @@ export default class JunoSignTemplatePreview extends LightningElement {receiverJ
     @track previewLoaded = false;
     @track base64Data = '';
     @track inputType = 'text';
+    @track documentType = 'pdf'; // pdf | docx
+
     
     dragState = {
         isDragging: false,
@@ -91,7 +93,7 @@ export default class JunoSignTemplatePreview extends LightningElement {receiverJ
     get vfPageUrl() {
         let docSelected = this.selectedDocumentsForsendItem ? this.selectedDocumentsForsendItem : this.selectedDocumentsForsend;
         // console.log('/apex/Junodoc__JunoTemplatePreviewVF?recordId=' + this.recordId + '&templateId=' + docSelected + '&selectedOption=' + this.selectedDocOption + '&parentOrigin=' + window.location.origin);
-        return '/apex/Junodoc__JunoTemplatePreviewVF?recordId=' + this.recordId + '&templateId=' + docSelected + '&selectedOption=' + this.selectedDocOption + '&parentOrigin=' + window.location.origin;
+        return '/apex/Junodoc__JunoSignDocPreviewVF?recordId=' + this.recordId + '&templateId=' + docSelected + '&selectedOption=' + this.selectedDocOption + '&parentOrigin=' + window.location.origin;
     }
 
     // Lifecycle hooks
@@ -109,24 +111,54 @@ export default class JunoSignTemplatePreview extends LightningElement {receiverJ
 
     // Event handlers
     handleVFMessage(event) {
-        console.log('On load called');
-        if (event.data?.pageImages && event.data.actionfrom === 'junodoc') {
-            let pageImages = event.data.pageImages;
-            let previewElementsList = [];
-            
-            for (let i = 0; i < Object.keys(pageImages).length; i++) {
-                let elementObj = {
-                    id: 'imgId-' + i,
-                    pageImages: pageImages[i],
+        // Basic guard
+        if (!event?.data || event.data.actionfrom !== 'junodoc') {
+            return;
+        }
+    
+        console.log('VF message received:', JSON.stringify(event.data));
+    
+        /* ===================== PDF ===================== */
+        if (event.data.pageImages) {
+            this.documentType = 'pdf';
+    
+            const pageImages = event.data.pageImages;
+            const previewElementsList = [];
+    
+            Object.keys(pageImages).forEach((key, index) => {
+                previewElementsList.push({
+                    id: `imgId-${index}`,
+                    pageImages: pageImages[key],
                     droppedEles: []
-                };
-                previewElementsList.push(elementObj);
-            }
-            
+                });
+            });
+    
             this.previewElements = previewElementsList;
+            this.previewLoaded = true;
+            return;
+        }
+    
+        /* ===================== DOCX ===================== */
+        if (event.data.status === 'rendered') {
+            // Prevent re-processing duplicate messages
+            if (this.previewLoaded && this.documentType === 'docx') {
+                return;
+            }
+    
+            this.documentType = 'docx';
+    
+            // DOCX = single logical page
+            this.previewElements = [{
+                id: 'docx-page-0',
+                isDocx: true,
+                droppedEles: []
+            }];
+    
             this.previewLoaded = true;
         }
     }
+    
+    
 
     handleRecipientChange(event) {
         this.selectedRecipient = event.detail.value;

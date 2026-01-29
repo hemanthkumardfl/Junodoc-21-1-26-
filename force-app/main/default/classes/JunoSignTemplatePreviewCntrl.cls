@@ -316,6 +316,29 @@ public static List<Id> createPageTabs(String droppedElementsJson) {
         }
     }
 
+    public String docxBase64 { get; set; }
+    public  void generateDocxAndReturnBase64Clone() {
+        String recordId = ApexPages.currentPage().getParameters().get('recordId');
+        String templateId = ApexPages.currentPage().getParameters().get('templateId');
+        String selectedOption = ApexPages.currentPage().getParameters().get('selectedOption');
+        system.debug(recordId+'--'+templateId+'---'+selectedOption);
+        List<String> selectedDocs = new List<String>();
+        if(templateId.contains(',')){
+            selectedDocs = templateId.split(',');
+        }
+        if (selectedOption == 'records' || selectedOption == 'upload') {
+            ContentVersion cont = [
+                SELECT VersionData
+                FROM ContentVersion
+                WHERE ContentDocumentId = :templateId
+                ORDER BY VersionNumber DESC
+                LIMIT 1
+            ];
+    
+            docxBase64 = EncodingUtil.base64Encode(cont.VersionData);
+        }
+    }
+
     public class DroppedElementDTO {
         @AuraEnabled public String droptype {get; set;}
         @AuraEnabled public Decimal x {get; set;}

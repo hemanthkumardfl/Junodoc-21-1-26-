@@ -236,3 +236,9 @@
     width: fit-content;   /* 🔑 key line */
     margin: 0 auto;       /* center if needed */
 }
+
+.docx-surface {
+    width: 210mm;
+    min-height: 297mm;
+    background: transparent;
+}
