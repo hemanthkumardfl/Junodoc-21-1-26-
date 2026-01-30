@@ -327,7 +327,7 @@ global without sharing class PreviewPDF_Controller {
                         NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table></div>';
                     } else {
                         // Add page break before subsequent pages
-                        NewTemplateBody += '<div class="main-section" style="page-break-before: always;"><div class="main-section" style="height:auto"><table><tbody class="word-body-content' + k + '"><tr><td>';
+                        NewTemplateBody += '<div class="main-section" style="mso-special-character:line-break;page-break-before: always;"><div class="main-section" style="height:auto;"><table><tbody class="word-body-content' + k + '"><tr><td>';
                         NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table></div></div>';
                     }
                     l = l + 1;

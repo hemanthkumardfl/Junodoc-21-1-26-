@@ -1,0 +1,49 @@
+<apex:page controller="JunoSignTemplatePreviewCntrl" action="{!generateDocxAndReturnBase64Clone}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+    <style>
+        #word-container { 
+            padding: 20px; 
+            border: 1px solid #ccc; 
+            background: white;
+            font-family: sans-serif;
+        }
+    </style>
+
+    <div id="word-container">Loading Document...</div>
+
+    <script>
+        (function() {
+            // 1. Get Base64 from Apex
+            let base64Data = '{!docxBase64}'; 
+            
+            // 2. Convert Base64 to ArrayBuffer
+            const binaryString = window.atob(base64Data);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // 3. Use Mammoth to convert to HTML
+            mammoth.convertToHtml({arrayBuffer: bytes.buffer})
+                .then(displayResult)
+                .catch(handleError);
+
+            function displayResult(result) {
+                document.getElementById('word-container').innerHTML = result.value;
+                
+                // Optional: Send message to LWC similar to your PDF logic
+                window.parent.postMessage({
+                    actionfrom: 'wordpreview',
+                    content: result.value
+                }, "*");
+            }
+
+            function handleError(err) {
+                console.error(err);
+                document.getElementById('word-container').innerHTML = "Error rendering document.";
+            }
+        })();
+    </script>
+</apex:page>
