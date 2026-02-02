@@ -302,7 +302,14 @@ global without sharing class PreviewPDF_Controller {
                         .replace('data-title="Edit"', '').replace('data-title="Image Element"', '')
                         .replace('item-label', '').replace('td-label', '')
                         .replace('hover-row', '').replace('table-element', '')
-                        .replace('order-list', '').replace('table-drag', '');
+                        .replace('order-list', '').replace('table-drag', '')
+                        .replace('ui-resizable', '').replace('container-td', '')
+                        .replace('container-tr', '').replace('main-table-box','')
+                    	.replace('main-row-box', '').replace('invoice-content-box','')
+                        .replace('ui-droppable','').replace('-handle','')
+                        .replace('<div style="font-size:0px">&nbsp;</div>','');
+                    
+                    
                 }
 
                 if (DocTemplates.JunoDoc__Template_Type__c != 'Word Document') {
@@ -327,7 +334,7 @@ global without sharing class PreviewPDF_Controller {
                         NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table></div>';
                     } else {
                         // Add page break before subsequent pages
-                        NewTemplateBody += '<div class="main-section" style="mso-special-character:line-break;page-break-before: always;"><div class="main-section" style="height:auto;"><table><tbody class="word-body-content' + k + '"><tr><td>';
+                        NewTemplateBody += '<div  style="clear: both;page-break-before: always;height:auto;">&nbsp;<div class="main-section" style="height:auto;"><table><tbody class="word-body-content' + k + '"><tr><td>';
                         NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table></div></div>';
                     }
                     l = l + 1;

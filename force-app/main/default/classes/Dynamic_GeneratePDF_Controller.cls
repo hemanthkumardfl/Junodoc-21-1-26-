@@ -715,7 +715,7 @@ AvailableDocTemplatesList.add(obj);
             
             ContentVersion cVersion = new ContentVersion();
             cVersion.ContentLocation = 'S'; //S-Document is in Salesforce. E-Document is outside of Salesforce. L-Document is on a Social Netork.
-            cVersion.PathOnClient = sobjectrec.get(Names)+'.doc';//File name with extention
+            cVersion.PathOnClient = sobjectrec.get(Names)+'.docx';//File name with extention
             cVersion.Title =  ''+sobjectrec.get(Names);//Name of the file
             cVersion.VersionData = pdfPageBlob;//File content
             Insert cVersion;
@@ -1903,7 +1903,7 @@ k = k+1;
                                                         Name = Title + '.pdf';
                                                     }
                                                     else if(DocTemplateRec[0].JunoDoc__Template_Type__c == 'Word Document'){
-                                                        Name = Title + '.doc';   
+                                                        Name = Title + '.docx';   
                                                     }
                                                     else{
                                                         Name = Title + '.xls';   

@@ -65,27 +65,90 @@
                         header += ' img{width: 15px !important;height: 15px !important; }p.MsoFooter,li.MsoFooter,div.MsoFooter {margin: 0in;margin-bottom: .0001pt;mso-pagination: widow-orphan;tab-stops: center 0in right 0in;} div[data-renderdiv="showDiv"]{display: block; }div[data-renderdiv="hideDiv"]{display: none; } .pagenumber:before {content: counter(page);}.pagecount:before {content: counter(pages);}</style><body>';
                          
                             var footer = "</body></html>";
+                            console.log('*****'+tempContainer.innerHTML);
+                            var parser = new DOMParser();
+                            var doc = parser.parseFromString(tempContainer.innerHTML, 'text/html');
+                            
+                            // 2. REMOVE UNNECESSARY DATA
+                            // Remove all Salesforce UI resizer handles and setting buttons
+                            const junkSelectors = '.ui-resizable-handle, .table-setting-box, .ui-icon, script';
+                            doc.querySelectorAll(junkSelectors).forEach(el => el.remove());
+                            
+                            // 1. Remove truly empty divs (no text, no children)
+                            doc.querySelectorAll('div').forEach(div => {
+                                // Check if the div has no visible text and no child elements (like <img> or <table>)
+                                // We trim() to ensure we don't count whitespace as content
+                                const hasContent = div.textContent.trim().length > 0 || div.children.length > 0;
+                                
+                                // EXCEPTION: Don't remove divs used for page breaks
+                                const isPageBreak = div.style.pageBreakAfter === 'always' || div.classList.contains('page-break');
+                            
+                                if (!hasContent && !isPageBreak) {
+                                    div.remove();
+                                }
+                            });
+                            
+                            
+                            
+                            // 2. OPTIONAL: Remove empty paragraphs <p></p> which often cause extra spacing
+                            doc.querySelectorAll('p').forEach(p => {
+                                if (p.textContent.trim().length === 0 && p.children.length === 0) {
+                                    p.remove();
+                                }
+                            });
+
+                            
+                            // 4. GET THE CLEANED HTML
+                            var cleanedContent =  doc.getElementById('sectionMain').innerHTML;
+                            var headersMain = doc.getElementById('h1').innerHTML;
+                             var footersMain = doc.getElementById('f1').innerHTML;
+								// 4. Remove the ENTIRE source table from the main document body's view
+                                const hfTable = doc.getElementById('hrdftrtbl');
+                                if (hfTable) {
+                                    hfTable.remove(); 
+                                }
                             //   var html = header + tempContainer.innerHTML + footer;
                             
                             //   var html = '<!DOCTYPE html>'+ tempContainer.innerHTML;
                             var html = `
 <!DOCTYPE html>
-<html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org'>
 <head>
-<meta charset="utf-8"/>
-<style>
+    <meta charset="utf-8"/>
+    <style>
+        /* Word Specific Reset */
+        p, div, td { margin: 0pt; padding: 0pt; line-height: normal; }
+        table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
 
-</style>
+        @page Section1 {
+            size: 8.5in 11.0in; 
+            margin: 0.5in;
+            mso-header: h1;
+            mso-footer: f1;
+            mso-header-margin: 0.5in;
+            mso-footer-margin: 0.5in;
+        }
+        div.Section1 { page: Section1; }
+
+        /* This hides the source elements so they don't show in the body */
+        #hrdftrtbl { display: none; position: absolute; top: -9999px; }
+        div#h1 { mso-element: header; }
+        div#f1 { mso-element: footer; }
+    </style>
 </head>
 <body>
-  <div class="main-section">
-    ${tempContainer.innerHTML}
-  </div>
+    <!-- 1. THE MAIN CONTENT -->
+    <div class="Section1">
+        ${cleanedContent} 
+    </div>
+
+    <!-- 2. THE HIDDEN DEFINITIONS (Outside the Section1 Div) -->
+                           
 </body>
 </html>`;
 
 
-						console.log(tempContainer.innerHTML)
+						console.log('cleanedContent **'+ cleanedContent);
                             // var blob = new Blob(['\ufeff', html], { type: 'application/msword' });
                          var blob = htmlDocx.asBlob(html, {orientation: 'portrait'});
                         //   saveAs(blob, 'test.docx');
