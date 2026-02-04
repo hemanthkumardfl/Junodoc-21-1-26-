@@ -220,7 +220,7 @@
     <aura:handler name="docSelectorEvt" event="c:JunoSignDocumentSelectorEvt" action="{!c.handleselectedDocument}"/>
     
    <aura:attribute name="isImmediateActions" type="boolean" default="false"/>
-   <aura:attribute name="immediateActionRows" type="List" default="[{ fieldName: '', fieldValue: '' }]"/>
+   <aura:attribute name="immediateActionRows" type="List" default="[]"/>
    <aura:handler name="rowsUpdated" event="c:RowsUpdated" action="{!c.handleImmediateRows}"/>
 
    

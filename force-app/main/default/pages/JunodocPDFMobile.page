@@ -16,7 +16,7 @@
         // Never hardcode namespace — use URLFOR
         let pdfUrl = "{!URLFOR($Page.JunodocPDF)}" 
                      + "?id=" + recordId 
-                     + "&DocTemplateId=" + docTemplateId;
+                     + "&DocTemplateId=" + docTemplateId+"&DocType=PDFMobile";
 
         const loadingTask = pdfjsLib.getDocument(pdfUrl);
         const pdf = await loadingTask.promise;

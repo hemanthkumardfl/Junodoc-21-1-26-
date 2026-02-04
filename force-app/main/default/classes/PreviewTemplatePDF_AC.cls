@@ -13,6 +13,7 @@ global without sharing class PreviewTemplatePDF_AC {
     global string loadstring{get;set;}
     global string recordId{get;set;}
     global string DocId{get;set;}
+    global string docType{get;set;}
     global String getPrintView(){
         return
         '<!--[if gte mso 9]>' +
@@ -41,6 +42,10 @@ global without sharing class PreviewTemplatePDF_AC {
         DocId = ApexPages.currentPage().getParameters().get('DocTemplateId');  
         String sObjName = QuoteId.getSObjectType().getDescribe().getName();
         string TemplateID = '';
+        docType = '';
+        if(ApexPages.currentPage().getParameters().get('DocType') != null){
+            docType = ApexPages.currentPage().getParameters().get('DocType');
+        }
         Map<String, Schema.SObjectField> objectFieldsMap = Schema.getGlobalDescribe().get(sObjName).getDescribe().fields.getMap();
         string DocTemplateField = string.valueOf(objectFieldsMap.get('Doc_Template__c'));
         if(DocTemplateField=='Doc_Template__c'){
@@ -107,7 +112,7 @@ global without sharing class PreviewTemplatePDF_AC {
         String SobjectApiName = DocTemplates.Junodoc__Parent_Object__c;
         string fieldNames = '';
         string Title = 'PreviewPDF';
-        worddocName = 'PreviewWordDoc';
+        worddocName = 'PreviewWord';
         if(DocTemplates.Junodoc__PDF_Name__c != '' && DocTemplates.Junodoc__PDF_Name__c != null){
             Title = DocTemplates.Junodoc__PDF_Name__c;
             string DateFormats = 'MM/dd/yyyy';
@@ -188,6 +193,7 @@ global without sharing class PreviewTemplatePDF_AC {
         Title = Title.replace('.','');
         Title = Title.replace('\'','');
         Title = Title.replace(';','');
+        if(Title != 'PreviewPDF')
         worddocName = Title;
         Apexpages.currentPage().getHeaders().put('content-disposition', 'inline; filename='+Title+'.pdf');          
         Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
@@ -489,7 +495,7 @@ global without sharing class PreviewTemplatePDF_AC {
     global PageReference methodone(){
         string QuoteIds = id.valueof(ApexPages.currentPage().getParameters().get('id'));
         string DocTemplateIds = id.valueof(ApexPages.currentPage().getParameters().get('DocTemplateId'));        
-        PageReference ref = new PageReference('/apex/JunoDoc__PreviewTemplatePDF?id='+QuoteIds+'&DocTemplateId='+DocTemplateIds+'&Type=DocTemplate');
+        PageReference ref = new PageReference('/apex/JunoDoc__PreviewTemplatePDF?id='+QuoteIds+'&DocTemplateId='+DocTemplateIds+'&Type=DocTemplate&DocType='+docType);
         if(!Test.isRunningTest()){
             
             output= string.valueof( ref.getContent().tostring().trim() + '').unescapeHtml4().replace('<div style="font-size: 0px;">"</div>','').replace('<div class="content">null','<div class="content">').replace('µ','&micro;').replace('--lt--','&lt;').replace('--gt--','&gt;');
@@ -512,7 +518,7 @@ global without sharing class PreviewTemplatePDF_AC {
         else{
             output= string.valueof( 'tested');
         }
-        
+        system.debug('Output**' + output);
         output  = output.unescapeHtml4(); 
         output = output.replace('<div style="font-size: 0px;">"</div>','');
         output = output.replace('<div class="content">null','<div class="content">');

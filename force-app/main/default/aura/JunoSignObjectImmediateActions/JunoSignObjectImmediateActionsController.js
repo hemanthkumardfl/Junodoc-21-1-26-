@@ -1,5 +1,6 @@
 ({
     doInit: function(component, event, helper) {
+        console.log('Immediate Actions >>> '+JSON.stringify(component.get("v.rows")));
         var getExistingRecordsAction = component.get("c.getExistingRecords");
         getExistingRecordsAction.setParams({
             recordId: component.get("v.recordId")
@@ -92,8 +93,9 @@
                 console.error("Error fetching fields:", response.getError());
             }
         });
-
-        $A.enqueueAction(getExistingRecordsAction);
+        if(component.get("v.rows").length == 0) {
+            $A.enqueueAction(getExistingRecordsAction);
+        }
         $A.enqueueAction(getObjectFieldsAction);
     },
 

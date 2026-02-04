@@ -22,6 +22,7 @@ global without sharing class PreviewPDF_Controller {
     global string type{get;set;}
     public List<DateFormatEntry> dateFormatEntries { get; set; }
     public Map<String, String> resultMap{ get; set; }
+    global string docType{get;set;}
     global PreviewPDF_Controller(){
         currencySymbolMap = new map<string,string>();
         list<JunoDoc__Junodoc_Currency__c> currencylist = [select Id,JunoDoc__Currency_Code__c,JunoDoc__Currency_Symbol__c from JunoDoc__Junodoc_Currency__c];
@@ -39,6 +40,10 @@ global without sharing class PreviewPDF_Controller {
         recordId = QuoteId;
         docTemplateId = id.valueof(ApexPages.currentPage().getParameters().get('DocTemplateId'));
         type = ApexPages.currentPage().getParameters().get('Type');
+        docType = '';
+        if(ApexPages.currentPage().getParameters().get('DocType') != null){
+            docType = ApexPages.currentPage().getParameters().get('DocType');
+        }
         getTemplateId();
     }
     
@@ -312,7 +317,7 @@ global without sharing class PreviewPDF_Controller {
                     
                 }
 
-                if (DocTemplates.JunoDoc__Template_Type__c != 'Word Document') {
+                if (DocTemplates.JunoDoc__Template_Type__c != 'Word Document' || docType == 'PDFMobile') {
                     if (DocTemplates.Single_Page__c == true) {
                         NewTemplateBody += CombinedTemplateBody;
                     } else {
@@ -341,6 +346,7 @@ global without sharing class PreviewPDF_Controller {
                     }
                     l = l + 1;
                 }
+                
             }
         }
 

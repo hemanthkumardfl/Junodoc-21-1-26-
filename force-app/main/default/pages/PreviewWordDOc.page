@@ -39,14 +39,14 @@
     <body> 
             <!-- Content -->
             <div class="sectionMain" id="sectionMain"><!--Section1 div starts-->
-       <apex:dynamicComponent componentValue="{!ClassroomRelatedLists}" />      
-    </div>
-   <!--Header and Footer Starts-->
+       			<apex:dynamicComponent componentValue="{!ClassroomRelatedLists}" />      
+    		</div>
+   			<!--Header and Footer Starts-->
                 <table id='hrdftrtbl' border='1' cellspacing='0' cellpadding='0'>
                     <tr>
                         <td>  
                             <div style="mso-element:header;" id="h1">
-                                <p class= "MsoHeader">
+                                <p class="MsoHeader">
                                     <table border="0" width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid #736D6E">
                                         <tr>
                                             <td width="100%">
