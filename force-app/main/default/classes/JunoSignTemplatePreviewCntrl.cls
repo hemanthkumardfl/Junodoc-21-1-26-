@@ -11,16 +11,16 @@
 * 1.0 | June 18, 2025 |   | Initial Version
 **/
 
-public class JunoSignTemplatePreviewCntrl {
+global class JunoSignTemplatePreviewCntrl {
     
     
-    public transient string pdfBase64 { get; set; }
-    public transient string body {get; set;} 
-    public transient string secondbody {get; set;}
-    public decimal scale {get; set;}
+    global transient string pdfBase64 { get; set; }
+    global transient string body {get; set;} 
+    global transient string secondbody {get; set;}
+    global decimal scale {get; set;}
     
     
-     public  void generatePdfAndReturnBase64Clone() {
+     global  void generatePdfAndReturnBase64Clone() {
         String recordId = ApexPages.currentPage().getParameters().get('recordId');
         String templateId = ApexPages.currentPage().getParameters().get('templateId');
         String selectedOption = ApexPages.currentPage().getParameters().get('selectedOption');
@@ -90,7 +90,7 @@ public class JunoSignTemplatePreviewCntrl {
     }
 
    /* @AuraEnabled
-    public static List<Id> createPageTabs(String droppedElementsJson) {
+    global static List<Id> createPageTabs(String droppedElementsJson) {
         try {
             // Validate input
             if (String.isBlank(droppedElementsJson)) {
@@ -181,111 +181,111 @@ public class JunoSignTemplatePreviewCntrl {
         }
     }*/
     
-  @AuraEnabled
-public static List<Id> createPageTabs(String droppedElementsJson) {
-    try {
-        // Validate input
-        if (String.isBlank(droppedElementsJson)) {
-            throw new AuraHandledException('No elements data provided');
-        }
-        
-        system.debug('droppedElementsJson >> '+droppedElementsJson);
-        
-        // Deserialize with proper error handling
-        List<DroppedElementDTO> droppedElements;
+    @AuraEnabled
+    global static List<Id> createPageTabs(String droppedElementsJson) {
         try {
-            droppedElements = (List<DroppedElementDTO>) JSON.deserialize(
-                droppedElementsJson, 
-                List<DroppedElementDTO>.class
-            );
-        } catch (JSONException e) {
-            system.debug('Error >> '+e.getStackTraceString());
-            throw new AuraHandledException('Invalid JSON format: ' + e.getMessage()+' : '+e.getLineNumber());
-        } catch (Exception e) {
-            system.debug('Error >> '+e.getStackTraceString());
-            throw new AuraHandledException('Error parsing elements data: ' + e.getMessage());
-        }
-        
-        if (droppedElements == null || droppedElements.isEmpty()) {
-            throw new AuraHandledException('No elements to save');
-        }
-
-        List<JunoDoc__Junodoc_Page_Tab__c> elementsToInsert = new List<JunoDoc__Junodoc_Page_Tab__c>();
-
-        for (DroppedElementDTO dto : droppedElements) {
-            if (dto == null) continue;
+            // Validate input
+            if (String.isBlank(droppedElementsJson)) {
+                throw new AuraHandledException('No elements data provided');
+            }
             
-            // Validate required fields
-            if (String.isBlank(dto.droptype)) {
-                System.debug('Skipping element with missing type: ' + JSON.serialize(dto));
-                continue;
+            system.debug('droppedElementsJson >> '+droppedElementsJson);
+            
+            // Deserialize with proper error handling
+            List<DroppedElementDTO> droppedElements;
+            try {
+                droppedElements = (List<DroppedElementDTO>) JSON.deserialize(
+                    droppedElementsJson, 
+                    List<DroppedElementDTO>.class
+                );
+            } catch (JSONException e) {
+                system.debug('Error >> '+e.getStackTraceString());
+                throw new AuraHandledException('Invalid JSON format: ' + e.getMessage()+' : '+e.getLineNumber());
+            } catch (Exception e) {
+                system.debug('Error >> '+e.getStackTraceString());
+                throw new AuraHandledException('Error parsing elements data: ' + e.getMessage());
+            }
+            
+            if (droppedElements == null || droppedElements.isEmpty()) {
+                throw new AuraHandledException('No elements to save');
             }
 
-            JunoDoc__Junodoc_Page_Tab__c ele = new JunoDoc__Junodoc_Page_Tab__c();
-            ele.JunoDoc__Type__c = dto.droptype;
-            ele.JunoDoc__Page_Height__c = dto.pageHeight != null ? String.valueOf(dto.pageHeight) : '0';
-            ele.JunoDoc__Page_Width__c = dto.pageWidth != null ? String.valueOf(dto.pageWidth) : '0';
-            ele.JunoDoc__Pos_Left__c = String.valueOf(dto.x != null ? dto.x : 0);
-            ele.JunoDoc__Pos_Top__c = String.valueOf(dto.y != null ? dto.y : 0);
-            ele.Name = 'divPageNo_' + (dto.pgno != null ? dto.pgno : 0);
-            ele.JunoDoc__Recipient_Sort_Order__c = dto.recipientOrder != null ? dto.recipientOrder : 1;
+            List<JunoDoc__Junodoc_Page_Tab__c> elementsToInsert = new List<JunoDoc__Junodoc_Page_Tab__c>();
+
+            for (DroppedElementDTO dto : droppedElements) {
+                if (dto == null) continue;
+                
+                // Validate required fields
+                if (String.isBlank(dto.droptype)) {
+                    System.debug('Skipping element with missing type: ' + JSON.serialize(dto));
+                    continue;
+                }
+
+                JunoDoc__Junodoc_Page_Tab__c ele = new JunoDoc__Junodoc_Page_Tab__c();
+                ele.JunoDoc__Type__c = dto.droptype;
+                ele.JunoDoc__Page_Height__c = dto.pageHeight != null ? String.valueOf(dto.pageHeight) : '0';
+                ele.JunoDoc__Page_Width__c = dto.pageWidth != null ? String.valueOf(dto.pageWidth) : '0';
+                ele.JunoDoc__Pos_Left__c = String.valueOf(dto.x != null ? dto.x : 0);
+                ele.JunoDoc__Pos_Top__c = String.valueOf(dto.y != null ? dto.y : 0);
+                ele.Name = 'divPageNo_' + (dto.pgno != null ? dto.pgno : 0);
+                ele.JunoDoc__Recipient_Sort_Order__c = dto.recipientOrder != null ? dto.recipientOrder : 1;
+                
+                elementsToInsert.add(ele);
+            }
             
-            elementsToInsert.add(ele);
-        }
-        
-        if (elementsToInsert.isEmpty()) {
-            throw new AuraHandledException('No valid elements to save after validation');
-        }
-        
-        // Check governor limits
-        if (elementsToInsert.size() > Limits.getLimitDmlRows() - Limits.getDmlRows()) {
-            throw new AuraHandledException('Exceeds DML limit. Please reduce the number of elements.');
-        }
-        
-        // Insert with allOrNone false to allow partial success
-        Database.SaveResult[] srList = Database.insert(elementsToInsert, false);
-        
-        // Check for errors
-        List<Id> insertedIds = new List<Id>();
-        List<String> errorMessages = new List<String>();
-        
-        for (Integer i = 0; i < srList.size(); i++) {
-            Database.SaveResult sr = srList[i];
-            if (sr.isSuccess()) {
-                insertedIds.add(sr.getId());
-            } else {
-                for(Database.Error err : sr.getErrors()) {
-                    String errorMsg = 'Element ' + (i + 1) + ': ' + err.getMessage();
-                    errorMessages.add(errorMsg);
-                    System.debug(errorMsg);
+            if (elementsToInsert.isEmpty()) {
+                throw new AuraHandledException('No valid elements to save after validation');
+            }
+            
+            // Check governor limits
+            if (elementsToInsert.size() > Limits.getLimitDmlRows() - Limits.getDmlRows()) {
+                throw new AuraHandledException('Exceeds DML limit. Please reduce the number of elements.');
+            }
+            
+            // Insert with allOrNone false to allow partial success
+            Database.SaveResult[] srList = Database.insert(elementsToInsert, false);
+            
+            // Check for errors
+            List<Id> insertedIds = new List<Id>();
+            List<String> errorMessages = new List<String>();
+            
+            for (Integer i = 0; i < srList.size(); i++) {
+                Database.SaveResult sr = srList[i];
+                if (sr.isSuccess()) {
+                    insertedIds.add(sr.getId());
+                } else {
+                    for(Database.Error err : sr.getErrors()) {
+                        String errorMsg = 'Element ' + (i + 1) + ': ' + err.getMessage();
+                        errorMessages.add(errorMsg);
+                        System.debug(errorMsg);
+                    }
                 }
             }
-        }
-        
-        if (!errorMessages.isEmpty()) {
-            System.debug('Failed to insert ' + errorMessages.size() + ' out of ' + elementsToInsert.size() + ' elements');
             
-            // If all failed, throw exception with details
-            if (insertedIds.isEmpty()) {
-                String errorDetail = String.join(errorMessages, '; ');
-                throw new AuraHandledException('Failed to save elements: ' + errorDetail);
+            if (!errorMessages.isEmpty()) {
+                System.debug('Failed to insert ' + errorMessages.size() + ' out of ' + elementsToInsert.size() + ' elements');
+                
+                // If all failed, throw exception with details
+                if (insertedIds.isEmpty()) {
+                    String errorDetail = String.join(errorMessages, '; ');
+                    throw new AuraHandledException('Failed to save elements: ' + errorDetail);
+                }
             }
+            
+            return insertedIds;
+            
+        } catch (AuraHandledException e) {
+            // Re-throw AuraHandledExceptions as-is
+            throw e;
+        } catch (Exception e) {
+            // For other exceptions, log and throw user-friendly message
+            System.debug('Error in createPageTabs: ' + e.getMessage() + ' Type: ' + e.getTypeName());
+            throw new AuraHandledException('Error saving signature elements: ' + e.getMessage());
         }
-        
-        return insertedIds;
-        
-    } catch (AuraHandledException e) {
-        // Re-throw AuraHandledExceptions as-is
-        throw e;
-    } catch (Exception e) {
-        // For other exceptions, log and throw user-friendly message
-        System.debug('Error in createPageTabs: ' + e.getMessage() + ' Type: ' + e.getTypeName());
-        throw new AuraHandledException('Error saving signature elements: ' + e.getMessage());
     }
-}
     
     @AuraEnabled
-    public static void updatePageTabs(List<Id> pageTabIdList, String transactionID) {
+    global static void updatePageTabs(List<Id> pageTabIdList, String transactionID) {
         try {
             if (pageTabIdList == null || pageTabIdList.isEmpty()) {
                 throw new AuraHandledException('No page tab IDs provided');
@@ -316,18 +316,96 @@ public static List<Id> createPageTabs(String droppedElementsJson) {
         }
     }
 
-    public class DroppedElementDTO {
-        @AuraEnabled public String droptype {get; set;}
-        @AuraEnabled public Decimal x {get; set;}
-        @AuraEnabled public Decimal y {get; set;}
-        @AuraEnabled public Decimal pageHeight {get; set;}
-        @AuraEnabled public Decimal pageWidth {get; set;}
-        @AuraEnabled public Integer pgno {get; set;}
-        @AuraEnabled public String typeLabel {get; set;}
-        @AuraEnabled public Integer recipientOrder {get; set;}
+    global String docxBase64 { get; set; }
+    global  void generateDocxAndReturnBase64Clone() {
+        String recordId = ApexPages.currentPage().getParameters().get('recordId');
+        String templateId = ApexPages.currentPage().getParameters().get('templateId');
+        String selectedOption = ApexPages.currentPage().getParameters().get('selectedOption');
+        system.debug(recordId+'--'+templateId+'---'+selectedOption);
+        List<String> selectedDocs = new List<String>();
+        if(templateId.contains(',')){
+            selectedDocs = templateId.split(',');
+        }
+        if (selectedOption == 'records' || selectedOption == 'upload') {
+            ContentVersion cont = [
+                SELECT VersionData
+                FROM ContentVersion
+                WHERE ContentDocumentId = :templateId
+                ORDER BY VersionNumber DESC
+                LIMIT 1
+            ];
+    
+            docxBase64 = EncodingUtil.base64Encode(cont.VersionData);
+        }
+    }
+
+    @RemoteAction
+global static Map<String, Object> insertHtmlChunks(List<String> chunks) {
+    Map<String, Object> response = new Map<String, Object>{
+        'success' => false,
+        'message' => '',
+        'recordIds' => new List<Id>(),
+        'chunkCount' => chunks != null ? chunks.size() : 0
+    };
+
+    if (chunks == null || chunks.isEmpty()) {
+        response.put('message', 'No chunks provided');
+        return response;
+    }
+
+    // ← Add this line — very important!
+    // You almost certainly want to link these items to a parent template
+   
+    List<JunoDoc__Doc_Template_Item__c> records = new List<JunoDoc__Doc_Template_Item__c>();
+
+    Integer seq = 1;
+    for (String chunk : chunks) {
+        // Optional: trim or clean very large chunks if needed
+        if (String.isNotBlank(chunk)) {
+            records.add(new JunoDoc__Doc_Template_Item__c(
+                JunoDoc__Template_Body__c    = chunk,
+                JunoDoc__Doc_Template__c = 'a00KY0000011HvrYAE'
+            ));
+        }
+    }
+
+    if (records.isEmpty()) {
+        response.put('message', 'No valid chunks after filtering');
+        return response;
+    }
+
+    try {
+        insert records;  // or Database.insert(records, false) for partial success
+
+        // Collect successful IDs
+        for (JunoDoc__Doc_Template_Item__c rec : records) {
+            if (rec.Id != null) {
+                ((List<Id>)response.get('recordIds')).add(rec.Id);
+            }
+        }
+
+        response.put('success', true);
+        response.put('message', 'Inserted ' + records.size() + ' chunks successfully');
+    } catch (Exception e) {
+        response.put('message', 'Error inserting chunks: ' + e.getMessage());
+        // Optional: System.debug(LoggingLevel.ERROR, e);
+    }
+
+    return response;
+}
+
+    global class DroppedElementDTO {
+        @AuraEnabled global String droptype {get; set;}
+        @AuraEnabled global Decimal x {get; set;}
+        @AuraEnabled global Decimal y {get; set;}
+        @AuraEnabled global Decimal pageHeight {get; set;}
+        @AuraEnabled global Decimal pageWidth {get; set;}
+        @AuraEnabled global Integer pgno {get; set;}
+        @AuraEnabled global String typeLabel {get; set;}
+        @AuraEnabled global Integer recipientOrder {get; set;}
         
         // Default constructor
-        public DroppedElementDTO() {
+        global DroppedElementDTO() {
             this.x = 0;
             this.y = 0;
             this.pgno = 0;

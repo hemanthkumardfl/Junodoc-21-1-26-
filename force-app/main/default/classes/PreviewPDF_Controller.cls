@@ -330,12 +330,14 @@ global without sharing class PreviewPDF_Controller {
                     integer k = l + 1;
                     if (k == 1) {
                         // First page without a page break
-                        NewTemplateBody += '<div class="main-section"><table><tbody class="word-body-content' + k + '"><tr><td>';
-                        NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table></div>';
+                        NewTemplateBody += '<table><tbody class="word-body-content' + k + '"><tr><td>';
+                        NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table>';
                     } else {
                         // Add page break before subsequent pages
-                        NewTemplateBody += '<div  style="clear: both;page-break-before: always;height:auto;">&nbsp;<div class="main-section" style="height:auto;"><table><tbody class="word-body-content' + k + '"><tr><td>';
-                        NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table></div></div>';
+                       // NewTemplateBody +='<div style="position:relative;font-size:5px">Testing</div>' +
+                                              // '<div style="clear:both;page-break-after: always;font-size:0px;color:white;"></div>'; 
+                        NewTemplateBody += '<br style="page-break-before: always;"> <table><tbody class="word-body-content' + k + '"><tr><td>';
+                        NewTemplateBody += CombinedTemplateBody.trim() + '</td></tr></tbody></table>';
                     }
                     l = l + 1;
                 }

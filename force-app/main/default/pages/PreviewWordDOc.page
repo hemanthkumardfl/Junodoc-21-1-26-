@@ -42,9 +42,9 @@
        <apex:dynamicComponent componentValue="{!ClassroomRelatedLists}" />      
     </div>
    <!--Header and Footer Starts-->
-              <!--  <table id='hrdftrtbl' border='1' cellspacing='0' cellpadding='0'>
+                <table id='hrdftrtbl' border='1' cellspacing='0' cellpadding='0'>
                     <tr>
-                        <td>   -->
+                        <td>  
                             <div style="mso-element:header;" id="h1">
                                 <p class= "MsoHeader">
                                     <table border="0" width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid #736D6E">
@@ -62,8 +62,8 @@
                                     </table>
                                 </p>
                             </div>
-                    <!--    </td>
-                        <td>-->
+                      </td>
+                        <td>
                             <div style="mso-element:footer" id= "f1">
                                 <p class="MsoFooter">
                                     <table border="0" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #736D6E">
@@ -87,9 +87,9 @@
                                     </table>
                                 </p>
                             </div>
-                      <!--  </td>
+                        </td>
                     </tr>
-                </table>-->
+                </table>
  <!--Section1 div ends-->
         </body>
     </html>

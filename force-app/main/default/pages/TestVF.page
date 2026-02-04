@@ -1,6 +1,61 @@
-<apex:page controller="PDFControllerVF" showHeader="false" sidebar="false" >    
-	<div id="text-container" class="text-center text-container">
-    	<!--<img src="/servlet/servlet.FileDownload?file={!attId}" style="width: 100%;margin-top: 50px;" height="400" />-->
-        Testing
-    </div>    
+<apex:page contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document#MyDocument.docx" 
+           cache="true" 
+           showHeader="false" 
+           applyHtmlTag="false" 
+           applyBodyTag="false">
+    
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+          xmlns:w="urn:schemas-microsoft-com:office:word" 
+          xmlns="http://www.w3.org">
+        
+        <head>
+             <apex:outputText value="{!'<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml>'}" escape="false"/>
+            
+            <style>
+                /* Header and Footer Definitions */
+                @page Section1 {
+                    size: 8.5in 11.0in;
+                    margin: 1.0in 1.0in 1.0in 1.0in;
+                    mso-header-margin: .5in;
+                    mso-footer-margin: .5in;
+                    mso-header: h1;
+                    mso-footer: f1;
+                }
+                div.Section1 { page: Section1; }
+                
+                table#hrdftrtbl { margin: 0in 0in 0in 900in; width: 1px; height: 1px; overflow: hidden; }
+            </style>
+        </head>
+        
+        <body>
+            <div class="Section1">
+                <!-- Main Body Content -->
+                <h1>Salesforce Document Export</h1>
+                <p>This document was generated from a Visualforce page as a .docx file.</p>
+                <p>Data from Apex: ACE</p>
+                
+                <!-- Hidden Table for Header/Footer Storage -->
+                <table id="hrdftrtbl" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td>
+                            <!-- Header Content -->
+                            <div style="mso-element:header" id="h1">
+                                <p class="MsoHeader" style="text-align:center; border-bottom:1px solid black;">
+                                    Confidential - ACE} - Page <span style="mso-field-code:' PAGE '"></span>
+                                </p>
+                            </div>
+                        </td>
+                        <td>
+                            <!-- Footer Content -->
+                            <div style="mso-element:footer" id="f1">
+                                <p class="MsoFooter" style="text-align:right;">
+                                    Generated on: <apex:outputText value="{0, date, MMMM d, yyyy}"><apex:param value="{!NOW()}" /></apex:outputText>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </body>
+    </html>
 </apex:page>

@@ -1,6 +1,6 @@
-<apex:page id="pageId" action="{!methodtwo}" Controller="PreviewTemplatePDF_AC" applyBodyTag="false" showHeader="false" sidebar="false" applyHtmlTag="false" readOnly="true">
+<apex:page id="pageId" action="{!methodtwo}" Controller="PreviewTemplatePDF_AC" applyBodyTag="false" showHeader="false" sidebar="false" applyHtmlTag="false"  standardStylesheets="true" doctype="HTML-5.0">
     <div id="word-page-content">
-        <html>
+       
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
@@ -10,8 +10,10 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
               <apex:includeScript value="{!$Resource.htmlDocx}"/> 
                 <apex:includeScript value="{!$Resource.FileSaverJs}"/> 
+            
+            <apex:includeScript value="{!$Resource.docxjs2}" />
 
-            <head>
+           
                 <script>
                     function loadwordScrip1t() {
                         console.log('Loading word script...');
@@ -40,7 +42,7 @@
                         }, 100); // Adjust the delay as needed
                     }
 
-                    function ExportToDoc(element, filename = '',isDownload) {
+                  async function ExportToDoc(element, filename = '',isDownload) {
                             // Get the target element's HTML content
                         var targetElement = document.getElementById(element);
                         
@@ -84,7 +86,7 @@
                                 const isPageBreak = div.style.pageBreakAfter === 'always' || div.classList.contains('page-break');
                             
                                 if (!hasContent && !isPageBreak) {
-                                    div.remove();
+                            //  div.remove();
                                 }
                             });
                             
@@ -107,7 +109,21 @@
                                 if (hfTable) {
                                     hfTable.remove(); 
                                 }
-                            //   var html = header + tempContainer.innerHTML + footer;
+                               var htmls = header + tempContainer.innerHTML + footer;
+                            /*       let docx_data = new docx.Document();
+        docx_data = await generateWordDocument(htmls);
+        console.log('docx_data>> ' + JSON.stringify(docx_data))
+        window.docx.Packer.toBase64String(docx_data).then(textBlob => {
+                             var downloadURL = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + textBlob;
+                             const downloadLink = document.createElement('a');
+             downloadLink.href = downloadURL;
+             downloadLink.download = 'wordPreview.docx';
+             document.body.appendChild(downloadLink);
+             downloadLink.click();
+             document.body.removeChild(downloadLink);
+         }).catch(error => {
+            console.error('Error generating download link:', error.message);
+        });*/
                             
                             //   var html = '<!DOCTYPE html>'+ tempContainer.innerHTML;
                             var html = `
@@ -117,21 +133,22 @@
     <meta charset="utf-8"/>
     <style>
         /* Word Specific Reset */
-        p, div, td { margin: 0pt; padding: 0pt; line-height: normal; }
+        p, div, td { margin: 0px !important;margin-bottom:0px !important; line-height: normal; mso-margin-top-alt: 0pt; /* Word-specific fix */
+        mso-margin-bottom-alt: 0pt; /* Word-specific fix */ }
         table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
 
         @page Section1 {
             size: 8.5in 11.0in; 
-            margin: 0.5in;
+            margin: 0in;
             mso-header: h1;
             mso-footer: f1;
-            mso-header-margin: 0.5in;
-            mso-footer-margin: 0.5in;
+            mso-header-margin: 0in;
+            mso-footer-margin: 0in;
         }
         div.Section1 { page: Section1; }
 
         /* This hides the source elements so they don't show in the body */
-        #hrdftrtbl { display: none; position: absolute; top: -9999px; }
+        #hrdftrtbl { display: none !important; position: absolute; top: -9999px; }
         div#h1 { mso-element: header; }
         div#f1 { mso-element: footer; }
     </style>
@@ -143,14 +160,64 @@
     </div>
 
     <!-- 2. THE HIDDEN DEFINITIONS (Outside the Section1 Div) -->
-                           
+    <table id="hrdftrtbl">
+        <tr>
+            <td>
+                 <div id="h1">
+                    ${headersMain} 
+                  </div>
+            </td>
+            <td>
+                 <div id="f1">
+                    ${footersMain} 
+                 </div>
+                  
+            </td>
+        </tr>
+    </table>
 </body>
 </html>`;
+                 
+                  var parser = new DOMParser();
+                            var docs = parser.parseFromString(html, 'text/html');
+					
+                        
+                        const elements = docs.querySelectorAll('p, div');
 
+                        elements.forEach(el => {
+                            // Force margins and padding to 0 points (0in also works)
+                            el.style.margin = '0px !important';
+                            el.style.marginBottom = '0px !important';
+                          
+                            // Prevent Word's default 8pt spacing After paragraphs
+                            el.style.msoMarginTopAlt = '0px !important';
+                            el.style.msoMarginBottomAlt = '0px !important';
+                            
+                            // Prevents extra vertical space caused by default 1.08 line height
+                            el.style.lineHeight = 'normal'; 
+                            
+                            // Ensure standard display properties
+                            if (el.tagName !== 'TABLE' && el.tagName !== 'TR' && el.tagName !== 'TD') {
+                            //  el.style.display = 'block';
+                             	
+                            }
+                            
+                            // Remove floats that interfere with page breaks
+                            // el.style.float = 'none';
+                        });
+                            
+                        const hfTables = docs.getElementById('hrdftrtbl');
+                                if (hfTables) {
+                                    hfTables.style.display = 'none'; 
+                                    hfTables.style.margin = '0in 0in 0in 9in';
+                                    hfTables.style.height = '0px';
+                            		hfTables.style.float = 'right';
+                                }
 
 						console.log('cleanedContent **'+ cleanedContent);
+                        var finalHtmlString = docs.documentElement.outerHTML; // Get the *entire* modified HTML
                             // var blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-                         var blob = htmlDocx.asBlob(html, {orientation: 'portrait'});
+                         var blob = htmlDocx.asBlob(finalHtmlString, {orientation: 'portrait'});
                         //   saveAs(blob, 'test.docx');
 						
                         var reader = new FileReader();
@@ -246,10 +313,1059 @@
                         // iframe.src = url;
                         iframe.style.visibility = 'visible';
                     }
-                </script>
-            </head>
+                
+                	async function generateWordDocument(htmlContent) {
+        let document = new docx.Document();
+        let docxChildren = [];
 
-            <body>
+        htmlContent = getContentBetween(htmlContent, '<body>', '</body>') || '<p>No content available</p>';
+        //console.log('Extracted body content:', htmlContent);
+
+        if (!htmlContent.trim() || htmlContent === '<html></html>') {
+            console.error('Empty or invalid HTML content');
+            htmlContent = '<p>No content available</p>';
+        }
+        //console.log('Generating document with htmlContent length:', htmlContent.length);
+
+        // Split HTML content into sections based on div classes
+        const sections = splitHtmlIntoSections(htmlContent);
+        let idList = [];
+        if (!htmlContent || typeof htmlContent !== 'string' || htmlContent.trim() === '') {
+
+        }
+        else {
+            
+            var regexComments = new RegExp('', 'gi');
+            var regexCdata    = new RegExp('<!\\[CDATA\\[[\\s\\S]*?\\]\\]>', 'gi');
+            var regexDoctype  = new RegExp('<!DOCTYPE[\\s\\S]*?>', 'gi');
+            var regexScripts  = new RegExp('<script[\\s\\S]*?>[\\s\\S]*?<\/script>', 'gi');
+
+            var cleanedHtml = htmlContent
+    .replace(regexComments, '')
+    .replace(regexCdata, '')
+    .replace(regexDoctype, '')
+    .replace(regexScripts, '');
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(cleanedHtml, 'text/html');
+            const elements = doc.body.children;
+            const processElement = (element, depth = 0) => {
+                console.log('TagName' + element.tagName)
+                const tagName = element.tagName ? element.tagName.toUpperCase() : 'TEXT';
+
+                const textRuns = [];
+                Array.from(element.childNodes).forEach(child => {
+                    const childRuns = processElement(child, depth + 1);
+                    if (childRuns) {
+                        textRuns.push(...(Array.isArray(childRuns) ? childRuns : [childRuns]));
+                    }
+                });
+
+                if (tagName === 'IMG') {
+                    console.log('IMAGEId')
+                    console.log('IMAGEId>>' + element.getAttribute('src'))
+                    try {
+                        console.log('elementId>> ' + element);
+                        var url = element.getAttribute('src');
+                        var idValues = '';
+                        if (url != null && url != '') {
+                            idValues = url.split('id=')[1].split('&')[0];
+                            idList.push(idValues);
+                        }
+
+                        console.log(idList);
+                        return null;
+                    } catch (error) {
+                        console.error('Error processing image:', error.message);
+                        console.error('Full error:', error);
+                        console.error('element:', element.outerHTML);
+                        return null;
+                    }
+                }
+            };
+
+            Array.from(elements).forEach(element => {
+                processElement(element);
+            });
+        }
+               
+                alert(JSON.stringify(idList))
+               const base64ImageList = await new Promise((resolve, reject) => {
+                                    // Note: Use the string format 'ControllerName.MethodName'
+                                    Visualforce.remoting.Manager.invokeAction(
+                                    '{!$RemoteAction.PreviewTemplatePDF_AC.getImageAsBase64FromDocument}',
+                                    JSON.stringify(idList), // Hardcoded array for testing
+                                    function(result, event) {
+                                        console.log('Status:', event.status);
+                                        console.log('Result:', result);
+                                        console.log('Full Event:', event);
+                                        if (event.status) {
+                                            resolve(result);
+                                        } else {
+                                            // This will tell us if it's a permission or signature issue
+                                            console.error('Remoting Message:', event.message);
+                                            reject(event.message);
+                                        }
+                                    },
+                                    { escape: false }
+                                );
+                                                                });
+               alert('New') 
+        docxChildren = convertHtmlToDocx(htmlContent, 'None', document, base64ImageList);
+        console.log('Generated docxChildren length:', docxChildren.length);
+
+        // Check if any element has renderable content
+        const hasContent = docxChildren.length > 0;
+        if (!hasContent) {
+            const warnMsg = 'No renderable content in docxChildren, adding fallback';
+            console.warn('No renderable content in docxChildren, adding fallback');
+            docxChildren = []; // Clear invalid elements
+            docxChildren.push(
+                new docx.Paragraph({
+                    text: warnMsg,
+                }),
+            );
+        }
+        console.log('sections ' + sections.length)
+        
+        for (const section of sections) {
+            console.log('Section Content Before Processing:', section);
+            const docxChildren = convertHtmlToDocx(section.content, section.orientation, document, base64ImageList);
+            console.log('Sections Content Before Processing:', section);
+            if (docxChildren.length === 0) {
+                docxChildren = [
+                    new docx.Paragraph({
+                        text: "Content not renderable",
+                    }),
+                ];
+            }
+            document.addSection({
+                children: docxChildren,
+                properties: {
+                    width: section.type === 'landscape' ? 5940 : 12240,
+                    height: section.type === 'landscape' ? 13680 : 15840,
+                    top: section.type === 'landscape' ? 720 : 1440,
+                    bottom: section.type === 'landscape' ? 720 : 1440,
+                    left: section.type === 'landscape' ? 720 : 1440,
+                    right: section.type === 'landscape' ? 720 : 1440,
+                    orientation: section.type === 'landscape' ? docx.PageOrientation.LANDSCAPE : docx.PageOrientation.PORTRAIT,
+                    // Add default paragraph spacing for the section
+                    defaultTabStop: 708,
+                    // defaultParagraphSpacing: {
+                    //     before: 0,
+                    //     after: 0,
+                    //     line: 10,
+                    //     lineRule: "auto"
+                    // }
+                }
+            });
+        };
+
+        return document;
+
+    }
+                    
+function pxToTwip(px) {
+    return Math.round(parseFloat(px || 0) * 15);
+}
+
+function hasVisibleBorder(style) {
+    if (!style) return false;
+
+    return (
+        (style.border && !style.border.includes('0') && !style.border.includes('none')) ||
+        (style.borderTop && !style.borderTop.includes('0') && !style.borderTop.includes('none')) ||
+        (style.borderBottom && !style.borderBottom.includes('0') && !style.borderBottom.includes('none')) ||
+        (style.borderLeft && !style.borderLeft.includes('0') && !style.borderLeft.includes('none')) ||
+        (style.borderRight && !style.borderRight.includes('0') && !style.borderRight.includes('none'))
+    );
+}
+
+function parseInlineContent(node) {
+    const runs = [];
+
+    node.childNodes.forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
+            runs.push(new window.docx.TextRun({
+                text: child.textContent.replace(/\s+/g, ' ')
+            }));
+        } 
+        else if (child.nodeType === Node.ELEMENT_NODE) {
+            const tag = child.tagName.toUpperCase();
+
+            if (tag === 'BR') {
+                runs.push(new window.docx.TextRun({ break: 1 }));
+            } 
+            else if (tag === 'B' || tag === 'STRONG') {
+                runs.push(new window.docx.TextRun({
+                    text: child.textContent,
+                    bold: true
+                }));
+            } 
+            else {
+                runs.push(...parseInlineContent(child));
+            }
+        }
+    });
+
+    return runs;
+}
+
+						function buildCellParagraphs(td) {
+                            const container = td.querySelector('.td-label') || td;
+                        
+                            return [
+                                new window.docx.Paragraph({
+                                    children: parseInlineContent(container),
+                                    spacing: { before: 0, after: 0 }
+                                })
+                            ];
+                        }
+
+
+                       function splitHtmlIntoSections(htmlContent) {
+                            const sections = [];
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(htmlContent, 'text/html');
+                    
+                            // Find all divs with the specified classes
+                            const landscapeDivs = doc.querySelectorAll('div.landscape_A4_page');//landscape_A4_page2
+                            const portraitDivs = doc.querySelectorAll('div.portrait_A4_page');
+                            //const landscapeDivs2 = doc.querySelectorAll('div.landscape_A4_page2');
+                            console.log('landscapeDivs::: ' + landscapeDivs)
+                    
+                            // Process landscape sections
+                            landscapeDivs.forEach(div => {
+                                sections.push({
+                                    type: 'landscape', // Optional: Just for tracking, not used for formatting
+                                    content: div.innerHTML,
+                                    orientation: 'landscape'
+                                });
+                                console.log('Outer HTML:', div.outerHTML);
+                            });
+                    
+                            // Process portrait sections
+                            portraitDivs.forEach(div => {
+                                sections.push({
+                                    type: 'portrait', // Optional: Just  for tracking, not used for formatting
+                                    content: div.innerHTML,
+                                    orientation: 'portrait'
+                                });
+                            });
+                    
+                            /*landscapeDivs2.forEach(div => {
+                                sections.push({
+                                    type: 'landscape', // Optional: Just for tracking, not used for formatting
+                                    content: div.innerHTML,
+                                    orientation: 'landscape'
+                                });
+                                console.log('Outer HTML:', div.outerHTML);
+                            });*/
+                    
+                            // Fallback: If no sections found, treat entire content as a single section
+                            if (sections.length === 0) {
+                                sections.push({
+                                    type: 'default',
+                                    content: htmlContent
+                                });
+                            }
+                    
+                            return sections;
+                        }
+                    
+                        function convertHtmlToDocx(htmlContent, orientation, document, base64ImageList) {
+                            try {
+                                const { PageBreak, ImageRun, AlignmentType } = window.docx;
+                                //htmlContent ='';
+                                console.log('convertHtmlToDocx started with htmlContent length:', htmlContent.length);
+                                if (!htmlContent || typeof htmlContent !== 'string' || htmlContent.trim() === '') {
+                                    console.error('Invalid or empty HTML content:', htmlContent);
+                                    return [
+                                        new window.docx.Paragraph({
+                                            children: [
+                                                new window.docx.TextRun({
+                                                    text: 'Invalid or empty HTML content.',
+                                                    bold: true,
+                                                    size: 24,
+                                                    font: {
+                                                        name: "Aptos", // optional
+                                                        ascii: "Aptos",
+                                                        hAnsi: "Aptos",
+                                                        // cs: "Aptos",
+                                                        // eastAsia: "Aptos"
+                                                    },
+                                                    allCaps: true,
+                                                })
+                                            ]
+                                        })
+                                    ];
+                                }
+                    
+                                // Clean HTML
+                                
+                                var regexComments = new RegExp('', 'gi');
+                                var regexCdata    = new RegExp('<!\\[CDATA\\[[\\s\\S]*?\\]\\]>', 'gi');
+                                var regexDoctype  = new RegExp('<!DOCTYPE[\\s\\S]*?>', 'gi');
+                                var regexScripts  = new RegExp('<script[\\s\\S]*?>[\\s\\S]*?<\/script>', 'gi');
+                    
+                                var cleanedHtml = htmlContent
+                        .replace(regexComments, '')
+                        .replace(regexCdata, '')
+                        .replace(regexDoctype, '')
+                        .replace(regexScripts, '');
+                    
+                                console.log('Cleaned HTML => ', cleanedHtml);
+                    
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(cleanedHtml, 'text/html');
+                                const elements = doc.body.children;
+                    
+                                Array.from(elements).forEach(e => {
+                                    console.log('Parsed DOM Elements:', JSON.stringify(e.outerHTML || e.textContent));
+                                });
+                                if (elements.length === 0) {
+                                    console.warn('No DOM elements parsed');
+                                    return [
+                                        new window.docx.Paragraph({
+                                            children: [
+                                                new window.docx.TextRun({
+                                                    text: 'No DOM elements parsed',
+                                                    size: 24,
+                                                    font: {
+                                                        name: "Aptos", // optional
+                                                        ascii: "Aptos",
+                                                        hAnsi: "Aptos",
+                                                        cs: "Aptos",
+                                                        eastAsia: "Aptos"
+                                                    }
+                                                })
+                                            ]
+                                        })
+                                    ];
+                                }
+                    
+                                let docxChildren = [];
+                                let hasRenderableContent = false;
+                    
+                                // Convert RGB to hex
+                                const rgbToHex = (rgb) => {
+                                    const rgbMatch = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/i);
+                                    if (rgbMatch) {
+                                        const [_, r, g, b] = rgbMatch;
+                                        const clampedR = Math.min(255, Math.max(0, +r));
+                                        const clampedG = Math.min(255, Math.max(0, +g));
+                                        const clampedB = Math.min(255, Math.max(0, +b));
+                                        return ((clampedR << 16) | (clampedG << 8) | clampedB).toString(16).padStart(6, '0').toUpperCase();
+                                    }
+                                    return null;
+                                };
+                    
+                                // Apply inline styles
+                                const applyInlineStyles = (element, textRunProps) => {
+                                    console.log('element---' + element);
+                                    const classes = element.getAttribute('class') || '';
+                                    console.log('classes ***---' + classes);
+                    
+                                    const style = element.getAttribute('style') || '';
+                    
+                                    // Font mapping from Quill classes to real fonts
+                                    const fontClassMap = {
+                                        'ql-font-aptos': 'Aptos',
+                                        'ql-font-arial': 'Arial',
+                                        'ql-font-calibri': 'Calibri',
+                                        'ql-font-times': 'Times New Roman',
+                                        'ql-font-monospace': 'Courier New', // fixed
+                                        'ql-font-serif': 'Times New Roman',
+                                        'ql-font-georgia': 'Georgia',
+                                        'ql-font-verdana': 'Verdana',
+                                        'ql-font-helvetica': 'Helvetica'
+                                    };
+                    
+                                    // Font size mapping from Quill class
+                                    const fontSizeClassMap = {
+                                        'ql-size-8': 16,
+                                        'ql-size-9': 18,
+                                        'ql-size-10': 20,
+                                        'ql-size-11': 22,
+                                        'ql-size-12': 24,
+                                        'ql-size-14': 28,
+                                        'ql-size-16': 32,
+                                        'ql-size-18': 36,
+                                        'ql-size-20': 40,
+                                        'ql-size-22': 44,
+                                        'ql-size-24': 48,
+                                        'ql-size-26': 52,
+                                        'ql-size-28': 56,
+                                        'ql-size-36': 72,
+                                        'ql-size-48': 96,
+                                        'ql-size-72': 144
+                                    };
+                    
+                                    // Parse style properties
+                                    const styleProps = {};
+                                    style.split(';').forEach(prop => {
+                                        const [key, value] = prop.split(':').map(s => s.trim().toLowerCase());
+                                        if (key && value) styleProps[key] = value;
+                                    });
+                    
+                                    const classList = Array.from(element.classList || []);   
+                    
+                                    // Font detection from class or inline style
+                                    let detectedFont = 'Aptos';
+                    
+                                    // Font from class - FIX: Check classes properly
+                                    classList.forEach(cls => {
+                                        console.log('Checking class:', cls);
+                                        if (fontClassMap[cls]) {
+                                            detectedFont = fontClassMap[cls];
+                                            console.log('Font detected from class:', cls, '=>', detectedFont);
+                                        }
+                                    });
+                    
+                                    // Font from style - override class if present
+                                    if (styleProps['font-family']) {
+                                        const cleanedFont = styleProps['font-family'].split(',')[0].replace(/['"]/g, '').trim();
+                                        if (cleanedFont) {
+                                            detectedFont = cleanedFont;
+                                            console.log('Font detected from style:', detectedFont);
+                                        }
+                                    }
+                    
+                                    // FIX: Apply font ONLY if detected, maintain consistent structure
+                                    if (detectedFont) {
+                                        textRunProps.font = {
+                                            name: detectedFont,
+                                            ascii: detectedFont,
+                                            hAnsi: detectedFont,
+                                            cs: detectedFont,
+                                            eastAsia: detectedFont
+                                        };
+                                        console.log('Applied font:', detectedFont);
+                                    }
+                    
+                                    // Font size from class
+                                    classList.forEach(cls => {
+                                        if (fontSizeClassMap[cls]) {
+                                            textRunProps.size = fontSizeClassMap[cls];
+                                            console.log('Applied font size from class:', cls, '=>', textRunProps.size);
+                                        }
+                                    });
+                    
+                                    // Font size from style
+                                    if (styleProps['font-size']) {
+                                        const sizeMatch = styleProps['font-size'].match(/(\d+)px/);
+                                        if (sizeMatch) {
+                                            textRunProps.size = parseInt(sizeMatch[1]) * 2; // DOCX uses half-points
+                                            console.log('Applied font size from style:', textRunProps.size);
+                                        }
+                                    }
+                    
+                                    // Fallback size if none applied
+                                    if (!textRunProps.size) {
+                                        textRunProps.size = 24; // 12pt default
+                                    }
+                    
+                                    // Text color
+                                    if (styleProps['color']) {
+                                        let color = styleProps['color'];
+                                        if (color.startsWith('rgb')) {
+                                            const hexColor = rgbToHex(color);
+                                            if (hexColor) {
+                                                textRunProps.color = hexColor;
+                                            }
+                                        } else if (color.match(/^#[0-9a-f]{6}$/i)) {
+                                            textRunProps.color = color.substring(1).toUpperCase();
+                                        }
+                                    }
+                    
+                                    // Background color
+                                    const supportedBackgroundColors = [
+                                        '#000000', '#444444', '#666666', '#888888', '#AAAAAA', '#CCCCCC', '#EEEEEE',
+                                        '#FFFFFF', '#FF0000', '#FF4500', '#FF9900', '#FFD700', '#FFFF00', '#ADFF2F',
+                                        '#7FFF00', '#00FF00', '#00FA9A', '#40E0D0', '#00CED1', '#1E90FF', '#4682B4',
+                                        '#6495ED', '#6A5ACD', '#800080', '#BA55D3', '#FF69B4', '#FF1493', '#DC143C',
+                                        '#8B0000', '#A52A2A', '#D2691E', '#F4A460', '#DEB887', '#D2B48C', '#BC8F8F',
+                                        '#B0C4DE', '#ADD8E6', '#87CEEB', '#87CEFA', '#B0E0E6', '#AFEEEE', '#E0FFFF'
+                                    ];
+                    
+                                    if (styleProps['background-color']) {
+                                        let bgColor = styleProps['background-color'];
+                                        let hexColor = null;
+                    
+                                        if (bgColor.startsWith('rgb')) {
+                                            hexColor = rgbToHex(bgColor);
+                                        } else if (bgColor.startsWith('#')) {
+                                            hexColor = bgColor.replace('#', '').toUpperCase();
+                                        }
+                    
+                                        if (hexColor && supportedBackgroundColors.includes('#' + hexColor)) {
+                                            textRunProps.shading = {
+                                                type: 'clear',
+                                                color: 'auto',
+                                                fill: hexColor
+                                            };
+                                        }
+                                    }
+                    
+                                    // Bold
+                                    if (styleProps['font-weight'] && styleProps['font-weight'].match(/bold|700|800|900/i)) {
+                                        textRunProps.bold = true;
+                                    }
+                    
+                                    // Italic
+                                    if (styleProps['font-style'] && styleProps['font-style'] === 'italic') {
+                                        textRunProps.italics = true;
+                                    }
+                    
+                                    // Underline / Strike-through
+                                    if (styleProps['text-decoration']) {
+                                        if (styleProps['text-decoration'].includes('underline')) {
+                                            textRunProps.underline = true;
+                                        }
+                                        if (styleProps['text-decoration'].includes('line-through')) {
+                                            textRunProps.strike = true;
+                                        }
+                                    }
+                                };
+                    
+                                // Get paragraph alignment
+                                const getParagraphAlignment = (element) => {
+                                    const classAlignmentMap = {
+                                        'ql-align-center': AlignmentType.CENTER,
+                                        'ql-align-right': AlignmentType.RIGHT,
+                                        'ql-align-justify': AlignmentType.JUSTIFIED,
+                                        'ql-direction-rtl': AlignmentType.RIGHT
+                                    };
+                    
+                                    const style = element.getAttribute('style') || '';
+                                    const classList = Array.from(element.classList || []);
+                    
+                                    for (const cls of classList) {
+                                        if (classAlignmentMap[cls]) {
+                                            return classAlignmentMap[cls];
+                                        }
+                                    }
+                    
+                                    if (style.includes('text-align: center')) {
+                    
+                                        return window.docx.AlignmentType.CENTER;
+                                    } else if (style.includes('text-align: right')) {
+                    
+                                        return window.docx.AlignmentType.RIGHT;
+                                    } else if (style.includes('text-align: justify')) {
+                    
+                                        return window.docx.AlignmentType.JUSTIFIED;
+                                    }
+                    
+                                    return window.docx.AlignmentType.LEFT;
+                                };
+                    
+                                // get paragradh indent
+                                const getParagraphIndentation = (element) => {
+                                    const classList = Array.from(element.classList || []);
+                                    const indentMatch = classList.find(cls => cls.startsWith('ql-indent-'));
+                                    if (indentMatch) {
+                                        const level = parseInt(indentMatch.replace('ql-indent-', ''));
+                                        console.log('indent level----' + level)
+                                        if (!isNaN(level)) {
+                                            return { left: level * 720 };
+                                        }
+                                    }
+                                    return undefined;
+                                };
+                    
+                                const processElement = (element, depth = 0) => {
+                                    const tagName = element.tagName ? element.tagName.toUpperCase() : 'TEXT';
+                                    
+                                    let indent = '  '.repeat(depth);
+                                    console.log(`${indent}Processing element: ${tagName}`, element.outerHTML?.substring(0, 100) || element.textContent);
+                                    console.log('TAGNAME----'+tagName);
+                                    // Fixed text node processing in processElement function
+                                    if (element.nodeType === Node.TEXT_NODE) {
+                                        console.log('TAGNAME 1----'+tagName);
+                                        const text = element.textContent;
+                                        console.log('TAGNAME 2----'+tagName);
+                                        console.log('TEXT BEFORE CLEAN ----------'+text);
+                                        if (text && text.trim()) {
+                                            console.log('TAGNAME 3----'+tagName+'----TEXT----'+text)
+                                            var cleanedText = text
+                                                .replace(/\u00A0/g, ' ')       // replace &nbsp; with space
+                                                .replace(/\s+/g, ' ') 
+                                                     // collapse multiple spaces
+                                                
+                                            if (element.parentElement?.tagName?.toUpperCase() == 'SPAN') {
+                                                console.log('OTHER THANK SPAN')
+                                               // cleanedText = cleanedText.trimStart();
+                                            }
+                                            
+                                            console.log('cleanedText---' + cleanedText)
+                                            if (!cleanedText) return null;
+                                            hasRenderableContent = true;
+                    
+                                            // Initialize with default font - FIX: Set proper default
+                                            let textRunProps = {
+                                                text: cleanedText,
+                                                size: 24,
+                                                font: {
+                                                    name: "Aptos",
+                                                    ascii: "Aptos",
+                                                    hAnsi: "Aptos",
+                                                    cs: "Aptos",
+                                                    eastAsia: "Aptos"
+                                                },
+                                            };
+                    
+                                            // FIX: Apply styles from ALL parent elements, not just direct parent
+                                            let currentElement = element.parentElement;
+                                            while (currentElement && currentElement.tagName && currentElement.tagName.toUpperCase() !== 'BODY') {
+                                                console.log('Processing parent element:', currentElement.tagName, currentElement.className);
+                                                applyInlineStyles(currentElement, textRunProps);
+                                                currentElement = currentElement.parentElement;
+                                            }
+                    
+                                            // Apply tag-specific styles
+                                            let current = element.parentElement;
+                                            const parentTags = [];
+                    
+                                            while (current) {
+                                                parentTags.push(current.tagName.toUpperCase());
+                                                current = current.parentElement;
+                                            }
+                    
+                                            // Debug: log all parent tags
+                                            console.log('All parent tags:', parentTags);
+                                            console.log('Final textRunProps:', textRunProps);
+                    
+                                            // Apply formatting based on any matching parent tag
+                                            if (parentTags.includes('STRONG') || parentTags.includes('B')) {
+                                                textRunProps.bold = true;
+                                            }
+                                            if (parentTags.includes('EM') || parentTags.includes('I')) {
+                                                textRunProps.italics = true;
+                                            }
+                                            if (parentTags.includes('U')) {
+                                                textRunProps.underline = true;
+                                            }
+                                            if (parentTags.includes('S') || parentTags.includes('STRIKE')) {
+                                                textRunProps.strike = { value: true };
+                                            }
+                    
+                                            return new window.docx.TextRun(textRunProps);
+                                        }
+                                        return null;
+                                    }
+                    
+                                    const textRuns = [];
+                                    Array.from(element.childNodes).forEach(child => {
+                                        const childRuns = processElement(child, depth + 1);
+                                        if (childRuns) {
+                                            textRuns.push(...(Array.isArray(childRuns) ? childRuns : [childRuns]));
+                                        }
+                                    });
+                    
+                                    if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(tagName)) {
+                                        if (orientation === 'landscape') {
+                                            hasRenderableContent = true;
+                                            docxChildren.push(
+                                                new window.docx.Paragraph({
+                                                    children: textRuns,
+                                                    spacing: {
+                                                        before: 0,
+                                                        after: 0,
+                                                        line: 240,  // Single line spacing (240 = 1.0, 360 = 1.5, 480 = 2.0)
+                                                        lineRule: "auto"
+                                                    },
+                                                    // alignment: window.docx.AlignmentType.CENTER,
+                                                    // alignment: window.docx.AlignmentType.CENTER,
+                                                    indent: {
+                                                        left: 4500  // 720 = 0.5 inch; adjust as needed (e.g., 1440 = 1 inch)
+                                                    }
+                                                })
+                                            );
+                                            return null;
+                                        }
+                    
+                                        // ✅ Skip if this block only contains a <br> or is empty
+                    
+                                        if (textRuns.length === 0) {
+                                            return null;
+                                        }
+                    
+                                        // Detect if it's just a <br>
+                                        const isOnlyBreak = textRuns.length === 1 &&
+                                            textRuns[0].root?.some(node => node.rootKey === 'w:br');
+                    
+                                        if (isOnlyBreak) {
+                                            console.log('BREAK - Adding empty paragraph with Aptos font');
+                                            docxChildren.push(
+                                                new window.docx.Paragraph({
+                                                    children: [
+                                                        new window.docx.TextRun({
+                                                            text: "\u200b", // Zero-width space
+                                                            break: 1,
+                                                            font: {
+                                                                name: "Aptos",
+                                                                ascii: "Aptos",
+                                                                hAnsi: "Aptos", 
+                                                                cs: "Aptos",
+                                                                eastAsia: "Aptos"
+                                                            },
+                                                            size: 24
+                                                        })
+                                                    ],
+                                                    spacing: {
+                                                        before: 0,
+                                                        after: 0,
+                                                        line: 240,
+                                                        lineRule: "auto"
+                                                    }
+                                                })
+                                            );
+                                            return null;
+                                        }
+                    
+                    
+                                        console.log('textRuns!! ' + JSON.stringify(textRuns))
+                                        hasRenderableContent = true;
+                                        docxChildren.push(
+                                            new window.docx.Paragraph({
+                                                children: textRuns,
+                                                spacing: {
+                                                    before: 0,
+                                                    after: 0,
+                                                    line: 240,  // Single line spacing
+                                                    lineRule: "auto"
+                                                },
+                                                alignment: getParagraphAlignment(element),
+                                                indent: getParagraphIndentation(element)
+                                            })
+                                        );
+                                        return null;
+                                    }
+                    
+                                    // Fix 2: Update list items spacing
+                                    else if (tagName === 'UL' || tagName === 'OL') {
+                                        const listItems = element.querySelectorAll('li');
+                                        listItems.forEach(li => {
+                                            const liTextRuns = [];
+                                            Array.from(li.childNodes).forEach(child => {
+                                                const tr = processElement(child, depth + 1);
+                                                if (tr) liTextRuns.push(...(Array.isArray(tr) ? tr : [tr]));
+                                            });
+                                            if (liTextRuns.length > 0) {
+                                                docxChildren.push(
+                                                    new window.docx.Paragraph({
+                                                        children: liTextRuns,
+                                                        bullet: tagName === 'UL' ? { level: 0 } : undefined,
+                                                        numbering: tagName === 'OL' ? { reference: 'default', level: 0 } : undefined,
+                                                        alignment: getParagraphAlignment(li),
+                                                        spacing: {
+                                                            before: 0,
+                                                            after: 0,
+                                                            line: 240,
+                                                            lineRule: "auto"
+                                                        }
+                                                    })
+                                                );
+                                                hasRenderableContent = true;
+                                            }
+                                        });
+                                        return null;
+                                    }
+                    
+                                    // Fix 3: Update page break paragraph
+                                    else if (tagName === 'BR') {
+                                        const style = element.getAttribute('style') || '';
+                                        if (style.includes('page-break-before:always')) {
+                                            console.log('Adding page break');
+                                            hasRenderableContent = true;
+                                            docxChildren.push(
+                                                new window.docx.Paragraph({
+                                                    children: [new PageBreak()],
+                                                    spacing: {
+                                                        before: 0,
+                                                        after: 0,
+                                                        line: 240,  // Single line spacing
+                                                        lineRule: "auto"
+                                                    },
+                                                    alignment: getParagraphAlignment(element),
+                                                    indent: getParagraphIndentation(element)
+                                                })
+                                            );
+                                            return null;
+                                        }
+                                        // For regular line breaks
+                                        console.log(`${indent}Adding line break`);
+                                        hasRenderableContent = true;
+                                        return new window.docx.TextRun("").break()
+                                    }
+                    
+                                    // Fix 4: Update image paragraph
+                                    else if (tagName === 'IMG') {
+                                        try {
+                                            const imageBody = 'https://joycemeyerministries4--c.vf.force.com/servlet/servlet.ImageServer?id=015Aq000005Aowj&oid=00DAq000008hu8n&lastMod=1746699752000';
+                                            //let data, imageType;
+                                            console.log('element>> ' + element);
+                                            var url = element.getAttribute('src');
+                    
+                                            var base64Image = '';
+                                            base64ImageList.forEach(images => {
+                                                if (url.includes(images.Id)) {
+                                                    base64Image = images.base64String
+                                                }
+                                            });
+                                            console.log('base64Image>> ' + base64Image);
+                    
+                                            const fileType = 'png';
+                                            const image = docx.Media.addImage(document, base64Image, element.width, element.height);
+                    
+                                            // Add image to a new paragraph with proper spacing
+                                            docxChildren.push(
+                                                new window.docx.Paragraph({
+                                                    children: [image],
+                                                    spacing: {
+                                                        before: 0,
+                                                        after: 0,
+                                                        line: 240,
+                                                        lineRule: "auto"
+                                                    }
+                                                })
+                                            );
+                                            hasRenderableContent = true;
+                                            return null;
+                                        }
+                                        catch (error) {
+                                            console.error('Error processing image:', error.message);
+                                            console.error('Full error:', error);
+                                            console.error('element:', element.outerHTML);
+                                            return null;
+                                        }
+                    
+                                    }
+                    
+                                    
+                                        else if (tagName === 'TABLE') {
+
+    const rows = [];
+    const trList = element.querySelectorAll('tr');
+
+    // 🔍 Detect borders
+    const tableHasBorder =
+        hasVisibleBorder(element.style) ||
+        Array.from(element.querySelectorAll('td')).some(td => hasVisibleBorder(td.style));
+
+    const borders = tableHasBorder
+        ? {
+            top: { style: window.docx.BorderStyle.SINGLE, size: 1 },
+            bottom: { style: window.docx.BorderStyle.SINGLE, size: 1 },
+            left: { style: window.docx.BorderStyle.SINGLE, size: 1 },
+            right: { style: window.docx.BorderStyle.SINGLE, size: 1 },
+            insideHorizontal: { style: window.docx.BorderStyle.SINGLE, size: 1 },
+            insideVertical: { style: window.docx.BorderStyle.SINGLE, size: 1 }
+        }
+        : {
+            top: { style: window.docx.BorderStyle.NONE },
+            bottom: { style: window.docx.BorderStyle.NONE },
+            left: { style: window.docx.BorderStyle.NONE },
+            right: { style: window.docx.BorderStyle.NONE },
+            insideHorizontal: { style: window.docx.BorderStyle.NONE },
+            insideVertical: { style: window.docx.BorderStyle.NONE }
+        };
+
+    trList.forEach(tr => {
+        const cells = [];
+
+        tr.querySelectorAll('td').forEach(td => {
+            const width = pxToTwip(td.style.width);
+
+            cells.push(
+                new window.docx.TableCell({
+                    width: width ? { size: width, type: window.docx.WidthType.DXA } : undefined,
+                    verticalAlign: window.docx.VerticalAlign.TOP,
+                    margins: {
+                        top: 100,
+                        bottom: 100,
+                        left: 120,
+                        right: 120
+                    },
+                    children: buildCellParagraphs(td)
+                })
+            );
+        });
+
+        rows.push(new window.docx.TableRow({ children: cells }));
+    });
+
+    docxChildren.push(
+        new window.docx.Table({
+            rows,
+            width: { size: 100, type: window.docx.WidthType.PERCENTAGE },
+            layout: window.docx.TableLayoutType.FIXED,
+            borders
+        })
+    );
+
+    hasRenderableContent = true;
+    return null; // ⛔ VERY IMPORTANT
+}
+
+
+                                    
+                                    else if (['STRONG', 'B'].includes(tagName)) {
+                                        textRuns.forEach(run => {
+                                            run.bold = true;
+                                            applyInlineStyles(element, run);
+                                        });
+                                        return textRuns;
+                                    }
+                                    else if (['EM', 'I'].includes(tagName)) {
+                                        textRuns.forEach(run => {
+                                            run.italics = true;
+                                            applyInlineStyles(element, run);
+                                        });
+                                        return textRuns;
+                                    }
+                                    else if (['U'].includes(tagName)) {
+                                        textRuns.forEach(run => {
+                                            run.underline = true;
+                                            applyInlineStyles(element, run);
+                                        });
+                                        return textRuns;
+                                    }
+                                    else if (['S', 'STRIKE'].includes(tagName)) {
+                                        textRuns.forEach(run => {
+                                            run.strike = true;
+                                            applyInlineStyles(element, run);
+                                        });
+                                        return textRuns;
+                                    }
+                                    else if (tagName === 'SPAN') {
+                                        textRuns.forEach(run => applyInlineStyles(element, run));
+                                        return textRuns.length > 0 ? textRuns : null;
+                                    }
+                                    else {
+                                        return textRuns.length > 0 ? textRuns : null;
+                                    }
+                                };
+                    
+                                Array.from(elements).forEach(element => {
+                                    processElement(element);
+                                });
+                    
+                                console.log('Final docxChildren length:', docxChildren.length);
+                                console.log('Final docxChildren content:', JSON.stringify(docxChildren.map(child => ({
+                                    type: child.constructor.name,
+                                    text: child.children?.map(c => c.text || c.constructor.name).join(' ') || 'No children'
+                                }), null, 2)));
+                    
+                                if (!hasRenderableContent) {
+                                    console.warn('No renderable content parsed, adding fallback paragraph');
+                                    docxChildren = [
+                                        new window.docx.Paragraph({
+                                            children: [
+                                                new window.docx.TextRun({
+                                                    text: 'No content available',
+                                                    size: 24,
+                                                    font: {
+                                                        name: "Aptos",
+                                                        ascii: "Aptos",
+                                                        hAnsi: "Aptos",
+                                                        cs: "Aptos",
+                                                        eastAsia: "Aptos"
+                                                    },
+                                                })
+                                            ],
+                                            spacing: {
+                                                before: 0,
+                                                after: 0,
+                                                line: 240,
+                                                lineRule: "auto"
+                                            }
+                                        })
+                                    ];
+                                }
+                                return docxChildren;
+                            } catch (error) {
+                                console.error('Error in convertHtmlToDocx:', error);
+                                // Fix 6: Update error handling paragraph
+                                return [
+                                    new window.docx.Paragraph({
+                                        children: [
+                                            new window.docx.TextRun({
+                                                text: 'Error parsing content: ' + error.message,
+                                                size: 24,
+                                                font: {
+                                                    name: "Aptos",
+                                                    ascii: "Aptos",
+                                                    hAnsi: "Aptos",
+                                                    cs: "Aptos",
+                                                    eastAsia: "Aptos"
+                                                },
+                                            })
+                                        ],
+                                        spacing: {
+                                            before: 0,
+                                            after: 0,
+                                            line: 240,
+                                            lineRule: "auto"
+                                        }
+                                    })
+                                ];
+                            }
+                        }
+                    
+                        function getBase64Image(img) {
+                            const canvas = document.createElement("canvas");
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            const ctx = canvas.getContext("2d");
+                            ctx.drawImage(img, 0, 0);
+                    
+                            const dataURL = canvas.toDataURL("image/png"); // returns data:image/png;base64,...
+                            console.log('DataUrl>> ' + dataURL);
+                            return dataURL;
+                        }
+                    
+                        function getContentBetween(htmlContent, startTag = '<body>', endTag = '</body>') {
+        if (!htmlContent || typeof htmlContent !== 'string') {
+            console.warn('Invalid htmlContent:', htmlContent);
+            return '<p>No content available</p>';
+        }
+
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            // Find the innermost body content (e.g., inside htmlContentToWord)
+            const innerContentDiv = doc.querySelector('#htmlContentToWord');
+            if (innerContentDiv) {
+                console.log('Found htmlContentToWord, extracting inner body');
+                const innerDoc = parser.parseFromString(innerContentDiv.innerHTML, 'text/html');
+                const innerBody = innerDoc.querySelector('body');
+                if (innerBody) {
+                    return innerBody.innerHTML.trim();
+                }
+            }
+            // Fallback to first body
+            const body = doc.querySelector('body');
+            if (body) {
+                return body.innerHTML.trim();
+            }
+            console.warn('No body tag found, returning cleaned htmlContent');
+            return htmlContent.replace(/<script[\s\S]*?\/script>|<style[\s\S]*?\/style>/gi, '').trim();
+        } catch (error) {
+            console.warn('DOM parsing failed:', error.message);
+            // Fallback to string-based extraction
+            const startIndex = htmlContent.indexOf(startTag) + startTag.length;
+            const endIndex = htmlContent.lastIndexOf(endTag); // Use lastIndexOf to get innermost body
+            if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+                console.warn('Body tags not found, returning cleaned htmlContent');
+                return htmlContent.replace(/<script[\s\S]*?\/script>|<style[\s\S]*?\/style>/gi, '').trim();
+            }
+            return htmlContent.substring(startIndex, endIndex).trim();
+        }
+    }
+                </script>
+
                 <div id="htmlContentToWord" style="visibility:visible;">
                     <apex:outputtext value="{!output}" escape="false" />
                 </div>
@@ -263,7 +1379,6 @@
 
                 <!-- Download Button -->
                 
-            </body>
-        </html>
+          
     </div>
 </apex:page>

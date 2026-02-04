@@ -540,4 +540,31 @@ global without sharing class PreviewTemplatePDF_AC {
        // system.debug('output *********************' + output);
         return null;
     }    
+    
+    @RemoteAction // Change/Add this for Visualforce
+    global static List<ImageClass> getImageAsBase64FromDocument(String documentString) {
+        system.debug('documentString '+ documentString);
+        List<String> documentId = (List<String>) JSON.deserialize(documentString, List<String>.class);
+        // ... your existing logic ...
+        List<Document> docList = [
+            SELECT Id, Body, ContentType 
+            FROM Document 
+            WHERE Id IN :documentId 
+            LIMIT 50 // Increased limit as you're passing a list
+        ];
+        system.debug('Testing');
+        List<ImageClass> imageClassList = new List<ImageClass>();
+        for(Document doc : docList){
+            ImageClass ic = new ImageClass();
+            ic.Id = doc.Id;
+            ic.base64String = 'data:' + doc.ContentType + ';base64,' + EncodingUtil.base64Encode(doc.Body);
+            imageClassList.add(ic);
+        }
+        return imageClassList;
+    }
+
+    global class ImageClass {
+        global String Id{get;set;}
+        global String base64String{get;set;}
+    }
 }
